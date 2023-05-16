@@ -11,7 +11,7 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
-      <div className="fixed flex flex-col top-0 left-0 w-64 bg-light-gray dark:bg-dark-gray h-full">
+      <div className="fixed flex flex-col top-0 left-0 w-64 bg-light-gray dark:bg-dark-gray themeTransition h-full">
         <div className="flex items-center justify-start p-6 h-20 border-b border-orange-500">
           <div>
             <Image src="/sidebar/maxter-logo.png" width={180} height={180} alt="maxter website logo" />

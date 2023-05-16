@@ -2,26 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-white dark:bg-medium-gray dark:text-white
+}
+
+.sideBarButton {
+  @apply relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 
+  border-l-4 border-transparent hover:border-orange-500 pr-6
+}
+
+.sideBarCategories {
+  @apply flex flex-row items-center h-8
+}
+
+.sideBarCategoriesText {
+  @apply text-sm tracking-wide dark:text-gray-400 text-gray-600 font-semibold
+}
+
+.sideBarIcon {
+  @apply inline-flex justify-center items-center ml-4
+}
+
+.sideBarIconText {
+  @apply ml-2 text-sm tracking-wide truncate
+}
+
+.sideBarSvg {
+  @apply w-5 h-5
 }

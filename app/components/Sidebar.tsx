@@ -25,6 +25,15 @@ export const Sidebar = (props: SidebarProps) => {
     ? "/sidebar/maxter-logo-dark.png"
     : "/sidebar/maxter-logo.png";
 
+  const logoSrc2 = () => {
+    if (isDarkTheme) {
+      return "/sidebar/maxter-logo-dark.png";
+    } else {
+      return "/sidebar/maxter-logo.png";
+    }
+  };
+  
+
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
       <div className="flex flex-col top-0 left-0 w-64 bg-gray-200 dark:bg-dark-gray themeTransition h-screen">
@@ -32,8 +41,8 @@ export const Sidebar = (props: SidebarProps) => {
           <div>
             <Image
               src={logoSrc}
-              width={180}
-              height={180}
+              width={256}
+              height={75}
               alt="maxter website logo"
             />
           </div>
@@ -48,7 +57,7 @@ export const Sidebar = (props: SidebarProps) => {
               </div>
             </li>
             <li>
-              <a href="#" className="sideBarButton">
+              <a href="/" className="sideBarButton">
                 <span className="sideBarIcon">
                   <TfiHome className="sideBarIconSize" />
                 </span>
@@ -68,7 +77,7 @@ export const Sidebar = (props: SidebarProps) => {
               </a>
             </li>
             <li>
-              <a href="#" className="sideBarButton">
+              <a href="/my-videos" className="sideBarButton">
                 <span className="sideBarIcon">
                   <TfiVideoCamera
                     width={36}

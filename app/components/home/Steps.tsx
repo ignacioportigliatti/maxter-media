@@ -9,7 +9,6 @@ export const Steps = () => {
         description="El material que adquiriste con tu código de compra, podes encontrarlos en el menú de la izquierda."
         stepNumber={1}
         icon={<AiOutlineSearch className="w-8 h-8" />}
-        ribbonColor="red-500"
       />
       <Step
         title="Mirá"

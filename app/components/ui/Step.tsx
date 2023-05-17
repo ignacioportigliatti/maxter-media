@@ -14,7 +14,7 @@ export const Step = (props: StepProps) => {
     description,
     stepNumber,
     icon = <AiOutlineAccountBook className="w-8 h-8" />,
-    ribbonColor = "orange-500",
+    ribbonColor = "bg-orange-500",
   } = props;
   return (
     <div className="content-center lg:flex lg:justify-center lg:items-center">
@@ -31,11 +31,11 @@ export const Step = (props: StepProps) => {
               <p className="pt-1 text-sm text-gray-600">{description}</p>
             </div>
           </div>
-          <div className="absolute flex justify-center items-center z-20 w-12 h-12 mt-6 ml-6 bg-white text-blue-500 rounded-full">
+          <div className="absolute flex justify-center items-center z-20 w-12 h-12 mt-6 ml-6 bg-white text-orange-500 rounded-full">
             {icon}
           </div>
           <div
-            className={`absolute top-0 left-0 z-10 w-24 h-40 py-20 text-5xl font-bold text-center text-white bg-${ribbonColor} rounded-lg`}
+            className={`absolute top-0 left-0 z-10 w-24 h-40 py-20 text-5xl font-bold text-center text-white ${ribbonColor} rounded-lg`}
           >
             {stepNumber < 10 ? `0${stepNumber}` : stepNumber}
           </div>

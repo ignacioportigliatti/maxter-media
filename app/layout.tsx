@@ -18,7 +18,7 @@ export default function RootLayout({
           <div className="hidden lg:flex">
             <Sidebar />
           </div>
-          <div className="lg:h-screen p-7 flex flex-1 w-full">
+          <div className="lg:h-screen flex w-full">
             {children}
           </div>
         </div>

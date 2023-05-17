@@ -1,4 +1,5 @@
 import { Sidebar } from "./components/Sidebar";
+import './globals.css'
 
 export const metadata = {
   title: "Create Next App",
@@ -17,7 +18,7 @@ export default function RootLayout({
           <div className="hidden lg:flex">
             <Sidebar />
           </div>
-          <div className="h-screen p-7 flex flex-1">
+          <div className="lg:h-screen p-7 flex flex-1 w-full">
             {children}
           </div>
         </div>

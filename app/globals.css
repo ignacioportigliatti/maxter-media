@@ -3,7 +3,23 @@
 @tailwind utilities;
 
 body {
-  @apply bg-white dark:bg-medium-gray dark:text-white themeTransition
+  @apply bg-white dark:bg-medium-gray dark:text-white themeTransition 
+}
+
+h1 {
+  @apply text-3xl font-bold text-gray-900 dark:text-white themeTransition
+}
+
+h2 {
+  @apply text-xl font-semibold text-gray-900 dark:text-white themeTransition
+}
+
+h4 {
+  @apply font-semibold text-gray-900 dark:text-white themeTransition
+}
+
+p {
+  @apply text-sm text-gray-600 dark:text-gray-400 themeTransition
 }
 
 .themeTransition {
@@ -31,6 +47,6 @@ body {
   @apply ml-2 text-sm tracking-wide truncate dark:text-light-gray text-dark-gray
 }
 
-.sideBarSvg {
+.sideBarIconSize {
   @apply w-5 h-5
 }

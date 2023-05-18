@@ -1,5 +1,6 @@
-import React from "react";
-import { UploadForm } from "../components/upload/UploadForm";
+'use client'
+
+import { UploadTabs } from "../components/upload/";
 
 export default function UploadPage() {
   return (
@@ -8,7 +9,7 @@ export default function UploadPage() {
         <h2>Subir Material</h2>
       </div>
       <div className="mx-auto">
-        <UploadForm />
+        <UploadTabs />
       </div>
     </div>
   );

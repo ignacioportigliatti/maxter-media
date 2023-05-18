@@ -19,12 +19,13 @@ export const Sidebar = (props: SidebarProps) => {
 
   const handleThemeChange = () => {
     document.documentElement.classList.toggle("dark");
-    setIsDarkTheme((prevTheme) => !prevTheme);
+    setIsDarkTheme((isDarkTheme) => !isDarkTheme);
   };
 
-  const logoSrc = isDarkTheme
-    ? "/sidebar/maxter-logo-dark.png"
-    : "/sidebar/maxter-logo.png";
+  const logoSrc =
+    isDarkTheme === true
+      ? "/sidebar/maxter-logo-dark.png"
+      : "/sidebar/maxter-logo.png";
 
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
@@ -115,7 +116,7 @@ export const Sidebar = (props: SidebarProps) => {
               </div>
             </li>
             <li>
-              <a href="#" className="sideBarButton">
+              <a href="/groups" className="sideBarButton">
                 <span className="sideBarIcon">
                   <AiOutlineUser className="sideBarIconSize" />
                 </span>
@@ -123,7 +124,7 @@ export const Sidebar = (props: SidebarProps) => {
               </a>
             </li>
             <li>
-              <a href="#" className="sideBarButton">
+              <a href="/agencies" className="sideBarButton">
                 <span className="sideBarIcon">
                   <AiOutlineGroup className="sideBarIconSize" />
                 </span>

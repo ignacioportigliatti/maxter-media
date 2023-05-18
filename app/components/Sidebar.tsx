@@ -9,7 +9,8 @@ import {
   TfiHome,
   TfiExport,
 } from "react-icons/tfi";
-import { TbMoonStars } from "react-icons/tb";
+import { TbFileUpload, TbMoonStars } from "react-icons/tb";
+import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 
 interface SidebarProps {}
 
@@ -24,15 +25,6 @@ export const Sidebar = (props: SidebarProps) => {
   const logoSrc = isDarkTheme
     ? "/sidebar/maxter-logo-dark.png"
     : "/sidebar/maxter-logo.png";
-
-  const logoSrc2 = () => {
-    if (isDarkTheme) {
-      return "/sidebar/maxter-logo-dark.png";
-    } else {
-      return "/sidebar/maxter-logo.png";
-    }
-  };
-  
 
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
@@ -115,6 +107,35 @@ export const Sidebar = (props: SidebarProps) => {
                   <TfiExport className="sideBarIconSize" />
                 </span>
                 <span className="sideBarIconText">Cerrar Sesión</span>
+              </a>
+            </li>
+            <li className="px-5">
+              <div className="sideBarCategories">
+                <div className="sideBarCategoriesText">Admin</div>
+              </div>
+            </li>
+            <li>
+              <a href="#" className="sideBarButton">
+                <span className="sideBarIcon">
+                  <AiOutlineUser className="sideBarIconSize" />
+                </span>
+                <span className="sideBarIconText">Grupos</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" className="sideBarButton">
+                <span className="sideBarIcon">
+                  <AiOutlineGroup className="sideBarIconSize" />
+                </span>
+                <span className="sideBarIconText">Empresas</span>
+              </a>
+            </li>
+            <li>
+              <a href="/upload" className="sideBarButton">
+                <span className="sideBarIcon">
+                  <TbFileUpload className="sideBarIconSize" />
+                </span>
+                <span className="sideBarIconText">Subir Material</span>
               </a>
             </li>
           </ul>

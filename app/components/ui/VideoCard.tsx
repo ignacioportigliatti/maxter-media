@@ -3,10 +3,11 @@ interface Props {
   agency: string;
   duration: string;
   uploadedAt: string;
+  thumbSrc?: string;
 }
 
 export const VideoCard = (props: Props) => {
-  const { title, agency, duration, uploadedAt } = props;
+  const { title, agency, duration, uploadedAt, thumbSrc = "https://picsum.photos/seed/59/300/200" } = props;
 
   return (
     <div>
@@ -15,7 +16,7 @@ export const VideoCard = (props: Props) => {
           <div className="relative">
             <a href="#">
               <img
-                src="https://picsum.photos/seed/59/300/200"
+                src={thumbSrc}
                 className="w-96 h-auto"
               />
             </a>

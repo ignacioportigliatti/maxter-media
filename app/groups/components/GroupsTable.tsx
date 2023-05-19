@@ -30,7 +30,10 @@ export const GroupsTable = (props: GroupsTableProps) => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
-              <table key='groups-table' className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <table
+                key="groups-table"
+                className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+              >
                 <thead className="bg-gray-50 dark:bg-dark-gray">
                   <tr>
                     <th
@@ -88,17 +91,20 @@ export const GroupsTable = (props: GroupsTableProps) => {
                     </th>
                   </tr>
                 </thead>
-                <tbody key='body' className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+                <tbody
+                  key="body"
+                  className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]"
+                >
                   {groups.map((group, index) => (
-                    <tr key='data'>
+                    <tr key={index}>
                       <td
-                        key='grupo'
+                        key={`grupo-${index}`}
                         className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
                       >
                         <div className="inline-flex items-center gap-x-3">
                           <div className="flex items-center gap-x-2">
                             <div>
-                              <h2 className="font-medium text-gray-800 dark:text-white ">
+                              <h2 className="font-medium text-gray-800 dark:text-white">
                                 {group}
                               </h2>
                             </div>
@@ -106,22 +112,36 @@ export const GroupsTable = (props: GroupsTableProps) => {
                         </div>
                       </td>
 
-                      <td key='empresa' className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                      <td
+                        key={`empresa-${index}`}
+                        className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
+                      >
                         <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-
                         <h2 className="text-sm">{agencies[index]}</h2>
                       </td>
 
-                      <td key='coordinador' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td
+                        key={`coordinador-${index}`}
+                        className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                      >
                         {coordinators[index]}
                       </td>
-                      <td key='escuela' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td
+                        key={`escuela-${index}`}
+                        className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                      >
                         {schools[index]}
                       </td>
-                      <td key='salida' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td
+                        key={`salida-${index}`}
+                        className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                      >
                         {entries[index]}
                       </td>
-                      <td key='entrada' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td
+                        key={`entrada-${index}`}
+                        className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                      >
                         {exits[index]}
                       </td>
 

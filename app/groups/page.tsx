@@ -1,6 +1,6 @@
+"use client";
+
 import { GroupsTable } from "./components/GroupsTable";
-
-
 
 export default function GroupsPage() {
 

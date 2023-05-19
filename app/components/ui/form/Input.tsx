@@ -3,11 +3,13 @@ interface InputProps {
   type: string;
   label: string;
   required?: boolean;
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const Input = (props: InputProps) => {
 
-  const { id, type, label, required = false, } = props;
+  const { id, type, label, required = false, value, onChange } = props;
 
   return (
     <div>
@@ -15,6 +17,8 @@ export const Input = (props: InputProps) => {
         {label}
       </label>
       <input
+        value={value}
+        onChange={onChange}
         required={required}
         id={id}
         type={type}

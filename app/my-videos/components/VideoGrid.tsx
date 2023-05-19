@@ -1,4 +1,4 @@
-import { VideoCard } from "../ui/VideoCard";
+import { VideoCard } from "../../components/ui/VideoCard";
 
 interface Props {}
 

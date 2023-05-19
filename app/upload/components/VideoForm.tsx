@@ -1,4 +1,4 @@
-import { FileUpload, Input, Select, TextArea } from "../ui/form";
+import { FileUpload, Input, Select, TextArea } from "@/app/components/ui/form";
 
 export const VideoForm = () => {
   const empresas = ["Astros", "Eilat", "Setil", "Pretti"];
@@ -14,7 +14,12 @@ export const VideoForm = () => {
           </div>
           <div className="grid grid-cols-1 mt-2 gap-2">
             <TextArea id="observaciones" label="Observaciones" />
-            <FileUpload id="file" label="Subida de Archivos" />
+            <FileUpload 
+                      label="Subir Videos"
+                      id="videos"
+                      buttonText="Subir Videos"
+                      description="Subí los archivos .MP4 de cada excursión."
+                    />
           </div>
 
           <div className="flex justify-end mt-6">

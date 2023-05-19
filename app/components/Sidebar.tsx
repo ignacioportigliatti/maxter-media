@@ -9,7 +9,7 @@ import {
   TfiHome,
   TfiExport,
 } from "react-icons/tfi";
-import { TbFileUpload, TbMoonStars } from "react-icons/tb";
+import { TbFileUpload, TbMoonStars, TbQrcode } from "react-icons/tb";
 import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 
 interface SidebarProps {}
@@ -30,12 +30,12 @@ export const Sidebar = (props: SidebarProps) => {
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
       <div className="flex flex-col top-0 left-0 w-64 bg-gray-200 dark:bg-dark-gray themeTransition h-screen">
-        <div className="flex items-center justify-start p-6 h-20 border-b border-orange-500">
+        <div className="flex items-center justify-center p-6 h-20 border-b border-orange-500">
           <div>
             <Image
               src={logoSrc}
-              width={256}
-              height={75}
+              width={128}
+              height={26}
               alt="maxter website logo"
             />
           </div>
@@ -95,7 +95,7 @@ export const Sidebar = (props: SidebarProps) => {
               </a>
             </li>
             <li>
-              <a href="#" onClick={handleThemeChange} className="sideBarButton">
+              <a onClick={handleThemeChange} className="sideBarButton cursor-pointer">
                 <span className="sideBarIcon">
                   <TbMoonStars className="sideBarIconSize" />
                 </span>
@@ -137,6 +137,14 @@ export const Sidebar = (props: SidebarProps) => {
                   <TbFileUpload className="sideBarIconSize" />
                 </span>
                 <span className="sideBarIconText">Subir Material</span>
+              </a>
+            </li>
+            <li>
+              <a href="/upload" className="sideBarButton">
+                <span className="sideBarIcon">
+                  <TbQrcode className="sideBarIconSize" />
+                </span>
+                <span className="sideBarIconText">Generar Códigos</span>
               </a>
             </li>
           </ul>

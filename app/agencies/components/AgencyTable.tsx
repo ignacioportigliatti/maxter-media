@@ -1,7 +1,10 @@
 "use client";
 
-import { TfiArrowLeft, TfiArrowRight } from "react-icons/tfi";
+import { useState } from "react";
+import { TfiArrowLeft, TfiArrowRight, TfiClose } from "react-icons/tfi";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { FileUpload, Input } from "@/app/components/ui";
+import NewAgencyModal from "./NewAgencyModal";
 
 interface EnterpriseTableProps {
   names: string[];
@@ -14,6 +17,11 @@ interface EnterpriseTableProps {
 
 export const AgencyTable = (props: EnterpriseTableProps) => {
   const { names, locations, groups, phones, emails, imgSources } = props;
+  const [showModal, setShowModal] = useState(false);
+
+  const handleToggleModal = () => {
+    setShowModal((modal) => !modal);
+  };
 
   return (
     <div>
@@ -61,9 +69,10 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
                     <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
                       <button
                         className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
-                        dark:bg-medium-gray dark:hover:bg-orange-500 bg-gray-200 font-semibold"
+                        dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
+                        onClick={handleToggleModal}
                       >
-                        + Agregar nuevo
+                        <span className="font-bold">+</span> Agregar
                       </button>
                     </th>
                   </tr>
@@ -165,6 +174,13 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
 
           <TfiArrowRight />
         </a>
+      </div>
+
+      {/* Add Modal */}
+      <div>
+        {showModal === true ? (
+          <NewAgencyModal toggleModal={handleToggleModal} />
+        ) : null}
       </div>
     </div>
   );

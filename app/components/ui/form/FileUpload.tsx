@@ -1,18 +1,20 @@
 interface FileUploadProps {
   id: string;
   label: string;
+  buttonText: string;
+  description: string;
 }
 
 export const FileUpload = (props: FileUploadProps) => {
 
-  const { id, label } = props;
+  const { id, label, buttonText, description } = props;
 
   return (
       <div>
             <label className="text-dark-gray dark:text-light-gray">
               {label}
             </label>
-            <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed ">
+            <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500  border-gray-200 border-dashed ">
               <div className="space-y-1 text-center">
                 <svg
                   className="mx-auto h-12 w-12 text-dark-gray dark:text-white"
@@ -30,7 +32,7 @@ export const FileUpload = (props: FileUploadProps) => {
                 </svg>
                 <div className="flex text-sm text-gray-600">
                   <label className="relative cursor-pointer px-2 py-1 dark:bg-white bg-gray-300 font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
-                    <span className="">Subir Archivos</span>
+                    <span className="">{buttonText}</span>
                     <input
                       id={id}
                       type="file"
@@ -40,7 +42,7 @@ export const FileUpload = (props: FileUploadProps) => {
                   </label>
                   <p className="pl-1 text-dark-gray dark:text-white self-center">o arrastrá acá</p>
                 </div>
-                <p className="text-xs text-dark-gray dark:text-white">Subí los archivos .MP4 de cada excursión.</p>
+                <p className="text-xs text-dark-gray dark:text-white">{description}</p>
               </div>
             </div>
           </div>

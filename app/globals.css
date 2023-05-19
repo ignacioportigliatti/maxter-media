@@ -60,3 +60,8 @@ p {
   @apply flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-transparent 
   border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-500 hover:text-white
 }
+
+.button {
+  @apply px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-transparent 
+  border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-500 hover:text-white
+}

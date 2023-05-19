@@ -12,7 +12,7 @@ export const FolderUpload = (props: FolderUploadProps) => {
               <label className="text-dark-gray dark:text-light-gray">
                 {label}
               </label>
-              <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed ">
+              <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-500 border-dashed ">
                 <div className="space-y-1 text-center">
                   <svg
                     className="mx-auto h-12 w-12 text-dark-gray dark:text-white"

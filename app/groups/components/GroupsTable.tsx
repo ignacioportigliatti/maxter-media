@@ -2,6 +2,8 @@
 
 import { TfiArrowLeft, TfiArrowRight } from "react-icons/tfi";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { useState } from "react";
+import NewGroupModal from "./NewGroupModal";
 
 interface GroupsTableProps {
   groups: string[];
@@ -14,6 +16,11 @@ interface GroupsTableProps {
 
 export const GroupsTable = (props: GroupsTableProps) => {
   const { groups, coordinators, schools, agencies, entries, exits } = props;
+  const [showModal, setShowModal] = useState(false);
+
+  const handleToggleModal = () => {
+    setShowModal((modal) => !modal);
+  };
 
   return (
     <div>
@@ -23,7 +30,7 @@ export const GroupsTable = (props: GroupsTableProps) => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <table key='groups-table' className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-dark-gray">
                   <tr>
                     <th
@@ -47,9 +54,7 @@ export const GroupsTable = (props: GroupsTableProps) => {
                       scope="col"
                       className=" py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
-
-                        Coordinador
-
+                      Coordinador
                     </th>
 
                     <th
@@ -74,6 +79,7 @@ export const GroupsTable = (props: GroupsTableProps) => {
 
                     <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
                       <button
+                        onClick={handleToggleModal}
                         className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
                         dark:bg-medium-gray dark:hover:bg-orange-500 bg-gray-200 font-semibold"
                       >
@@ -82,48 +88,40 @@ export const GroupsTable = (props: GroupsTableProps) => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+                <tbody key='body' className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
                   {groups.map((group, index) => (
-                    <tr>
+                    <tr key='data'>
                       <td
-                        key={index}
+                        key='grupo'
                         className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
                       >
                         <div className="inline-flex items-center gap-x-3">
                           <div className="flex items-center gap-x-2">
-
                             <div>
                               <h2 className="font-medium text-gray-800 dark:text-white ">
                                 {group}
                               </h2>
-                              <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
-                                Primario
-                              </p>
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
- 
-                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                      <td key='empresa' className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                        <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
 
-                          <h2 className="text-sm">
-                            {agencies[index]}
-                          </h2>
-
+                        <h2 className="text-sm">{agencies[index]}</h2>
                       </td>
 
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td key='coordinador' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                         {coordinators[index]}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td key='escuela' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                         {schools[index]}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td key='salida' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                         {entries[index]}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      <td key='entrada' className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                         {exits[index]}
                       </td>
 
@@ -171,6 +169,13 @@ export const GroupsTable = (props: GroupsTableProps) => {
 
           <TfiArrowRight />
         </a>
+      </div>
+
+      {/* Add Modal */}
+      <div>
+        {showModal === true ? (
+          <NewGroupModal toggleModal={handleToggleModal} />
+        ) : null}
       </div>
     </div>
   );

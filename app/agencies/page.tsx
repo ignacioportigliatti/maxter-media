@@ -1,5 +1,5 @@
 
-import { AgencyTable } from "../components/agencies/AgencyTable";
+import { AgencyTable } from "./components/AgencyTable";
 
 
 export default function EnterprisesPage() {

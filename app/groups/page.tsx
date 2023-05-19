@@ -1,10 +1,18 @@
-import { GroupsTable } from "../components/groups/GroupsTable";
+import { GroupsTable } from "./components/GroupsTable";
 
 
 
 export default function GroupsPage() {
 
     const groups  = [
+        {
+          group: "M001",
+          agency: "Astros Turismo",
+          coordinator: "Juan Perez",
+          school: "Esc. Dalmacio Velez Sarsfield",
+          entry: "01/01/2021",
+          exit: "01/01/2021",
+        },
         {
           group: "M001",
           agency: "Astros Turismo",

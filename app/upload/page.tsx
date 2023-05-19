@@ -1,6 +1,6 @@
 'use client'
 
-import { UploadTabs } from "../components/upload/";
+import { UploadTabs } from "./components";
 
 export default function UploadPage() {
   return (
@@ -8,7 +8,7 @@ export default function UploadPage() {
       <div className="w-full dark:bg-dark-gray themeTransition bg-gray-200 py-[26px] px-7 text-black dark:text-white drop-shadow-sm">
         <h2>Subir Material</h2>
       </div>
-      <div className="mx-auto">
+      <div className="mx-auto p-7">
         <UploadTabs />
       </div>
     </div>

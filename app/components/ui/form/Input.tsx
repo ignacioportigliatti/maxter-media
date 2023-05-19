@@ -2,11 +2,12 @@ interface InputProps {
   id: string;
   type: string;
   label: string;
+  required?: boolean;
 }
 
 export const Input = (props: InputProps) => {
 
-  const { id, type, label } = props;
+  const { id, type, label, required = false, } = props;
 
   return (
     <div>
@@ -14,6 +15,7 @@ export const Input = (props: InputProps) => {
         {label}
       </label>
       <input
+        required={required}
         id={id}
         type={type}
         className="block w-full px-4 py-2 mt-2 text-gray-700 border border-gray-300  bg-transparent

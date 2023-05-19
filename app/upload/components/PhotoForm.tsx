@@ -1,6 +1,9 @@
-import { FolderUpload, Select, TextArea } from "../ui/form";
+import { FolderUpload, Select, TextArea } from "@/app/components/ui/form";
 
 export const PhotoForm = () => {
+
+
+
   const empresas = ["Astros", "Eilat", "Setil", "Pretti"];
   const grupos = ['M249 - Esc. Belgrano', 'M235 - Esc. Velez Sarsfield',];
 

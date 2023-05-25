@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { GroupsTable } from "./components/GroupsTable";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<
@@ -13,6 +14,7 @@ export default function GroupsPage() {
       school: string;
       entry: string;
       exit: string;
+      id: string;
     }>
   >([]);
 
@@ -42,6 +44,7 @@ export default function GroupsPage() {
           schools={groups.map((group) => group.school)}
           entries={groups.map((group) => group.entry)}
           exits={groups.map((group) => group.exit)}
+          ids={groups.map((group) => group.id)}
         />
       </div>
     </div>

@@ -30,9 +30,13 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     // Validación de campos requeridos
     const errors = {
       name: formData.name.trim() === "" ? "El campo Empresa es requerido." : "",
-      phone: formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
+      phone:
+        formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
       email: formData.email.trim() === "" ? "El campo Email es requerido." : "",
-      location: formData.location.trim() === "" ? "El campo Provincia es requerido." : "",
+      location:
+        formData.location.trim() === ""
+          ? "El campo Provincia es requerido."
+          : "",
     };
 
     setFormErrors(errors);

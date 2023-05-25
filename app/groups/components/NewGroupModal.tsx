@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { Agency } from "@prisma/client";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface NewGroupModalProps {
   toggleModal: () => void;
@@ -63,11 +65,29 @@ const NewGroupModal = (props: NewGroupModalProps) => {
       };
 
       // Realizar la solicitud al backend para guardar el grupo en la base de datos
-      await axios.post("/api/new-group", JSON.stringify(updatedFormData), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post("/api/new-group", updatedFormData);
+
+      console.log(response.data);
+
+      if (response.data.success) {
+        await toast.success(`${updatedFormData.master} agregado con éxito!`, {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } else if (response.data.error) {
+        toast.error(response.data.error, {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+      }
 
       console.log(
         "Nuevo grupo creado:",
@@ -83,112 +103,124 @@ const NewGroupModal = (props: NewGroupModalProps) => {
   };
 
   return (
-    <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
-      <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
-        <div className="py-2 bg-orange-500 w-full text-center relative">
-          <h2 className="text-white">Añadir nuevo grupo</h2>
-          <button onClick={toggleModal} className="absolute top-3 right-4">
-            <TfiClose className="w-5 h-5 text-white" />
-          </button>
-        </div>
-        <div className="w-full px-7 flex flex-col justify-center">
-          <form action="">
-            <div className="grid grid-cols-2 gap-4 mx-auto">
-              <Input
-                id="name"
-                label="Grupo/Master"
-                type="text"
-                value={formData.master}
-                onChange={(event) =>
-                  setFormData({ ...formData, master: event.target.value })
-                }
-              />
+    <div>
+      <div>
+      <ToastContainer />
+      </div>
+      <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
+        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
+          <div className="py-2 bg-orange-500 w-full text-center relative">
+            <h2 className="text-white">Añadir nuevo grupo</h2>
+            <button onClick={toggleModal} className="absolute top-3 right-4">
+              <TfiClose className="w-5 h-5 text-white" />
+            </button>
+          </div>
+          <div className="w-full px-7 flex flex-col justify-center">
+            <form action="" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-2 gap-4 mx-auto">
+                <Input
+                  id="name"
+                  label="Grupo/Master"
+                  type="text"
+                  value={formData.master}
+                  onChange={(event) =>
+                    setFormData({ ...formData, master: event.target.value })
+                  }
+                />
 
-<Select
-  options={agencies.map((agency) => ({
-    name: agency.name,
-    value: agency.id,
-  }))}
-  label="Empresa"
-  id="empresa"
-  onChange={(selectedOption) => {
-    const selectedAgency = agencies.find(
-      (agency) => agency.id === selectedOption.target.value
-    );
+                <Select
+                  options={agencies.map((agency) => ({
+                    name: agency.name,
+                    value: agency.id,
+                  }))}
+                  label="Empresa"
+                  id="empresa"
+                  onChange={(selectedOption) => {
+                    const selectedAgency = agencies.find(
+                      (agency) => agency.id === selectedOption.target.value
+                    );
 
-    if (selectedAgency) {
-      setSelectedAgency({
-        id: selectedOption.target.value,
-        name: selectedAgency.name,
-      });
-      setFormData({ ...formData, agency: selectedAgency, agencyId: selectedAgency.id, agencyName: selectedAgency.name });
-      console.log(selectedAgency, formData);
-    }
+                    if (selectedAgency) {
+                      setSelectedAgency({
+                        id: selectedOption.target.value,
+                        name: selectedAgency.name,
+                      });
+                      setFormData({
+                        ...formData,
+                        agency: selectedAgency,
+                        agencyId: selectedAgency.id,
+                        agencyName: selectedAgency.name,
+                      });
+                      console.log(selectedAgency, formData);
+                    }
+                  }}
+                  value={selectedAgency.id}
+                />
 
-  }}
-  value={selectedAgency.id}
-/>
+                <Input
+                  id="coordinador"
+                  label="Coordinador"
+                  type="text"
+                  value={formData.coordinator}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      coordinator: event.target.value,
+                    })
+                  }
+                />
 
+                <Input
+                  id="escuela"
+                  label="Escuela"
+                  type="text"
+                  value={formData.school}
+                  onChange={(event) =>
+                    setFormData({ ...formData, school: event.target.value })
+                  }
+                />
 
-              <Input
-                id="coordinador"
-                label="Coordinador"
-                type="text"
-                value={formData.coordinator}
-                onChange={(event) =>
-                  setFormData({ ...formData, coordinator: event.target.value })
-                }
-              />
+                <Input
+                  id="entrada"
+                  label="Entrada"
+                  type="date"
+                  value={formData.entry.toLocaleString()}
+                  onChange={(event) =>
+                    setFormData({ ...formData, entry: event.target.value })
+                  }
+                />
 
-              <Input
-                id="escuela"
-                label="Escuela"
-                type="text"
-                value={formData.school}
-                onChange={(event) =>
-                  setFormData({ ...formData, school: event.target.value })
-                }
-              />
-
-              <Input
-                id="entrada"
-                label="Entrada"
-                type="date"
-                value={formData.entry.toLocaleString()}
-                onChange={(event) =>
-                  setFormData({ ...formData, entry: event.target.value })
-                }
-              />
-
-              <Input
-                id="salida"
-                label="Salida"
-                type="date"
-                value={formData.exit.toLocaleString()}
-                onChange={(event) =>
-                  setFormData({ ...formData, exit: event.target.value })
-                }
-              />
-            </div>
-            <div className="grid grid-cols-1 pt-5 gap-4">
-              <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">
-                <button
-                  className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
-                  onClick={handleSubmit}
-                >
-                  Agregar Grupo
-                </button>
-                <button
-                  className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
-                  onClick={toggleModal}
-                >
-                  Cancelar
-                </button>
+                <Input
+                  id="salida"
+                  label="Salida"
+                  type="date"
+                  value={formData.exit.toLocaleString()}
+                  onChange={(event) =>
+                    setFormData({ ...formData, exit: event.target.value })
+                  }
+                />
               </div>
-            </div>
-          </form>
+              <div className="grid grid-cols-1 pt-5 gap-4">
+                <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">
+                  <button
+                    className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
+                    type="submit"
+                  >
+                    Agregar Grupo
+                  </button>
+                  <button
+                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
+                    onClick={toggleModal}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
+      
     </div>
   );
 };

@@ -21,8 +21,9 @@ export const Select = (props: Props) => {
         className="block w-full px-4 py-2 mt-2 text-gray-700 border border-gray-300 bg-transparent
         dark:text-gray-300 dark:border-gray-600 focus:border-orange-500 focus:outline-none focus:ring focus:ring-orange-500 transition duration-300"
       >
-        {options.map((option) => {
-          return <option value={option.value} className="dark:bg-dark-gray">{option.name}</option>;
+        <option value="" key="default">-- Selecciona una opción --</option>
+        {options.map((option, index) => {
+          return <option value={option.value} key={index} className="dark:bg-dark-gray">{option.name}</option>;
         })}
       </select>
     </div>

@@ -18,6 +18,16 @@ export default function EnterprisesPage() {
     }>
   >([]);
 
+  const mappedAgencies = agencies.map((agency) => ({
+    name: agency.name,
+    location: agency.location,
+    group: agency.groups,
+    phone: agency.phone,
+    email: agency.email,
+    logoSrc: agency.logoSrc,
+    id: agency.id,
+  }));
+
   useEffect(() => {
     getGroups();
   }, []);
@@ -41,13 +51,7 @@ export default function EnterprisesPage() {
       </div>
       <div className="mx-auto p-7">
         <AgencyTable
-          names={agencies.map((agency) => agency.name)}
-          locations={agencies.map((agency) => agency.location)}
-          groups={agencies.map((agency) => agency.groups)}
-          phones={agencies.map((agency) => agency.phone)}
-          emails={agencies.map((agency) => agency.email)}
-          logoSrc={agencies.map((agency) => agency.logoSrc)}
-          ids={agencies.map((agency) => agency.id)}
+          agencies={mappedAgencies}
         />
       </div>
     </div>

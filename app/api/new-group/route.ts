@@ -2,13 +2,10 @@ import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  //Getting body
   const body = await request.json();
-  //Extracting body
   const { master, coordinator, school, entry, exit, agency, agencyId, agencyName } = body;
-  //Creating group
+
   try {
-    // Crea un nuevo grupo con los datos del formulario
     const group = await prisma.group.create({
       data: {
         master: master,
@@ -17,21 +14,21 @@ export async function POST(request: Request) {
         entry: entry,
         exit: exit,
         agency: {
-          connect: { id: String(agency.id)}, // Conecta el grupo a la agencia existente por su ID
+          connect: { id: String(agencyId) },
         },
-         // Asigna el ID de la agencia al grupo
-        agencyName: agencyName, // Asigna el nombre de la agencia al grupo
+        agencyName: agencyName,
       },
       include: {
-        agency: true, // Incluye la agencia relacionada en la respuesta
+        agency: true,
       },
     });
 
     console.log("Nuevo grupo creado:", group);
-    return NextResponse.json(group);
-    // Realiza cualquier acción adicional o muestra un mensaje de éxito
+    
+    return NextResponse.json({ success: true, data: group }); // Incluye la propiedad 'success' en la respuesta
+    
   } catch (error) {
     console.error("Error al crear el grupo:", error);
-    // Maneja el error de manera adecuada, muestra un mensaje de error, etc.
-}
+    return NextResponse.json({ success: false, error: "Error al crear el grupo" }); // Incluye la propiedad 'success' en la respuesta
+  }
 }

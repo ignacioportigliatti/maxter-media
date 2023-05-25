@@ -6,10 +6,12 @@ interface Props {
   id: string;
   value?: string;
   onChange?: (selectedOption : any) => void;
+  required?: boolean;
+  error?: string;
 }
 
 export const Select = (props: Props) => {
-  const { options, label, id, onChange, value } = props;
+  const { options, label, id, onChange, value, required, error } = props;
 
   return (
     <div>
@@ -18,6 +20,7 @@ export const Select = (props: Props) => {
         value={value}
         onChange={onChange}
         id={id}
+        required={required}
         className="block w-full px-4 py-2 mt-2 text-gray-700 border border-gray-300 bg-transparent
         dark:text-gray-300 dark:border-gray-600 focus:border-orange-500 focus:outline-none focus:ring focus:ring-orange-500 transition duration-300"
       >
@@ -26,6 +29,7 @@ export const Select = (props: Props) => {
           return <option value={option.value} key={index} className="dark:bg-dark-gray">{option.name}</option>;
         })}
       </select>
+      {error && <p className="text-red-500 text-xs">{error}</p>} {/* Mostrar el mensaje de error si existe */}
     </div>
   );
 };

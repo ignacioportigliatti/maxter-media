@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
@@ -6,6 +8,7 @@ import { FileUpload, Input } from "@/app/components/ui";
 
 interface NewAgencyModalProps {
   toggleModal: () => void;
+  
 }
 
 const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {

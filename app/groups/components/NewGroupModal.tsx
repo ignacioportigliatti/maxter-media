@@ -1,23 +1,27 @@
-"use client";
+'use client'
 
-import { Input, Select } from "@/app/components/ui";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { Agency } from "@prisma/client";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Input, Select } from "@/app/components/ui";
 
 interface NewGroupModalProps {
   toggleModal: () => void;
 }
 
-const NewGroupModal = (props: NewGroupModalProps) => {
-  const { toggleModal } = props;
+const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
+  const [formErrors, setFormErrors] = useState({
+    master: "",
+    coordinator: "",
+    school: "",
+    entry: "",
+    exit: "",
+  });
 
   const [formData, setFormData] = useState({
     master: "",
-    agency: {},
     agencyId: "",
     agencyName: "",
     coordinator: "",
@@ -28,8 +32,8 @@ const NewGroupModal = (props: NewGroupModalProps) => {
 
   const [agencies, setAgencies] = useState([] as Agency[]);
   const [selectedAgency, setSelectedAgency] = useState({
-    id: formData.agencyId,
-    name: formData.agencyName,
+    id: "",
+    name: "",
   });
 
   useEffect(() => {
@@ -40,19 +44,31 @@ const NewGroupModal = (props: NewGroupModalProps) => {
           setAgencies(response.data);
         })
         .catch((error) => {
-          // Maneja los errores de la solicitud al backend
-          console.error(error); // Por ejemplo, muestra un mensaje de error
+          console.error(error);
         });
     } catch (error) {
       console.error("Error al obtener las agencias:", error);
     }
   }, []);
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const errors = {
+      master: formData.master.trim() === "" ? "El campo Grupo/Master es requerido." : "",
+      coordinator: formData.coordinator.trim() === "" ? "El campo Coordinador es requerido." : "",
+      school: formData.school.trim() === "" ? "El campo Escuela es requerido." : "",
+      entry: formData.entry.trim() === "" ? "El campo Entrada es requerido." : "",
+      exit: formData.exit.trim() === "" ? "El campo Salida es requerido." : "",
+    };
+
+    setFormErrors(errors);
+
+    if (Object.values(errors).some((error) => error !== "")) {
+      return;
+    }
+
     try {
-      // Verificar si se ha seleccionado una agencia
       if (!selectedAgency.id) {
         console.error("Debes seleccionar una agencia");
         return;
@@ -64,13 +80,12 @@ const NewGroupModal = (props: NewGroupModalProps) => {
         agencyName: selectedAgency.name,
       };
 
-      // Realizar la solicitud al backend para guardar el grupo en la base de datos
       const response = await axios.post("/api/new-group", updatedFormData);
 
-      console.log(response.data);
+      console.log(response.data.success);
 
       if (response.data.success) {
-        await toast.success(`${updatedFormData.master} agregado con éxito!`, {
+        toast.success(`${updatedFormData.master} agregado con éxito!`, {
           position: "top-right",
           theme: "dark",
           containerId: "toast-container",
@@ -88,25 +103,26 @@ const NewGroupModal = (props: NewGroupModalProps) => {
           autoClose: 3000,
         });
       }
-
-      console.log(
-        "Nuevo grupo creado:",
-        updatedFormData.master,
-        updatedFormData.agencyName
-      );
-      // Restablecer el estado y limpiar el formulario si es necesario
-      // Realizar acciones adicionales o mostrar un mensaje de éxito
     } catch (error) {
       console.error("Error al crear el grupo:", error);
-      // Manejar el error adecuadamente, mostrar un mensaje de error, etc.
     }
+  };
+
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
+    setFormData({ ...formData, [field]: event.target.value });
+    setFormErrors({ ...formErrors, [field]: "" });
   };
 
   return (
     <div>
-      <div>
+
+
       <ToastContainer />
-      </div>
+
+
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
@@ -116,89 +132,92 @@ const NewGroupModal = (props: NewGroupModalProps) => {
             </button>
           </div>
           <div className="w-full px-7 flex flex-col justify-center">
-            <form action="" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-2 gap-4 mx-auto">
-                <Input
-                  id="name"
-                  label="Grupo/Master"
-                  type="text"
-                  value={formData.master}
-                  onChange={(event) =>
-                    setFormData({ ...formData, master: event.target.value })
-                  }
-                />
+                <div>
+                  <Input
+                    id="name"
+                    label="Grupo/Master"
+                    type="text"
+                    required
+                    value={formData.master}
+                    onChange={(event) => handleInputChange(event, "master")}
+                    error={formErrors.master}
+                  />
+                </div>
 
-                <Select
-                  options={agencies.map((agency) => ({
-                    name: agency.name,
-                    value: agency.id,
-                  }))}
-                  label="Empresa"
-                  id="empresa"
-                  onChange={(selectedOption) => {
-                    const selectedAgency = agencies.find(
-                      (agency) => agency.id === selectedOption.target.value
-                    );
+                <div>
+                  <Select
+                    options={agencies.map((agency) => ({
+                      name: agency.name,
+                      value: agency.id,
+                    }))}
+                    label="Empresa"
+                    id="empresa"
+                    onChange={(selectedOption) => {
+                      const selectedAgency = agencies.find(
+                        (agency) => agency.id === selectedOption.target.value
+                      );
 
-                    if (selectedAgency) {
-                      setSelectedAgency({
-                        id: selectedOption.target.value,
-                        name: selectedAgency.name,
-                      });
-                      setFormData({
-                        ...formData,
-                        agency: selectedAgency,
-                        agencyId: selectedAgency.id,
-                        agencyName: selectedAgency.name,
-                      });
-                      console.log(selectedAgency, formData);
-                    }
-                  }}
-                  value={selectedAgency.id}
-                />
+                      if (selectedAgency) {
+                        setSelectedAgency({
+                          id: selectedOption.target.value,
+                          name: selectedAgency.name,
+                        });
+                        setFormData({
+                          ...formData,
+                          agencyId: selectedAgency.id,
+                          agencyName: selectedAgency.name,
+                        });
+                      }
+                    }}
+                    value={selectedAgency.id}
+                  />
+                </div>
 
-                <Input
-                  id="coordinador"
-                  label="Coordinador"
-                  type="text"
-                  value={formData.coordinator}
-                  onChange={(event) =>
-                    setFormData({
-                      ...formData,
-                      coordinator: event.target.value,
-                    })
-                  }
-                />
+                <div>
+                  <Input
+                    id="coordinador"
+                    label="Coordinador"
+                    type="text"
+                    value={formData.coordinator}
+                    onChange={(event) => handleInputChange(event, "coordinator")}
+                    error={formErrors.coordinator}
+                  />
+                </div>
 
-                <Input
-                  id="escuela"
-                  label="Escuela"
-                  type="text"
-                  value={formData.school}
-                  onChange={(event) =>
-                    setFormData({ ...formData, school: event.target.value })
-                  }
-                />
+                <div>
+                  <Input
+                    id="escuela"
+                    label="Escuela"
+                    type="text"
+                    value={formData.school}
+                    onChange={(event) => handleInputChange(event, "school")}
+                    error={formErrors.school}
+                  />
+                </div>
 
-                <Input
-                  id="entrada"
-                  label="Entrada"
-                  type="date"
-                  value={formData.entry.toLocaleString()}
-                  onChange={(event) =>
-                    setFormData({ ...formData, entry: event.target.value })
-                  }
-                />
+                <div>
+                  <Input
+                    id="entrada"
+                    label="Entrada"
+                    type="date"
+                    value={formData.entry}
+                    onChange={(event) => handleInputChange(event, "entry")}
+                    error={formErrors.entry}
+                  />
+                </div>
 
-                <Input
-                  id="salida"
-                  label="Salida"
-                  type="date"
-                  value={formData.exit.toLocaleString()}
-                  onChange={(event) =>
-                    setFormData({ ...formData, exit: event.target.value })
-                  }
-                />
+                <div>
+                  <Input
+                    id="salida"
+                    label="Salida"
+                    type="date"
+                    value={formData.exit}
+                    onChange={(event) => handleInputChange(event, "exit")}
+                    error={formErrors.exit}
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-1 pt-5 gap-4">
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">
@@ -220,7 +239,6 @@ const NewGroupModal = (props: NewGroupModalProps) => {
           </div>
         </div>
       </div>
-      
     </div>
   );
 };

@@ -1,12 +1,9 @@
-// file: app/groups/components/GroupsTable.tsx
-"use client";
-
-import { TfiArrowLeft, TfiArrowRight } from "react-icons/tfi";
-import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { useState } from "react";
-import NewGroupModal from "./NewGroupModal";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import NewGroupModal from "./NewGroupModal";
+import Pagination from "@/app/components/Pagination";
 
 interface GroupsTableProps {
   groups: string[];
@@ -30,6 +27,8 @@ export const GroupsTable = ({
   const [showModal, setShowModal] = useState(false);
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+  const itemsPerPage = 6; // Número de elementos por página
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
@@ -70,6 +69,10 @@ export const GroupsTable = ({
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const sortedGroups = [...groups];
 
   if (sortColumn === "group") {
@@ -86,12 +89,14 @@ export const GroupsTable = ({
     });
   }
 
+  const displayedGroups = sortedGroups.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div>
       <ToastContainer />
       <div className="flex items-center gap-x-3"></div>
 
-      <div className="flex flex-col ">
+      <div className="flex flex-col">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
@@ -161,7 +166,7 @@ export const GroupsTable = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
-                  {sortedGroups.map((group, index) => (
+                  {displayedGroups.map((group, index) => (
                     <tr key={index}>
                       <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                         <div className="inline-flex items-center gap-x-3">
@@ -210,24 +215,14 @@ export const GroupsTable = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-6">
-        <a href="#" className="buttonWithIcon">
-          <TfiArrowLeft />
-          <span>Anterior</span>
-        </a>
-        <div className="items-center hidden lg:flex gap-x-3">
-          <a href="#" className="px-2 py-1 text-sm text-white bg-orange-500/60">
-            1
-          </a>
-          <a href="#" className="px-2 py-1 text-sm text-gray-500 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100">
-            2
-          </a>
-        </div>
-        <a href="#" className="buttonWithIcon">
-          <span>Siguiente</span>
-          <TfiArrowRight />
-        </a>
-      </div>
+      <Pagination
+        totalItems={groups.length}
+        itemsPerPage={itemsPerPage}
+        
+        handlePageChange={handlePageChange}
+      />
+
+
 
       {/* Add Modal */}
       {showModal && <NewGroupModal toggleModal={handleToggleModal} />}

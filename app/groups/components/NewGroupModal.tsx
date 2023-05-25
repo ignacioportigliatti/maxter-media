@@ -15,7 +15,9 @@ const NewGroupModal = (props: NewGroupModalProps) => {
 
   const [formData, setFormData] = useState({
     master: "",
-    agency: "",
+    agency: {},
+    agencyId: "",
+    agencyName: "",
     coordinator: "",
     school: "",
     entry: "",
@@ -23,15 +25,16 @@ const NewGroupModal = (props: NewGroupModalProps) => {
   });
 
   const [agencies, setAgencies] = useState([] as Agency[]);
-  const [selectedAgency, setSelectedAgency] = useState("");
+  const [selectedAgency, setSelectedAgency] = useState({
+    id: formData.agencyId,
+    name: formData.agencyName,
+  });
 
   useEffect(() => {
     try {
       axios
         .get("/api/agencies")
         .then((response) => {
-          // Maneja la respuesta del backend según corresponda
-          console.log(response.data); // Por ejemplo, muestra un mensaje de éxito
           setAgencies(response.data);
         })
         .catch((error) => {
@@ -47,12 +50,30 @@ const NewGroupModal = (props: NewGroupModalProps) => {
     event.preventDefault();
 
     try {
-      const updatedFormData = { ...formData, agency: selectedAgency };
-  
+      // Verificar si se ha seleccionado una agencia
+      if (!selectedAgency.id) {
+        console.error("Debes seleccionar una agencia");
+        return;
+      }
+
+      const updatedFormData = {
+        ...formData,
+        agencyId: selectedAgency.id,
+        agencyName: selectedAgency.name,
+      };
+
       // Realizar la solicitud al backend para guardar el grupo en la base de datos
-      await axios.post("/api/new-group", updatedFormData);
-  
-      console.log("Nuevo grupo creado:", updatedFormData.master);
+      await axios.post("/api/new-group", JSON.stringify(updatedFormData), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log(
+        "Nuevo grupo creado:",
+        updatedFormData.master,
+        updatedFormData.agencyName
+      );
       // Restablecer el estado y limpiar el formulario si es necesario
       // Realizar acciones adicionales o mostrar un mensaje de éxito
     } catch (error) {
@@ -83,18 +104,31 @@ const NewGroupModal = (props: NewGroupModalProps) => {
                 }
               />
 
-              <Select
-                options={agencies.map((agency) => ({
-                  name: agency.name,
-                  value: agency.id,
-                }))}
-                label="Empresa"
-                id="empresa"
-                onChange={(selectedOption) =>
-                  setSelectedAgency(selectedOption.target.value)
-                }
-                value={selectedAgency}
-              />
+<Select
+  options={agencies.map((agency) => ({
+    name: agency.name,
+    value: agency.id,
+  }))}
+  label="Empresa"
+  id="empresa"
+  onChange={(selectedOption) => {
+    const selectedAgency = agencies.find(
+      (agency) => agency.id === selectedOption.target.value
+    );
+
+    if (selectedAgency) {
+      setSelectedAgency({
+        id: selectedOption.target.value,
+        name: selectedAgency.name,
+      });
+      setFormData({ ...formData, agency: selectedAgency, agencyId: selectedAgency.id, agencyName: selectedAgency.name });
+      console.log(selectedAgency, formData);
+    }
+
+  }}
+  value={selectedAgency.id}
+/>
+
 
               <Input
                 id="coordinador"
@@ -120,7 +154,7 @@ const NewGroupModal = (props: NewGroupModalProps) => {
                 id="entrada"
                 label="Entrada"
                 type="date"
-                value={formData.entry}
+                value={formData.entry.toLocaleString()}
                 onChange={(event) =>
                   setFormData({ ...formData, entry: event.target.value })
                 }
@@ -130,7 +164,7 @@ const NewGroupModal = (props: NewGroupModalProps) => {
                 id="salida"
                 label="Salida"
                 type="date"
-                value={formData.exit}
+                value={formData.exit.toLocaleString()}
                 onChange={(event) =>
                   setFormData({ ...formData, exit: event.target.value })
                 }

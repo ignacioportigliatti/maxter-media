@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { TfiArrowLeft, TfiArrowRight, TfiClose } from "react-icons/tfi";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { FileUpload, Input } from "@/app/components/ui";
 import NewAgencyModal from "./NewAgencyModal";
 
 interface EnterpriseTableProps {
@@ -12,11 +11,11 @@ interface EnterpriseTableProps {
   groups: number[];
   phones: string[];
   emails: string[];
-  imgSources: string[];
+  logoSrc: string[];
 }
 
 export const AgencyTable = (props: EnterpriseTableProps) => {
-  const { names, locations, groups, phones, emails, imgSources } = props;
+  const { names, locations, groups, phones, emails, logoSrc } = props;
   const [showModal, setShowModal] = useState(false);
 
   const handleToggleModal = () => {
@@ -26,7 +25,7 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
   return (
     <div>
       <div className="flex items-center gap-x-3"></div>
-
+      
       <div className="flex flex-col ">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
@@ -88,7 +87,7 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
                           <div className="flex items-center gap-x-2">
                             <img
                               className="object-cover w-10 h-10 rounded-full bg-medium-gray"
-                              src={imgSources[index]}
+                              src={logoSrc[index]}
                               alt={`${name} logo`}
                             />
                             <div>

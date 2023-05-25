@@ -16,23 +16,27 @@ model Agency {
   location String
   phone    String
   email    String
+  logoSrc  String?
 
   groups Group[]
 }
 
 model Group {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  master        String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  master      String
   coordinator String
   school      String
   entry       String
   exit        String
 
-  agencyId String?   @db.ObjectId
-  agency   Agency?   @relation(fields: [agencyId], references: [id])
-  photos   Photos[]
-  videos   Videos[]
+  agencyId    String?  @db.ObjectId
+  agency      Agency?  @relation(fields: [agencyId], references: [id])
+
+  agencyName  String? 
+  photos      Photos[]
+  videos      Videos[]
 }
+
 
 model Photos {
   id       String @id @default(auto()) @map("_id") @db.ObjectId

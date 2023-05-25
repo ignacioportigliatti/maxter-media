@@ -37,6 +37,7 @@ export const FileUpload = (props: FileUploadProps) => {
                       id={id}
                       type="file"
                       className="sr-only"
+                      accept="image/png, image/jpeg"
                       
                     />
                   </label>

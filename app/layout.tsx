@@ -1,5 +1,8 @@
+
+import { ToastContainer } from "react-toastify";
 import { Sidebar } from "./components/Sidebar";
 import './globals.css'
+
 
 export const metadata = {
   title: "Create Next App",
@@ -14,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+      
         <div className="flex">
+        <ToastContainer />
           <div className="hidden lg:flex">
             <Sidebar />
           </div>

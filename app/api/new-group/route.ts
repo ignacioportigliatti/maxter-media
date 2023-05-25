@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   //Getting body
   const body = await request.json();
   //Extracting body
-  const { master, coordinator, school, entry, exit, agency } = body;
+  const { master, coordinator, school, entry, exit, agency, agencyId, agencyName } = body;
   //Creating group
   try {
     // Crea un nuevo grupo con los datos del formulario
@@ -17,8 +17,10 @@ export async function POST(request: Request) {
         entry: entry,
         exit: exit,
         agency: {
-          connect: { id: String(agency) }, // Conecta el grupo a la agencia existente por su ID
+          connect: { id: String(agency.id)}, // Conecta el grupo a la agencia existente por su ID
         },
+         // Asigna el ID de la agencia al grupo
+        agencyName: agencyName, // Asigna el nombre de la agencia al grupo
       },
       include: {
         agency: true, // Incluye la agencia relacionada en la respuesta

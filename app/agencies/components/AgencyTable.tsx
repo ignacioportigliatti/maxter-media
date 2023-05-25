@@ -4,28 +4,65 @@ import { useState } from "react";
 import { TfiArrowLeft, TfiArrowRight, TfiClose } from "react-icons/tfi";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import NewAgencyModal from "./NewAgencyModal";
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
-interface EnterpriseTableProps {
+
+interface AgencyTableProps {
   names: string[];
   locations: string[];
   groups: number[];
   phones: string[];
   emails: string[];
   logoSrc: string[];
+  ids: string[];
 }
 
-export const AgencyTable = (props: EnterpriseTableProps) => {
-  const { names, locations, groups, phones, emails, logoSrc } = props;
+export const AgencyTable = (props: AgencyTableProps) => {
+  const { names, locations, groups, phones, emails, logoSrc, ids } = props;
   const [showModal, setShowModal] = useState(false);
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
   };
 
+  const handleDeleteAgency = async (id: string) => {
+    try {
+      const response = await axios.delete(`/api/agencies?id=${id}`);
+      console.log(response);
+      
+  
+      if (response.data.success) {
+        // La eliminación fue exitosa
+        toast.success("La empresa fue eliminada exitosamente", {theme: "dark", autoClose: 3000});
+        console.log("La empresa fue eliminada exitosamente");
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+
+        // Realiza alguna acción adicional, como actualizar la lista de empresas
+      } else if (response.data.error) {
+        // Ocurrió un error al eliminar la empresa
+        toast.error(response.data.error); // Muestra el mensaje de error enviado desde el servidor
+        console.error("Error al eliminar la empresa:", response.status);
+        // Realiza alguna acción adicional para manejar el error
+      }
+      
+    } catch (error) {
+      console.error("Error al eliminar la empresa:", error);
+      toast.error("Ocurrió un error al eliminar la empresa");
+      // Realiza alguna acción adicional para manejar el error
+    }
+  };
+  
+  const handleDeleteButton = async (id: string) => {
+    await handleDeleteAgency(id);
+  };
+
   return (
     <div>
+      <ToastContainer />
       <div className="flex items-center gap-x-3"></div>
-      
       <div className="flex flex-col ">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
@@ -78,7 +115,7 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
                   {names.map((name, index) => (
-                    <tr>
+                    <tr key={name[index]}>
                       <td
                         key={name[index]}
                         className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
@@ -131,7 +168,11 @@ export const AgencyTable = (props: EnterpriseTableProps) => {
 
                       <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                         <div className="flex items-center gap-x-2 pr-4">
-                          <button className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 hover:text-red-500 focus:outline-none">
+                          <button 
+                            className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
+                            hover:text-red-500 focus:outline-none"
+                            onClick={() => handleDeleteButton(ids[index])}
+                          >
                             <AiOutlineDelete className="w-5 h-5" />
                           </button>
 

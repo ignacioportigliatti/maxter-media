@@ -14,6 +14,7 @@ export default function EnterprisesPage() {
       email: string;
       groups: number;
       logoSrc: string;
+      id: string;
     }>
   >([]);
 
@@ -46,6 +47,7 @@ export default function EnterprisesPage() {
           phones={agencies.map((agency) => agency.phone)}
           emails={agencies.map((agency) => agency.email)}
           logoSrc={agencies.map((agency) => agency.logoSrc)}
+          ids={agencies.map((agency) => agency.id)}
         />
       </div>
     </div>

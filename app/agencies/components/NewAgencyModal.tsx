@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
@@ -8,7 +6,6 @@ import { FileUpload, Input } from "@/app/components/ui";
 
 interface NewAgencyModalProps {
   toggleModal: () => void;
-  
 }
 
 const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
@@ -27,9 +24,12 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     logoSrc: "",
   });
 
+  const [uploadDateTime, setUploadDateTime] = useState("");
+
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
     // Validación de campos requeridos
     const errors = {
       name: formData.name.trim() === "" ? "El campo Empresa es requerido." : "",
@@ -41,19 +41,22 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
           ? "El campo Provincia es requerido."
           : "",
     };
-
+  
     setFormErrors(errors);
-
+  
     if (Object.values(errors).some((error) => error !== "")) {
       return;
     }
-
+  
     try {
-      const response = await axios.post("/api/new-agency", formData);
-
+      const response = await axios.post("/api/new-agency", {
+        ...formData,
+        logoSrc: `public/uploads/${uploadDateTime}_${formData.logoSrc}`,
+      });
+  
       // Maneja la respuesta del backend según corresponda
       console.log(response.data);
-
+  
       if (response.data.success) {
         await toast.success(`${formData.name} agregada con éxito!`, {
           position: "top-right",
@@ -61,7 +64,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
           containerId: "toast-container",
           autoClose: 3000,
         });
-
+  
         setTimeout(() => {
           window.location.reload();
         }, 3000);
@@ -77,6 +80,31 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
       console.error("Error al crear el grupo:", error);
     }
   };
+  
+
+  const handleFileUpload = async (filePath: string, file: File) => {
+    // Generar el nombre de archivo único utilizando la fecha y hora actual
+    const timestamp = new Date().getTime();
+    const fileName = `${timestamp}_${file.name}`;
+  
+    // Subir el archivo a la carpeta public/uploads
+    try {
+      const fileFormData = new FormData();
+      fileFormData.append("file", file, fileName);
+  
+      const response = await axios.post("/api/upload", fileFormData);
+      // Manejar la respuesta del API de carga según sea necesario
+      console.log(response.data);
+  
+      if (response.data.success) {
+        setFormData({ ...formData, logoSrc: response.data.filePath });
+        setUploadDateTime(timestamp.toString());
+      }
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+    }
+  };
+  
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -150,9 +178,11 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
                 <FileUpload
                   label="Logo"
                   id="logo"
-                  buttonText="Subir logo"
                   description="Sube el logo de la empresa."
+                  buttonText="Subir logo"
+                  onUpload={handleFileUpload}
                 />
+
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">
                   <button
                     className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"

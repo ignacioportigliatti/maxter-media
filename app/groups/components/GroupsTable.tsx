@@ -62,10 +62,13 @@ export const GroupsTable = ({
 
   const handleSort = (column: string) => {
     if (column === sortColumn) {
-      setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+      setSortOrder((prevSortOrder) =>
+        prevSortOrder === "asc" ? "desc" : "asc"
+      );
     } else {
       setSortColumn(column);
       setSortOrder("asc");
+      setCurrentPage(1);
     }
   };
 
@@ -76,7 +79,9 @@ export const GroupsTable = ({
   const sortedGroups = [...groups];
 
   if (sortColumn === "group") {
-    sortedGroups.sort((a, b) => (sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)));
+    sortedGroups.sort((a, b) =>
+      sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+    );
   } else if (sortColumn === "agency") {
     sortedGroups.sort((a, b) => {
       const indexA = groups.indexOf(a);
@@ -87,9 +92,32 @@ export const GroupsTable = ({
         ? agencyA.localeCompare(agencyB)
         : agencyB.localeCompare(agencyA);
     });
+  } else if (sortColumn === "entry") {
+    sortedGroups.sort((a, b) => {
+      const indexA = groups.indexOf(a);
+      const indexB = groups.indexOf(b);
+      const entryA = entries[indexA];
+      const entryB = entries[indexB];
+      return sortOrder === "asc"
+        ? entryA.localeCompare(entryB)
+        : entryB.localeCompare(entryA);
+    });
+  } else if (sortColumn === "exit") {
+    sortedGroups.sort((a, b) => {
+      const indexA = groups.indexOf(a);
+      const indexB = groups.indexOf(b);
+      const exitA = exits[indexA];
+      const exitB = exits[indexB];
+      return sortOrder === "asc"
+        ? exitA.localeCompare(exitB)
+        : exitB.localeCompare(exitA);
+    });
   }
 
-  const displayedGroups = sortedGroups.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const displayedGroups = sortedGroups.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div>
@@ -103,56 +131,76 @@ export const GroupsTable = ({
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-dark-gray">
                   <tr>
-                    <th
+                    <th 
                       scope="col"
-                      className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
+                      className="py-3.5 px-4 text-sm w-[10%] font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
                       onClick={() => handleSort("group")}
                     >
                       <div className="flex items-center gap-x-3">
                         <span>Grupo/Master</span>
                         {sortColumn === "group" && (
-                          <span className="text-xs">{sortOrder === "asc" ? "▲" : "▼"}</span>
+                          <span className="text-xs">
+                            {sortOrder === "asc" ? "▲" : "▼"}
+                          </span>
                         )}
                       </div>
                     </th>
 
                     <th
                       scope="col"
-                      className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
+                      className="px-12 py-3.5 w-[10%] text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
                       onClick={() => handleSort("agency")}
                     >
                       <button className="flex items-center gap-x-2">
                         <span>Empresa</span>
                         {sortColumn === "agency" && (
-                          <span className="text-xs">{sortOrder === "asc" ? "▲" : "▼"}</span>
+                          <span className="text-xs">
+                            {sortOrder === "asc" ? "▲" : "▼"}
+                          </span>
                         )}
                       </button>
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      className="py-3.5 w-[20%] text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
                     >
                       Coordinador
                     </th>
 
                     <th
                       scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      className="px-4 py-3.5 text-sm font-normal w-[15%] text-center rtl:text-right text-gray-500 dark:text-gray-400"
                     >
                       Escuela
                     </th>
 
                     <th
                       scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
+                      onClick={() => handleSort("entry")}
                     >
-                      Entrada
+                      <div className="flex items-center gap-x-3">
+                        <span>Entrada</span>
+                        {sortColumn === "entry" && (
+                          <span className="text-xs">
+                            {sortOrder === "asc" ? "▲" : "▼"}
+                          </span>
+                        )}
+                      </div>
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
+                      onClick={() => handleSort("exit")}
                     >
-                      Salida
+                      <div className="flex items-center gap-x-3">
+                        <span>Salida</span>
+                        {sortColumn === "exit" && (
+                          <span className="text-xs">
+                            {sortOrder === "asc" ? "▲" : "▼"}
+                          </span>
+                        )}
+                      </div>
                     </th>
 
                     <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
@@ -165,49 +213,55 @@ export const GroupsTable = ({
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
-                  {displayedGroups.map((group, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                        <div className="inline-flex items-center gap-x-3">
-                          <div className="flex items-center gap-x-2">
-                            <div>
-                              <h2 className="font-medium text-gray-800 dark:text-white">{group}</h2>
+                  {displayedGroups.map((group, index) => {
+                    const groupIndex = groups.indexOf(group);
+                    return (
+                      <tr key={index}>
+                        <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                          <div className="inline-flex items-center gap-x-3">
+                            <div className="flex items-center gap-x-2">
+                              <div>
+                                <h2 className="font-medium text-gray-800 dark:text-white">
+                                  {group}
+                                </h2>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                        <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-                        <h2 className="text-sm">{agencies[index]}</h2>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                        {coordinators[index]}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                        {schools[index]}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                        {entries[index]}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                        {exits[index]}
-                      </td>
-                      <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
-                        <div className="flex items-center gap-x-2 pr-4">
-                          <button
-                            className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 hover:text-red-500 focus:outline-none"
-                            onClick={() => handleDeleteGroup(ids[index])}
-                          >
-                            <AiOutlineDelete className="w-5 h-5" />
-                          </button>
-                          <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
-                            <AiOutlineEdit className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                          <h2 className="text-sm">{agencies[groupIndex]}</h2>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          {coordinators[groupIndex]}
+                        </td>
+                        <td className="px-4 py-4 text-sm  text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          {schools[groupIndex]}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          {entries[groupIndex]}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          {exits[groupIndex]}
+                        </td>
+                        <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
+                          <div className="flex items-center gap-x-2 pr-4">
+                            <button
+                              className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 hover:text-red-500 focus:outline-none"
+                              onClick={() => handleDeleteGroup(ids[groupIndex])}
+                            >
+                              <AiOutlineDelete className="w-5 h-5" />
+                            </button>
+                            <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+                              <AiOutlineEdit className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -218,11 +272,8 @@ export const GroupsTable = ({
       <Pagination
         totalItems={groups.length}
         itemsPerPage={itemsPerPage}
-        
         handlePageChange={handlePageChange}
       />
-
-
 
       {/* Add Modal */}
       {showModal && <NewGroupModal toggleModal={handleToggleModal} />}

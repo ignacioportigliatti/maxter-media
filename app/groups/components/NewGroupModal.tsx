@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
@@ -55,10 +53,18 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
     event.preventDefault();
 
     const errors = {
-      master: formData.master.trim() === "" ? "El campo Grupo/Master es requerido." : "",
-      coordinator: formData.coordinator.trim() === "" ? "El campo Coordinador es requerido." : "",
-      school: formData.school.trim() === "" ? "El campo Escuela es requerido." : "",
-      entry: formData.entry.trim() === "" ? "El campo Entrada es requerido." : "",
+      master:
+        formData.master.trim() === ""
+          ? "El campo Grupo/Master es requerido."
+          : "",
+      coordinator:
+        formData.coordinator.trim() === ""
+          ? "El campo Coordinador es requerido."
+          : "",
+      school:
+        formData.school.trim() === "" ? "El campo Escuela es requerido." : "",
+      entry:
+        formData.entry.trim() === "" ? "El campo Entrada es requerido." : "",
       exit: formData.exit.trim() === "" ? "El campo Salida es requerido." : "",
     };
 
@@ -118,11 +124,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
 
   return (
     <div>
-
-
       <ToastContainer />
-
-
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
@@ -145,7 +147,6 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
                     error={formErrors.master}
                   />
                 </div>
-
                 <div>
                   <Select
                     options={agencies.map((agency) => ({
@@ -164,28 +165,23 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
                           id: selectedOption.target.value,
                           name: selectedAgency.name,
                         });
-                        setFormData({
-                          ...formData,
-                          agencyId: selectedAgency.id,
-                          agencyName: selectedAgency.name,
-                        });
                       }
                     }}
                     value={selectedAgency.id}
                   />
                 </div>
-
                 <div>
                   <Input
                     id="coordinador"
                     label="Coordinador"
                     type="text"
                     value={formData.coordinator}
-                    onChange={(event) => handleInputChange(event, "coordinator")}
+                    onChange={(event) =>
+                      handleInputChange(event, "coordinator")
+                    }
                     error={formErrors.coordinator}
                   />
                 </div>
-
                 <div>
                   <Input
                     id="escuela"
@@ -196,7 +192,6 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
                     error={formErrors.school}
                   />
                 </div>
-
                 <div>
                   <Input
                     id="entrada"
@@ -207,7 +202,6 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
                     error={formErrors.entry}
                   />
                 </div>
-
                 <div>
                   <Input
                     id="salida"

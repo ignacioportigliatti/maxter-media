@@ -11,14 +11,19 @@ datasource db {
 }
 
 model Agency {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
   location String
   phone    String
   email    String
   logoSrc  String?
 
-  groups Group[]
+  // Agrega un campo `groupIds` para almacenar los IDs de los grupos asociados a la agencia
+  groupIds  String[] 
+
+  // Remueve la relación `groups` existente
+
+  groups    Group[] 
 }
 
 model Group {
@@ -36,6 +41,7 @@ model Group {
   photos      Photos[]
   videos      Videos[]
 }
+
 
 
 model Photos {

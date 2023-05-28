@@ -2,20 +2,25 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
-import { Agency } from "@prisma/client";
+import { Agency, Group } from "@prisma/client";
 import { Input, Select } from "@/app/components/ui";
 
 interface NewGroupModalProps {
   toggleModal: () => void;
+  handleEditGroup?: () => Promise<string>;
 }
 
-const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
+const NewGroupModal: React.FC<NewGroupModalProps> = ({
+  toggleModal,
+  handleEditGroup,
+}) => {
   const [formErrors, setFormErrors] = useState({
     master: "",
     coordinator: "",
     school: "",
     entry: "",
     exit: "",
+    agency: "",
   });
 
   const [formData, setFormData] = useState({
@@ -30,6 +35,11 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
 
   const [agencies, setAgencies] = useState([] as Agency[]);
   const [selectedAgency, setSelectedAgency] = useState({
+    id: "",
+    name: "",
+  });
+
+  const [editableAgency, setEditableAgency] = useState({
     id: "",
     name: "",
   });
@@ -49,6 +59,57 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
     }
   }, []);
 
+  const checkEditMode = async () => {
+    if (!handleEditGroup) {
+      setFormData({
+        master: "",
+        agencyId: "",
+        agencyName: "",
+        coordinator: "",
+        school: "",
+        entry: "",
+        exit: "",
+      });
+      return;
+    }
+    const groupId = await handleEditGroup();
+    
+    if (groupId) {
+      const groups = await axios.get("api/groups/");
+
+      const group = groups.data.find((group: any) => group.id === groupId);
+
+      try {
+        setFormData({
+          master: group.master,
+          agencyId: group.agency,
+          agencyName: group.agencyName,
+          coordinator: group.coordinator,
+          school: group.school,
+          entry: group.entry,
+          exit: group.exit,
+        });
+
+        if (group.agencyId) {
+          setEditableAgency({
+            id: group.agencyId,
+            name: group.agencyName,
+          });
+        }
+      } catch (error) {
+        console.error("Error al obtener el grupo:", error);
+        toast.error("Error al obtener el grupo");
+      }
+    } else {
+      console.log("No se activó el modo edición");
+      return;
+    }
+  };
+
+  useEffect(() => {
+    checkEditMode();
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -66,6 +127,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
       entry:
         formData.entry.trim() === "" ? "El campo Entrada es requerido." : "",
       exit: formData.exit.trim() === "" ? "El campo Salida es requerido." : "",
+      agency: selectedAgency.id === "" ? "Debes seleccionar una agencia." : "",
     };
 
     setFormErrors(errors);
@@ -74,12 +136,23 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
       return;
     }
 
-    try {
-      if (!selectedAgency.id) {
-        console.error("Debes seleccionar una agencia");
-        return;
-      }
+    const groups = await axios.get("/api/groups");
+    const groupExists = groups.data.find(
+      (group: any) => group.master === formData.master
+    );
 
+    if (groupExists) {
+      toast.error(`El grupo ${formData.master} ya existe.`, {
+        position: "top-right",
+        theme: "dark",
+        containerId: "toast-container",
+        autoClose: 3000,
+      });
+
+      return;
+    }
+
+    try {
       const updatedFormData = {
         ...formData,
         agencyId: selectedAgency.id,
@@ -88,7 +161,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
 
       const response = await axios.post("/api/new-group", updatedFormData);
 
-      console.log(response.data.success);
+     
 
       if (response.data.success) {
         toast.success(`${updatedFormData.master} agregado con éxito!`, {
@@ -168,6 +241,8 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ toggleModal }) => {
                       }
                     }}
                     value={selectedAgency.id}
+                    error={formErrors.agency}
+                    editableAgency={editableAgency}
                   />
                 </div>
                 <div>

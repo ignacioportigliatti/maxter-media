@@ -15,6 +15,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     phone: "",
     email: "",
     location: "",
+    logoSrc: "",
   });
 
   const [formData, setFormData] = useState({
@@ -25,19 +26,20 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     logoSrc: "",
   });
 
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Validación de campos requeridos
     const errors = {
       name: formData.name.trim() === "" ? "El campo Empresa es requerido." : "",
-      phone:
-        formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
-      email: formData.email.trim() === "" ? "El campo Email es requerido." : "",
-      location:
-        formData.location.trim() === ""
-          ? "El campo Provincia es requerido."
-          : "",
+      phone: formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
+      email: formData.email.trim() === "" ? "El campo Email es requerido." : !isValidEmail(formData.email.trim()) ? "El campo Email debe tener un formato válido." : "",
+      location: formData.location.trim() === "" ? "El campo Provincia es requerido." : "",
+      logoSrc: !selectedFile ? "El campo Logo es requerido." : "",
     };
 
     setFormErrors(errors);
@@ -80,7 +82,6 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
         logoSrc: filePath,
       });
 
-      // Maneja la respuesta del backend según corresponda
       console.log(response.data);
 
       if (response.data.success) {
@@ -92,7 +93,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
         });
 
         setTimeout(() => {
-          window.location.reload();
+          toggleModal();
         }, 3000);
       } else if (response.data.error) {
         toast.error(response.data.error, {
@@ -107,40 +108,71 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     }
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const maxSize = 0.2 * 1024 * 1024;
+  const maxWidth = 128;
+  const maxHeight = 128;
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFile = event.target.files?.[0];
     if (updatedFile) {
-      const allowedFormats = ["image/jpeg", "image/png"]; // Lista de formatos admitidos
-      if (allowedFormats.includes(updatedFile.type)) {
+      const allowedFormats = ["image/jpeg", "image/png"];
+      const fileSize = updatedFile.size;
+
+      if (fileSize > maxSize) {
+        toast.error("El archivo excede el tamaño máximo permitido", {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      const image = new Image();
+      image.src = URL.createObjectURL(updatedFile);
+
+      image.onload = () => {
+        URL.revokeObjectURL(image.src);
+
+        const imageWidth = image.naturalWidth;
+        const imageHeight = image.naturalHeight;
+
+        if (imageWidth > maxWidth || imageHeight > maxHeight) {
+          toast.error("La resolución de la imagen excede los límites permitidos", {
+            position: "top-right",
+            theme: "dark",
+            containerId: "toast-container",
+            autoClose: 3000,
+          });
+          return;
+        }
+
         setSelectedFile(updatedFile);
-      } else {
+      };
+
+      if (!allowedFormats.includes(updatedFile.type)) {
         toast.error("Formato de archivo no admitido", {
           position: "top-right",
           theme: "dark",
           containerId: "toast-container",
           autoClose: 3000,
         });
+        return;
       }
     }
   };
-  
 
   const fileName = selectedFile?.name || "";
-
   const handleFileUpload = async (file: File) => {
-    // Generar el nombre de archivo único utilizando la fecha y hora actual
     const timestamp = new Date().getTime();
     const fileName = `${timestamp}_${file.name}`;
 
-    // Subir el archivo a la carpeta public/uploads
     try {
       const fileFormData = new FormData();
       fileFormData.append("file", file, fileName);
+      fileFormData.append("folder", "agencies-logos");
 
       const response = await axios.post("/api/upload", fileFormData);
-      // Manejar la respuesta del API de carga según sea necesario
       console.log(response.data);
 
       if (response.data.success) {
@@ -148,18 +180,13 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
         console.log(`Archivo subido con éxito! filePath: ${filePath}`);
         setFormData({ ...formData, logoSrc: filePath });
         return filePath;
-        console.log(`Archivo subido con éxito! filePath: ${formData.logoSrc}`);
-        console.log(`Archivo subido con éxito! filePath: ${formData.logoSrc}`);
       }
     } catch (error) {
       console.error("Error al subir el archivo:", error);
     }
   };
 
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
     setFormData({ ...formData, [field]: event.target.value });
     setFormErrors({ ...formErrors, [field]: "" });
   };
@@ -232,19 +259,15 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
                   buttonText="Subir logo"
                   handleFileChange={handleFileChange}
                   fileName={fileName}
+                  error={formErrors.logoSrc}
+                  required
                 />
 
-                <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">
-                  <button
-                    className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
-                    type="submit"
-                  >
+                <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">
+                  <button className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500" type="submit">
                     Agregar Empresa
                   </button>
-                  <button
-                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
-                    onClick={toggleModal}
-                  >
+                  <button className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500" onClick={toggleModal}>
                     Cancelar
                   </button>
                 </div>

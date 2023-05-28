@@ -7,11 +7,21 @@ interface FileUploadProps {
   buttonText: string;
   handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   fileName?: string;
+  required?: boolean;
+  error?: string;
 }
 
 export const FileUpload = (props: FileUploadProps) => {
-  const { id, label, buttonText, description, handleFileChange, fileName } =
-    props;
+  const {
+    id,
+    label,
+    buttonText,
+    description,
+    handleFileChange,
+    fileName,
+    required,
+    error,
+  } = props;
 
   return (
     <div>
@@ -23,6 +33,8 @@ export const FileUpload = (props: FileUploadProps) => {
             <label className="relative cursor-pointer px-2 py-1 dark:bg-white bg-gray-300 font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
               <span className="">{buttonText}</span>
               <input
+                
+                required={required}
                 id={id}
                 type="file"
                 className="sr-only"
@@ -42,6 +54,7 @@ export const FileUpload = (props: FileUploadProps) => {
           </p>
         </div>
       </div>
+          {error && <p className="text-red-500 text-xs text-center">{error}</p>} {/* Mostrar el mensaje de error si existe */}
     </div>
   );
 };

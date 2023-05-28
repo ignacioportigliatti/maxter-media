@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import NewAgencyModal from "./NewAgencyModal";
 import Pagination from "@/app/components/Pagination";
-
 
 interface Agency {
   name: string;
@@ -16,34 +15,66 @@ interface Agency {
   id: string;
 }
 
-interface AgencyTableProps {
-  agencies: Agency[];
-}
+interface AgencyTableProps {}
 
-export const AgencyTable = ({ agencies }: AgencyTableProps) => {
+export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
+  const [agencies, setAgencies] = useState<
+    Array<{
+      name: string;
+      location: string;
+      phone: string;
+      email: string;
+      groups: number;
+      logoSrc: string;
+      id: string;
+    }>
+  >([]);
+
+  const mappedAgencies = agencies.map((agency) => ({
+    name: agency.name,
+    location: agency.location,
+    group: agency.groups,
+    phone: agency.phone,
+    email: agency.email,
+    logoSrc: agency.logoSrc,
+    id: agency.id,
+  }));
+
+  useEffect(() => {
+    getGroups();
+  }, []);
+
+  const getGroups = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/agencies");
+      setAgencies(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
   };
 
-  const handleDeleteAgency = async (id: string) => {
+  const handleDeleteAgency = async (id: string, name: string) => {
     try {
       const response = await axios.delete(`/api/agencies?id=${id}`);
       console.log(response);
 
       if (response.data.success) {
         // La eliminación fue exitosa
-        toast.success("La empresa fue eliminada exitosamente", {
+        toast.success(`La empresa ${name} fue eliminada exitosamente`, {
           theme: "dark",
           autoClose: 3000,
         });
         console.log("La empresa fue eliminada exitosamente");
         setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+          getGroups();
+        }, 1000);
 
         // Realiza alguna acción adicional, como actualizar la lista de empresas
       } else if (response.data.error) {
@@ -59,8 +90,8 @@ export const AgencyTable = ({ agencies }: AgencyTableProps) => {
     }
   };
 
-  const handleDeleteButton = async (id: string) => {
-    await handleDeleteAgency(id);
+  const handleDeleteButton = async (id: string, name: string) => {
+    await handleDeleteAgency(id, name);
   };
 
   const handlePageChange = (page: number) => {
@@ -100,7 +131,10 @@ export const AgencyTable = ({ agencies }: AgencyTableProps) => {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
               {agencies
-                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .slice(
+                  (currentPage - 1) * itemsPerPage,
+                  currentPage * itemsPerPage
+                )
                 .map((agency) => (
                   <tr key={agency.id}>
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -126,7 +160,8 @@ export const AgencyTable = ({ agencies }: AgencyTableProps) => {
                       <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-orange-100/60 dark:bg-medium-gray">
                         <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
                         <h2 className="text-sm font-normal text-orange-500">
-                          {agency.group} {agency.group > 1 ? "Grupos" : "Grupo"}
+                          {agency.groups}{" "}
+                          {agency.groups > 1 ? "Grupos" : "Grupo"}
                         </h2>
                       </div>
                     </td>
@@ -141,7 +176,7 @@ export const AgencyTable = ({ agencies }: AgencyTableProps) => {
                         <button
                           className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
                             hover:text-red-500 focus:outline-none"
-                          onClick={() => handleDeleteButton(agency.id)}
+                          onClick={() => handleDeleteButton(agency.id, agency.name)}
                         >
                           <AiOutlineDelete className="w-5 h-5" />
                         </button>

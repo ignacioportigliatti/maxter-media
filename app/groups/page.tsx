@@ -37,15 +37,7 @@ export default function GroupsPage() {
         <h2>Grupos</h2>
       </div>
       <div className="mx-auto p-7">
-        <GroupsTable
-          groups={groups.map((group) => group.master)}
-          agencies={groups.map((group) => group.agencyName)}
-          coordinators={groups.map((group) => group.coordinator)}
-          schools={groups.map((group) => group.school)}
-          entries={groups.map((group) => group.entry)}
-          exits={groups.map((group) => group.exit)}
-          ids={groups.map((group) => group.id)}
-        />
+        <GroupsTable/>
       </div>
     </div>
   );

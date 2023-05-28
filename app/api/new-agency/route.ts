@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   //Creating group
   try {
     // Crea un nuevo grupo con los datos del formulario
-    
+
     const agenciesList = await prisma.agency.findMany();
     const agencyExists = agenciesList.find((agency) => agency.name === name);
     if (!agencyExists) {

@@ -1,282 +1,226 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import NewGroupModal from "./NewGroupModal";
 import Pagination from "@/app/components/Pagination";
 
-interface GroupsTableProps {
-  groups: string[];
-  agencies: string[];
-  coordinators: string[];
-  schools: string[];
-  entries: string[];
-  exits: string[];
-  ids: string[];
+interface Group {
+  id: string;
+  master: string;
+  coordinator: string;
+  school: string;
+  entry: string;
+  exit: string;
+  agency: {
+    id: string;
+    name: string;
+  };
+  agencyName: string;
 }
 
-export const GroupsTable = ({
-  groups,
-  agencies,
-  coordinators,
-  schools,
-  entries,
-  exits,
-  ids,
-}: GroupsTableProps) => {
+
+
+export const GroupsTable = () => {
   const [showModal, setShowModal] = useState(false);
-  const [sortColumn, setSortColumn] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const itemsPerPage = 6; // Número de elementos por página
+  const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [editMode, setEditMode] = useState(false);
+
+
+  useEffect(() => {
+    getGroups();
+  }, []);
+
+  const getGroups = async () => {
+    try {
+      const response = await axios.get("/api/groups");
+      setGroups(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
-    setSortColumn("");
-    setSortOrder("asc");
   };
 
-  const handleDeleteGroup = async (id: string) => {
+  
+  const handleDeleteGroup = async (id: string, master: string) => {
     try {
       const response = await axios.delete(`/api/groups?id=${id}`);
-      console.log(response);
+   
 
       if (response.data.success) {
-        toast.success("El grupo fue eliminado exitosamente", {
+        // La eliminación fue exitosa
+        toast.success(`El grupo ${master} fue eliminado exitosamente`, {
           theme: "dark",
           autoClose: 3000,
         });
         console.log("El grupo fue eliminado exitosamente");
         setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+          getGroups();
+        }, 1000);
+
+        // Realiza alguna acción adicional, como actualizar la lista de grupos
       } else if (response.data.error) {
-        toast.error(response.data.error);
+        // Ocurrió un error al eliminar el grupo
+        toast.error(response.data.error); // Muestra el mensaje de error enviado desde el servidor
         console.error("Error al eliminar el grupo:", response.status);
+        // Realiza alguna acción adicional para manejar el error
       }
     } catch (error) {
       console.error("Error al eliminar el grupo:", error);
       toast.error("Ocurrió un error al eliminar el grupo");
+      // Realiza alguna acción adicional para manejar el error
     }
   };
 
-  const handleSort = (column: string) => {
-    if (column === sortColumn) {
-      setSortOrder((prevSortOrder) =>
-        prevSortOrder === "asc" ? "desc" : "asc"
-      );
-    } else {
-      setSortColumn(column);
-      setSortOrder("asc");
-      setCurrentPage(1);
-    }
+  const handleDeleteButton = async (id: string, master: string) => {
+    await handleDeleteGroup(id, master);
   };
+
+
+ const handleEditButton = (group: any) => {
+  setSelectedGroup(group);
+  setEditMode(true);
+  handleEditGroup(selectedGroup);
+ }
+
+  const handleEditGroup = async (selectedGroup: Group | null ) => {
+    setShowModal(true);
+    const groups = await axios.get('/api/groups');
+    
+    const groupObj = await groups.data.find((group: Group) => group.id === selectedGroup?.id);
+
+    const groupToEdit: string = groupObj.id;
+    return groupToEdit;
+  };
+
+  const handleAddGroup = () => {
+    setEditMode(false);
+    setSelectedGroup(null);
+    setShowModal(true);
+  };
+  
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const sortedGroups = [...groups];
-
-  if (sortColumn === "group") {
-    sortedGroups.sort((a, b) =>
-      sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)
-    );
-  } else if (sortColumn === "agency") {
-    sortedGroups.sort((a, b) => {
-      const indexA = groups.indexOf(a);
-      const indexB = groups.indexOf(b);
-      const agencyA = agencies[indexA];
-      const agencyB = agencies[indexB];
-      return sortOrder === "asc"
-        ? agencyA.localeCompare(agencyB)
-        : agencyB.localeCompare(agencyA);
-    });
-  } else if (sortColumn === "entry") {
-    sortedGroups.sort((a, b) => {
-      const indexA = groups.indexOf(a);
-      const indexB = groups.indexOf(b);
-      const entryA = entries[indexA];
-      const entryB = entries[indexB];
-      return sortOrder === "asc"
-        ? entryA.localeCompare(entryB)
-        : entryB.localeCompare(entryA);
-    });
-  } else if (sortColumn === "exit") {
-    sortedGroups.sort((a, b) => {
-      const indexA = groups.indexOf(a);
-      const indexB = groups.indexOf(b);
-      const exitA = exits[indexA];
-      const exitB = exits[indexB];
-      return sortOrder === "asc"
-        ? exitA.localeCompare(exitB)
-        : exitB.localeCompare(exitA);
-    });
-  }
-
-  const displayedGroups = sortedGroups.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   return (
     <div>
       <ToastContainer />
-      <div className="flex items-center gap-x-3"></div>
-
       <div className="flex flex-col">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-dark-gray">
-                  <tr>
-                    <th 
-                      scope="col"
-                      className="py-3.5 px-4 text-sm w-[10%] font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
-                      onClick={() => handleSort("group")}
-                    >
-                      <div className="flex items-center gap-x-3">
-                        <span>Grupo/Master</span>
-                        {sortColumn === "group" && (
-                          <span className="text-xs">
-                            {sortOrder === "asc" ? "▲" : "▼"}
-                          </span>
-                        )}
+        <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-dark-gray">
+              <tr>
+                <th className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  Grupo/Master
+                </th>
+                <th className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  Empresa
+                </th>
+                <th className="py-3.5 w-[20%] text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400">
+                  Coordinador
+                </th>
+                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  Escuela
+                </th>
+                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  Entrada
+                </th>
+                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  Salida
+                </th>
+                <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
+                  <button
+                    className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
+                        dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
+                    onClick={handleAddGroup}
+                  >
+                    <span className="font-bold">+</span> Agregar
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+              {groups
+                .slice(
+                  (currentPage - 1) * itemsPerPage,
+                  currentPage * itemsPerPage
+                )
+                .map((group) => (
+                  <tr key={group.id}>
+                    <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                      <div className="inline-flex items-center gap-x-3">
+                        <div className="flex items-center gap-x-2">
+                          <div>
+                            <h2 className="font-medium text-gray-800 dark:text-white">
+                              {group.master}
+                            </h2>
+                          </div>
+                        </div>
                       </div>
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-12 py-3.5 w-[10%] text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
-                      onClick={() => handleSort("agency")}
-                    >
-                      <button className="flex items-center gap-x-2">
-                        <span>Empresa</span>
-                        {sortColumn === "agency" && (
-                          <span className="text-xs">
-                            {sortOrder === "asc" ? "▲" : "▼"}
-                          </span>
-                        )}
-                      </button>
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 w-[20%] text-sm font-normal text-center rtl:text-right text-gray-500 dark:text-gray-400"
-                    >
-                      Coordinador
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-sm font-normal w-[15%] text-center rtl:text-right text-gray-500 dark:text-gray-400"
-                    >
-                      Escuela
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
-                      onClick={() => handleSort("entry")}
-                    >
-                      <div className="flex items-center gap-x-3">
-                        <span>Entrada</span>
-                        {sortColumn === "entry" && (
-                          <span className="text-xs">
-                            {sortOrder === "asc" ? "▲" : "▼"}
-                          </span>
-                        )}
+                    </td>
+                    <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                      <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                      <h2 className="text-sm">{group.agencyName}</h2>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      {group.coordinator}
+                    </td>
+                    <td className="px-4 py-4 text-sm  text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      {group.school}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      {group.entry}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                      {group.exit}
+                    </td>
+                    <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
+                      <div className="flex items-center gap-x-2 pr-4">
+                        <button
+                          className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
+                            hover:text-red-500 focus:outline-none"
+                          onClick={() =>
+                            handleDeleteButton(group.id, group.master)
+                          }
+                        >
+                          <AiOutlineDelete className="w-5 h-5" />
+                        </button>
+                        <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+                          <AiOutlineEdit className="w-5 h-5"
+                            onClick={() => handleEditButton(group)}
+                          />
+                        </button>
                       </div>
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
-                      onClick={() => handleSort("exit")}
-                    >
-                      <div className="flex items-center gap-x-3">
-                        <span>Salida</span>
-                        {sortColumn === "exit" && (
-                          <span className="text-xs">
-                            {sortOrder === "asc" ? "▲" : "▼"}
-                          </span>
-                        )}
-                      </div>
-                    </th>
-
-                    <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
-                      <button
-                        onClick={handleToggleModal}
-                        className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300 dark:bg-medium-gray dark:hover:bg-orange-500 bg-gray-200 font-semibold"
-                      >
-                        + Agregar nuevo
-                      </button>
-                    </th>
+                    </td>
                   </tr>
-                </thead>
-
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
-                  {displayedGroups.map((group, index) => {
-                    const groupIndex = groups.indexOf(group);
-                    return (
-                      <tr key={index}>
-                        <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                          <div className="inline-flex items-center gap-x-3">
-                            <div className="flex items-center gap-x-2">
-                              <div>
-                                <h2 className="font-medium text-gray-800 dark:text-white">
-                                  {group}
-                                </h2>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-                          <h2 className="text-sm">{agencies[groupIndex]}</h2>
-                        </td>
-                        <td className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {coordinators[groupIndex]}
-                        </td>
-                        <td className="px-4 py-4 text-sm  text-center text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {schools[groupIndex]}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {entries[groupIndex]}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {exits[groupIndex]}
-                        </td>
-                        <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-x-2 pr-4">
-                            <button
-                              className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 hover:text-red-500 focus:outline-none"
-                              onClick={() => handleDeleteGroup(ids[groupIndex])}
-                            >
-                              <AiOutlineDelete className="w-5 h-5" />
-                            </button>
-                            <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
-                              <AiOutlineEdit className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
       <Pagination
         totalItems={groups.length}
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-
-      {/* Add Modal */}
-      {showModal && <NewGroupModal toggleModal={handleToggleModal} />}
+      {(showModal && editMode) ?
+        <NewGroupModal
+          handleEditGroup={() => handleEditGroup(selectedGroup)}
+          toggleModal={handleToggleModal}
+        />
+        : showModal &&
+        <NewGroupModal
+          toggleModal={handleToggleModal}
+        />
+      }
     </div>
   );
 };

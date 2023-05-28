@@ -1,5 +1,3 @@
-import React from "react";
-
 interface Props {
   options: {name: string, value: string}[];
   label: string;

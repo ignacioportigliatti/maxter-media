@@ -215,10 +215,12 @@ export const GroupsTable = () => {
         <NewGroupModal
           handleEditGroup={() => handleEditGroup(selectedGroup)}
           toggleModal={handleToggleModal}
+          getGroups={getGroups}
         />
         : showModal &&
         <NewGroupModal
           toggleModal={handleToggleModal}
+          getGroups={getGroups}
         />
       }
     </div>

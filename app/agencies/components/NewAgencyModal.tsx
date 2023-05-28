@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
@@ -6,9 +6,17 @@ import { FileUpload, Input } from "@/app/components/ui";
 
 interface NewAgencyModalProps {
   toggleModal: () => void;
+  handleEditAgency?: () => Promise<string>;
+  getAgencies?: () => void;
+  buttonText: string;
 }
 
-const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
+const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
+  toggleModal,
+  handleEditAgency,
+  getAgencies,
+  buttonText,
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [formErrors, setFormErrors] = useState({
     name: "",
@@ -26,6 +34,46 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     logoSrc: "",
   });
 
+  const checkEditMode = async () => {
+    if (!handleEditAgency) {
+      setFormData({
+        name: "",
+        location: "",
+        phone: "",
+        email: "",
+        logoSrc: "",
+      });
+      return;
+    }
+    const agencyId = await handleEditAgency();
+
+    if (agencyId) {
+      const agencies = await axios.get("api/agencies/");
+
+      const agency = agencies.data.find((group: any) => group.id === agencyId);
+
+      try {
+        setFormData({
+          name: agency.name,
+          location: agency.location,
+          phone: agency.phone,
+          email: agency.email,
+          logoSrc: agency.logoSrc,
+        });
+      } catch (error) {
+        console.error("Error al obtener el grupo:", error);
+        toast.error("Error al obtener el grupo");
+      }
+    } else {
+      console.log("No se activó el modo edición");
+      return;
+    }
+  };
+
+  useEffect(() => {
+    checkEditMode();
+  }, []);
+
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
     return emailRegex.test(email);
@@ -36,9 +84,18 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
 
     const errors = {
       name: formData.name.trim() === "" ? "El campo Empresa es requerido." : "",
-      phone: formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
-      email: formData.email.trim() === "" ? "El campo Email es requerido." : !isValidEmail(formData.email.trim()) ? "El campo Email debe tener un formato válido." : "",
-      location: formData.location.trim() === "" ? "El campo Provincia es requerido." : "",
+      phone:
+        formData.phone.trim() === "" ? "El campo Teléfono es requerido." : "",
+      email:
+        formData.email.trim() === ""
+          ? "El campo Email es requerido."
+          : !isValidEmail(formData.email.trim())
+          ? "El campo Email debe tener un formato válido."
+          : "",
+      location:
+        formData.location.trim() === ""
+          ? "El campo Provincia es requerido."
+          : "",
       logoSrc: !selectedFile ? "El campo Logo es requerido." : "",
     };
 
@@ -94,6 +151,9 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
 
         setTimeout(() => {
           toggleModal();
+          if (getAgencies) {
+            getAgencies();
+          }
         }, 3000);
       } else if (response.data.error) {
         toast.error(response.data.error, {
@@ -112,7 +172,9 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
   const maxWidth = 128;
   const maxHeight = 128;
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const updatedFile = event.target.files?.[0];
     if (updatedFile) {
       const allowedFormats = ["image/jpeg", "image/png"];
@@ -138,12 +200,15 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
         const imageHeight = image.naturalHeight;
 
         if (imageWidth > maxWidth || imageHeight > maxHeight) {
-          toast.error("La resolución de la imagen excede los límites permitidos", {
-            position: "top-right",
-            theme: "dark",
-            containerId: "toast-container",
-            autoClose: 3000,
-          });
+          toast.error(
+            "La resolución de la imagen excede los límites permitidos",
+            {
+              position: "top-right",
+              theme: "dark",
+              containerId: "toast-container",
+              autoClose: 3000,
+            }
+          );
           return;
         }
 
@@ -186,7 +251,10 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
     setFormData({ ...formData, [field]: event.target.value });
     setFormErrors({ ...formErrors, [field]: "" });
   };
@@ -264,10 +332,16 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
                 />
 
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">
-                  <button className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500" type="submit">
-                    Agregar Empresa
+                  <button
+                    className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
+                    type="submit"
+                  >
+                    {buttonText}
                   </button>
-                  <button className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500" onClick={toggleModal}>
+                  <button
+                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
+                    onClick={toggleModal}
+                  >
                     Cancelar
                   </button>
                 </div>

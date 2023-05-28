@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import NewAgencyModal from "./NewAgencyModal";
 import Pagination from "@/app/components/Pagination";
+import { ConfirmDeleteModal } from "@/app/groups/components/ConfirmDeleteModal";
 
 interface Agency {
   name: string;
@@ -19,8 +20,11 @@ interface AgencyTableProps {}
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [agencies, setAgencies] = useState<
     Array<{
       name: string;
@@ -33,21 +37,13 @@ export const AgencyTable = () => {
     }>
   >([]);
 
-  const mappedAgencies = agencies.map((agency) => ({
-    name: agency.name,
-    location: agency.location,
-    group: agency.groups,
-    phone: agency.phone,
-    email: agency.email,
-    logoSrc: agency.logoSrc,
-    id: agency.id,
-  }));
+ 
 
   useEffect(() => {
-    getGroups();
+    getAgencies();
   }, []);
 
-  const getGroups = async () => {
+  const getAgencies = async () => {
     try {
       const response = await axios.get("http://localhost:3000/api/agencies");
       setAgencies(response.data);
@@ -59,39 +55,39 @@ export const AgencyTable = () => {
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
   };
-
-  const handleDeleteAgency = async (id: string, name: string) => {
-    try {
-      const response = await axios.delete(`/api/agencies?id=${id}`);
-      console.log(response);
-
-      if (response.data.success) {
-        // La eliminación fue exitosa
-        toast.success(`La empresa ${name} fue eliminada exitosamente`, {
-          theme: "dark",
-          autoClose: 3000,
-        });
-        console.log("La empresa fue eliminada exitosamente");
-        setTimeout(() => {
-          getGroups();
-        }, 1000);
-
-        // Realiza alguna acción adicional, como actualizar la lista de empresas
-      } else if (response.data.error) {
-        // Ocurrió un error al eliminar la empresa
-        toast.error(response.data.error); // Muestra el mensaje de error enviado desde el servidor
-        console.error("Error al eliminar la empresa:", response.status);
-        // Realiza alguna acción adicional para manejar el error
-      }
-    } catch (error) {
-      console.error("Error al eliminar la empresa:", error);
-      toast.error("Ocurrió un error al eliminar la empresa");
-      // Realiza alguna acción adicional para manejar el error
-    }
+  const handleDeleteModal = () => {
+    setShowDeleteModal((modal) => !modal);
   };
 
-  const handleDeleteButton = async (id: string, name: string) => {
-    await handleDeleteAgency(id, name);
+  const confirmDeleteModal = async (agency: any) => {
+    await setShowDeleteModal(true);
+  };
+
+  const handleDeleteButton = async (agency: any) => {
+    await confirmDeleteModal(agency);
+    await setSelectedAgency(agency);
+  };
+
+  const handleEditButton = (agency: any) => {
+    setSelectedAgency(agency);
+    setEditMode(true);
+    handleEditAgency(selectedAgency);
+   }
+
+   const handleEditAgency = async (selectedGroup: Agency | null ) => {
+    setShowModal(true);
+    const agencies = await axios.get('/api/agencies');
+    
+    const agencyObj = await agencies.data.find((group: Agency) => group.id === selectedGroup?.id);
+
+    const agencyToEdit: string = agencyObj.id;
+    return agencyToEdit;
+  };
+
+  const handleAddGroup = () => {
+    setEditMode(false);
+    setSelectedAgency(null);
+    setShowModal(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -122,7 +118,7 @@ export const AgencyTable = () => {
                   <button
                     className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
                         dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
-                    onClick={handleToggleModal}
+                    onClick={handleAddGroup}
                   >
                     <span className="font-bold">+</span> Agregar
                   </button>
@@ -176,11 +172,15 @@ export const AgencyTable = () => {
                         <button
                           className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
                             hover:text-red-500 focus:outline-none"
-                          onClick={() => handleDeleteButton(agency.id, agency.name)}
+                          onClick={() => handleDeleteButton(agency)}
                         >
                           <AiOutlineDelete className="w-5 h-5" />
                         </button>
-                        <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+                        <button 
+                          className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 
+                          dark:text-gray-300 hover:text-yellow-500 focus:outline-none"
+                          onClick={() => handleEditButton(agency)}
+                          >
                           <AiOutlineEdit className="w-5 h-5" />
                         </button>
                       </div>
@@ -196,7 +196,28 @@ export const AgencyTable = () => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-      {showModal && <NewAgencyModal toggleModal={handleToggleModal} />}
+            {(showModal && editMode) ?
+        <NewAgencyModal
+          handleEditAgency={() => handleEditAgency(selectedAgency)}
+          toggleModal={handleToggleModal}
+          getAgencies={getAgencies}
+          buttonText="Editar Empresa"
+        />
+        : showModal &&
+        <NewAgencyModal
+          toggleModal={handleToggleModal}
+          getAgencies={getAgencies}
+          buttonText="Agregar Empresa"
+        />
+      }
+      {showDeleteModal ? 
+      <ConfirmDeleteModal
+          toggleModal={handleDeleteModal}
+          getAgencies={getAgencies}
+          selectedAgency={selectedAgency}
+      /> : null
+
+    }
     </div>
   );
 };

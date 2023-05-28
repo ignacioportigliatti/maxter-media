@@ -8,11 +8,13 @@ import { Input, Select } from "@/app/components/ui";
 interface NewGroupModalProps {
   toggleModal: () => void;
   handleEditGroup?: () => Promise<string>;
+  getGroups?: () => void;
 }
 
 const NewGroupModal: React.FC<NewGroupModalProps> = ({
   toggleModal,
   handleEditGroup,
+  getGroups,
 }) => {
   const [formErrors, setFormErrors] = useState({
     master: "",
@@ -73,7 +75,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
       return;
     }
     const groupId = await handleEditGroup();
-    
+
     if (groupId) {
       const groups = await axios.get("api/groups/");
 
@@ -161,8 +163,6 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
 
       const response = await axios.post("/api/new-group", updatedFormData);
 
-     
-
       if (response.data.success) {
         toast.success(`${updatedFormData.master} agregado con éxito!`, {
           position: "top-right",
@@ -171,8 +171,11 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
           autoClose: 3000,
         });
 
-        setTimeout(() => {
-          window.location.reload();
+        setTimeout(async () => {
+          toggleModal();
+          if (getGroups) {
+            await getGroups();
+          }
         }, 3000);
       } else if (response.data.error) {
         toast.error(response.data.error, {

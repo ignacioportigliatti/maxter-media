@@ -9,6 +9,7 @@ interface NewAgencyModalProps {
 }
 
 const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
+  const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [formErrors, setFormErrors] = useState({
     name: "",
     phone: "",
@@ -24,12 +25,9 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
     logoSrc: "",
   });
 
-  const [uploadDateTime, setUploadDateTime] = useState("");
-
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     // Validación de campos requeridos
     const errors = {
       name: formData.name.trim() === "" ? "El campo Empresa es requerido." : "",
@@ -41,22 +39,50 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
           ? "El campo Provincia es requerido."
           : "",
     };
-  
+
     setFormErrors(errors);
-  
+
     if (Object.values(errors).some((error) => error !== "")) {
       return;
     }
-  
+
+    const agenciesList = await axios.get("/api/agencies");
+    const agencies = agenciesList.data;
+
+    if (agencies.some((agency: any) => agency.name === formData.name)) {
+      toast.error("Ya existe una agencia con ese nombre", {
+        position: "top-right",
+        theme: "dark",
+        containerId: "toast-container",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     try {
+      const fileUpload = async () => {
+        if (selectedFile) {
+          try {
+            console.log("Subiendo archivo...");
+            const fileUpload = await handleFileUpload(selectedFile);
+            return fileUpload;
+          } catch (error) {
+            console.error("Error al subir el archivo:", error);
+          }
+        } else {
+          console.log("No se seleccionó ningún archivo");
+        }
+      };
+
+      const filePath = await fileUpload();
       const response = await axios.post("/api/new-agency", {
         ...formData,
-        logoSrc: `public/uploads/${uploadDateTime}_${formData.logoSrc}`,
+        logoSrc: filePath,
       });
-  
+
       // Maneja la respuesta del backend según corresponda
       console.log(response.data);
-  
+
       if (response.data.success) {
         await toast.success(`${formData.name} agregada con éxito!`, {
           position: "top-right",
@@ -64,7 +90,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
           containerId: "toast-container",
           autoClose: 3000,
         });
-  
+
         setTimeout(() => {
           window.location.reload();
         }, 3000);
@@ -80,31 +106,55 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
       console.error("Error al crear el grupo:", error);
     }
   };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const updatedFile = event.target.files?.[0];
+    if (updatedFile) {
+      const allowedFormats = ["image/jpeg", "image/png"]; // Lista de formatos admitidos
+      if (allowedFormats.includes(updatedFile.type)) {
+        setSelectedFile(updatedFile);
+      } else {
+        toast.error("Formato de archivo no admitido", {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+      }
+    }
+  };
   
 
-  const handleFileUpload = async (filePath: string, file: File) => {
+  const fileName = selectedFile?.name || "";
+
+  const handleFileUpload = async (file: File) => {
     // Generar el nombre de archivo único utilizando la fecha y hora actual
     const timestamp = new Date().getTime();
     const fileName = `${timestamp}_${file.name}`;
-  
+
     // Subir el archivo a la carpeta public/uploads
     try {
       const fileFormData = new FormData();
       fileFormData.append("file", file, fileName);
-  
+
       const response = await axios.post("/api/upload", fileFormData);
       // Manejar la respuesta del API de carga según sea necesario
       console.log(response.data);
-  
+
       if (response.data.success) {
-        setFormData({ ...formData, logoSrc: response.data.filePath });
-        setUploadDateTime(timestamp.toString());
+        const filePath = await response.data.filePath;
+        console.log(`Archivo subido con éxito! filePath: ${filePath}`);
+        setFormData({ ...formData, logoSrc: filePath });
+        return filePath;
+        console.log(`Archivo subido con éxito! filePath: ${formData.logoSrc}`);
+        console.log(`Archivo subido con éxito! filePath: ${formData.logoSrc}`);
       }
     } catch (error) {
       console.error("Error al subir el archivo:", error);
     }
   };
-  
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -180,7 +230,8 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({ toggleModal }) => {
                   id="logo"
                   description="Sube el logo de la empresa."
                   buttonText="Subir logo"
-                  onUpload={handleFileUpload}
+                  handleFileChange={handleFileChange}
+                  fileName={fileName}
                 />
 
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto ">

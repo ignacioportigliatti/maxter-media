@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import NewGroupModal from "./NewGroupModal";
+import GroupModal from "./GroupModal";
 import Pagination from "@/app/components/Pagination";
+import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
 
 interface Group {
   id: string;
-  master: string;
+  name: string;
   coordinator: string;
   school: string;
   entry: string;
@@ -25,6 +26,7 @@ export const GroupsTable = () => {
   const [showModal, setShowModal] = useState(false);
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -48,38 +50,17 @@ export const GroupsTable = () => {
   };
 
   
-  const handleDeleteGroup = async (id: string, master: string) => {
-    try {
-      const response = await axios.delete(`/api/groups?id=${id}`);
-   
-
-      if (response.data.success) {
-        // La eliminación fue exitosa
-        toast.success(`El grupo ${master} fue eliminado exitosamente`, {
-          theme: "dark",
-          autoClose: 3000,
-        });
-        console.log("El grupo fue eliminado exitosamente");
-        setTimeout(() => {
-          getGroups();
-        }, 1000);
-
-        // Realiza alguna acción adicional, como actualizar la lista de grupos
-      } else if (response.data.error) {
-        // Ocurrió un error al eliminar el grupo
-        toast.error(response.data.error); // Muestra el mensaje de error enviado desde el servidor
-        console.error("Error al eliminar el grupo:", response.status);
-        // Realiza alguna acción adicional para manejar el error
-      }
-    } catch (error) {
-      console.error("Error al eliminar el grupo:", error);
-      toast.error("Ocurrió un error al eliminar el grupo");
-      // Realiza alguna acción adicional para manejar el error
-    }
+  const handleDeleteModal = () => {
+    setShowDeleteModal((modal) => !modal);
   };
 
-  const handleDeleteButton = async (id: string, master: string) => {
-    await handleDeleteGroup(id, master);
+  const confirmDeleteModal = async () => {
+    await setShowDeleteModal(true);
+  };
+
+  const handleDeleteButton = async (agency: any) => {
+    await confirmDeleteModal();
+    await setSelectedGroup(agency);
   };
 
 
@@ -160,7 +141,7 @@ export const GroupsTable = () => {
                         <div className="flex items-center gap-x-2">
                           <div>
                             <h2 className="font-medium text-gray-800 dark:text-white">
-                              {group.master}
+                              {group.name}
                             </h2>
                           </div>
                         </div>
@@ -188,7 +169,7 @@ export const GroupsTable = () => {
                           className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
                             hover:text-red-500 focus:outline-none"
                           onClick={() =>
-                            handleDeleteButton(group.id, group.master)
+                            handleDeleteButton(group)
                           }
                         >
                           <AiOutlineDelete className="w-5 h-5" />
@@ -212,17 +193,28 @@ export const GroupsTable = () => {
         handlePageChange={handlePageChange}
       />
       {(showModal && editMode) ?
-        <NewGroupModal
+        <GroupModal
           handleEditGroup={() => handleEditGroup(selectedGroup)}
           toggleModal={handleToggleModal}
           getGroups={getGroups}
         />
         : showModal &&
-        <NewGroupModal
+        <GroupModal
           toggleModal={handleToggleModal}
           getGroups={getGroups}
         />
       }
+      {showDeleteModal ? 
+      <ConfirmDeleteModal
+          toggleModal={handleDeleteModal}
+          refresh={getGroups}
+          selectedItem={selectedGroup}
+          title="Eliminar Grupo"
+          message={`¿Estás seguro que deseas eliminar "${selectedGroup?.name}"? Recuerda que se perderan todos los datos y archivos.`}
+          apiRoute="groups"
+      /> : null
+
+    }
     </div>
   );
 };

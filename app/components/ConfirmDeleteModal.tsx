@@ -1,21 +1,24 @@
 import axios from "axios";
-import { Agency } from "@prisma/client";
 import {toast, ToastContainer} from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 
 
 interface confirmDeleteModalProps {
-    getAgencies: () => void;
+    refresh: () => void;
     toggleModal: () => void;
-    selectedAgency: any;
+    selectedItem: any;
+    title: string;
+    message: string;
+    apiRoute: string;
 }
 
 export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
-    const {getAgencies, toggleModal, selectedAgency} = props;
-    console.log(selectedAgency);
-    const handleDeleteAgency = async (id: string, name: string) => {
+    const {refresh, toggleModal, selectedItem, title, message, apiRoute} = props;
+    console.log(selectedItem);
+
+    const handleDeleteItem = async (id: string, name: string) => {
         try {
-          const response = await axios.delete(`/api/agencies?id=${id}`);
+          const response = await axios.delete(`/api/${apiRoute}?id=${id}`);
           console.log(response);
     
           if (response.data.success) {
@@ -26,8 +29,8 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
             });
             console.log("La empresa fue eliminada exitosamente");
             setTimeout(() => {
-              getAgencies();
-                toggleModal();
+            refresh();
+            toggleModal();
             }, 1000);
     
             // Realiza alguna acción adicional, como actualizar la lista de empresas
@@ -50,7 +53,7 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
         <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
           <div className="flex flex-col gap-4 pb-7 justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
             <div className="py-2 bg-orange-500 w-full text-center relative">
-              <h2 className="text-white">Añadir nuevo grupo</h2>
+              <h2 className="text-white">{title}</h2>
               <button onClick={toggleModal} className="absolute top-3 right-4">
                 <TfiClose className="w-5 h-5 text-white" />
               </button>
@@ -58,13 +61,13 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
             <div className="w-full px-7 flex flex-col justify-center">
               <div>
                 <p className="text-center text-gray-500">
-                    ¿Estás seguro que deseas eliminar esta empresa?
+                    {message}
                 </p>
                 <div className="flex justify-center gap-4 mt-4">
                     <button onClick={toggleModal} className="px-4 py-2 bg-gray-500 text-white">
                         Cancelar
                     </button>
-                    <button onClick={() => handleDeleteAgency(selectedAgency.id, selectedAgency.name)} className="px-4 py-2 bg-orange-500 text-white">
+                    <button onClick={() => handleDeleteItem(selectedItem.id, selectedItem.name)} className="px-4 py-2 bg-orange-500 text-white">
                         Eliminar
                     </button>
 

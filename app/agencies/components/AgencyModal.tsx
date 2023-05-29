@@ -4,17 +4,17 @@ import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { FileUpload, Input } from "@/app/components/ui";
 
-interface NewAgencyModalProps {
+interface AgencyModalProps {
   toggleModal: () => void;
   handleEditAgency?: () => Promise<string>;
-  getAgencies?: () => void;
+  refresh?: () => void;
   buttonText: string;
 }
 
-const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
+const AgencyModal: React.FC<AgencyModalProps> = ({
   toggleModal,
   handleEditAgency,
-  getAgencies,
+  refresh,
   buttonText,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
@@ -34,8 +34,12 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
     logoSrc: "",
   });
 
+  const [editMode, setEditMode] = useState(false);
+    
+
   const checkEditMode = async () => {
     if (!handleEditAgency) {
+      setEditMode(false);
       setFormData({
         name: "",
         location: "",
@@ -45,6 +49,8 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
       });
       return;
     }
+
+    setEditMode(true);
     const agencyId = await handleEditAgency();
 
     if (agencyId) {
@@ -71,6 +77,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
   };
 
   useEffect(() => {
+    setEditMode(false);
     checkEditMode();
   }, []);
 
@@ -96,7 +103,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
         formData.location.trim() === ""
           ? "El campo Provincia es requerido."
           : "",
-      logoSrc: !selectedFile ? "El campo Logo es requerido." : "",
+      logoSrc: (!editMode && !selectedFile) ? "El campo Logo es requerido." : "",
     };
 
     setFormErrors(errors);
@@ -108,7 +115,8 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
     const agenciesList = await axios.get("/api/agencies");
     const agencies = agenciesList.data;
 
-    if (agencies.some((agency: any) => agency.name === formData.name)) {
+    const checkName = () => {
+      if (agencies.some((agency: any) => agency.name === formData.name)) {
       toast.error("Ya existe una agencia con ese nombre", {
         position: "top-right",
         theme: "dark",
@@ -117,6 +125,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
       });
       return;
     }
+  }
 
     try {
       const fileUpload = async () => {
@@ -134,15 +143,27 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
       };
 
       const filePath = await fileUpload();
-      const response = await axios.post("/api/new-agency", {
-        ...formData,
-        logoSrc: filePath,
-      });
 
+      const getAPI = async () => {
+        const updatedFormData = { ...formData, logoSrc: filePath };
+        if (editMode) {
+        const response = await axios.post("/api/edit-agency", updatedFormData);
+       
+        return response;
+      } else {
+        await checkName();
+        const response = await axios.post("/api/new-agency", updatedFormData);
+        
+        return response;
+      }
+    }
+
+    const response = await getAPI();
+    
       console.log(response.data);
-
+      const message = editMode ? `editada` : "agregada";
       if (response.data.success) {
-        await toast.success(`${formData.name} agregada con éxito!`, {
+        await toast.success(`Empresa ${message} con éxito!`, {
           position: "top-right",
           theme: "dark",
           containerId: "toast-container",
@@ -151,8 +172,8 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
 
         setTimeout(() => {
           toggleModal();
-          if (getAgencies) {
-            getAgencies();
+          if (refresh) {
+            refresh();
           }
         }, 3000);
       } else if (response.data.error) {
@@ -171,6 +192,8 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
   const maxSize = 0.2 * 1024 * 1024;
   const maxWidth = 128;
   const maxHeight = 128;
+
+  const requiredFile = editMode ? true : false; 
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -264,7 +287,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">Añadir nueva empresa</h2>
+            <h2 className="text-white">{editMode ? 'Editar empresa' : 'Agregar nueva empresa'}</h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">
               <TfiClose className="w-5 h-5 text-white" />
             </button>
@@ -328,7 +351,7 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
                   handleFileChange={handleFileChange}
                   fileName={fileName}
                   error={formErrors.logoSrc}
-                  required
+                  required={requiredFile}
                 />
 
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">
@@ -356,4 +379,4 @@ const NewAgencyModal: React.FC<NewAgencyModalProps> = ({
   );
 };
 
-export default NewAgencyModal;
+export default AgencyModal;

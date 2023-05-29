@@ -28,7 +28,7 @@ model Agency {
 
 model Group {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  master      String
+  name      String
   coordinator String
   school      String
   entry       String

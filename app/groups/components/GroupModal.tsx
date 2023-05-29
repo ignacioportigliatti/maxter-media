@@ -5,19 +5,19 @@ import axios from "axios";
 import { Agency, Group } from "@prisma/client";
 import { Input, Select } from "@/app/components/ui";
 
-interface NewGroupModalProps {
+interface GroupModalProps {
   toggleModal: () => void;
   handleEditGroup?: () => Promise<string>;
   getGroups?: () => void;
 }
 
-const NewGroupModal: React.FC<NewGroupModalProps> = ({
+const GroupModal: React.FC<GroupModalProps> = ({
   toggleModal,
   handleEditGroup,
   getGroups,
 }) => {
   const [formErrors, setFormErrors] = useState({
-    master: "",
+    name: "",
     coordinator: "",
     school: "",
     entry: "",
@@ -26,7 +26,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
   });
 
   const [formData, setFormData] = useState({
-    master: "",
+    name: "",
     agencyId: "",
     agencyName: "",
     coordinator: "",
@@ -61,10 +61,12 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
     }
   }, []);
 
+  const [editMode, setEditMode] = useState(false);
+
   const checkEditMode = async () => {
     if (!handleEditGroup) {
       setFormData({
-        master: "",
+        name: "",
         agencyId: "",
         agencyName: "",
         coordinator: "",
@@ -74,6 +76,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
       });
       return;
     }
+    setEditMode(true);
     const groupId = await handleEditGroup();
 
     if (groupId) {
@@ -83,7 +86,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
 
       try {
         setFormData({
-          master: group.master,
+          name: group.name,
           agencyId: group.agency,
           agencyName: group.agencyName,
           coordinator: group.coordinator,
@@ -109,6 +112,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
   };
 
   useEffect(() => {
+    setEditMode(false);
     checkEditMode();
   }, []);
 
@@ -116,8 +120,8 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
     event.preventDefault();
 
     const errors = {
-      master:
-        formData.master.trim() === ""
+      name:
+        formData.name.trim() === ""
           ? "El campo Grupo/Master es requerido."
           : "",
       coordinator:
@@ -140,11 +144,11 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
 
     const groups = await axios.get("/api/groups");
     const groupExists = groups.data.find(
-      (group: any) => group.master === formData.master
+      (group: any) => group.name === formData.name
     );
 
     if (groupExists) {
-      toast.error(`El grupo ${formData.master} ya existe.`, {
+      toast.error(`El grupo ${formData.name} ya existe.`, {
         position: "top-right",
         theme: "dark",
         containerId: "toast-container",
@@ -164,7 +168,7 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
       const response = await axios.post("/api/new-group", updatedFormData);
 
       if (response.data.success) {
-        toast.success(`${updatedFormData.master} agregado con éxito!`, {
+        toast.success(`${updatedFormData.name} agregado con éxito!`, {
           position: "top-right",
           theme: "dark",
           containerId: "toast-container",
@@ -218,9 +222,9 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
                     label="Grupo/Master"
                     type="text"
                     required
-                    value={formData.master}
-                    onChange={(event) => handleInputChange(event, "master")}
-                    error={formErrors.master}
+                    value={formData.name}
+                    onChange={(event) => handleInputChange(event, "name")}
+                    error={formErrors.name}
                   />
                 </div>
                 <div>
@@ -315,4 +319,4 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({
   );
 };
 
-export default NewGroupModal;
+export default GroupModal;

@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function GroupsPage() {
   const [groups, setGroups] = useState<
     Array<{
-      master: string;
+      name: string;
       agencyName: string;
       coordinator: string;
       school: string;

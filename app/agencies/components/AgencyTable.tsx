@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-import NewAgencyModal from "./NewAgencyModal";
+import NewAgencyModal from "./AgencyModal";
 import Pagination from "@/app/components/Pagination";
-import { ConfirmDeleteModal } from "@/app/groups/components/ConfirmDeleteModal";
+import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
 
 interface Agency {
   name: string;
@@ -200,21 +200,24 @@ export const AgencyTable = () => {
         <NewAgencyModal
           handleEditAgency={() => handleEditAgency(selectedAgency)}
           toggleModal={handleToggleModal}
-          getAgencies={getAgencies}
+          refresh={getAgencies}
           buttonText="Editar Empresa"
         />
         : showModal &&
         <NewAgencyModal
           toggleModal={handleToggleModal}
-          getAgencies={getAgencies}
+          refresh={getAgencies}
           buttonText="Agregar Empresa"
         />
       }
       {showDeleteModal ? 
       <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
-          getAgencies={getAgencies}
-          selectedAgency={selectedAgency}
+          refresh={getAgencies}
+          selectedItem={selectedAgency}
+          title="Eliminar Empresa"
+          message={`¿Estás seguro que deseas eliminar "${selectedAgency?.name}"? Recuerda que se perderan los grupos.`}
+          apiRoute="agencies"
       /> : null
 
     }

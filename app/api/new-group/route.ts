@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const createdGroup = await prisma.group.create({
       data: {
-        master: data.master,
+        name: data.name,
         coordinator: data.coordinator,
         school: data.school,
         entry: data.entry,
@@ -38,4 +38,8 @@ export async function POST(request: Request) {
     console.error("Error al crear el grupo:", error);
     return NextResponse.json({ error: "Ocurrió un error al crear el grupo" });
   }
+}
+
+export async function UPDATE(request: Request) {
+  
 }

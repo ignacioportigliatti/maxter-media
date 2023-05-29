@@ -75,7 +75,7 @@ export const GroupsTable = () => {
     const groups = await axios.get('/api/groups');
     
     const groupObj = await groups.data.find((group: Group) => group.id === selectedGroup?.id);
-
+ 
     const groupToEdit: string = groupObj.id;
     return groupToEdit;
   };
@@ -95,10 +95,10 @@ export const GroupsTable = () => {
     <div>
       <ToastContainer />
       <div className="flex flex-col">
-        <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
+        <div className="md:overflow-hidden border border-gray-200 dark:border-medium-gray">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-dark-gray">
-              <tr>
+              <tr className="">
                 <th className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
                   Grupo/Master
                 </th>
@@ -197,6 +197,7 @@ export const GroupsTable = () => {
           handleEditGroup={() => handleEditGroup(selectedGroup)}
           toggleModal={handleToggleModal}
           getGroups={getGroups}
+         
         />
         : showModal &&
         <GroupModal

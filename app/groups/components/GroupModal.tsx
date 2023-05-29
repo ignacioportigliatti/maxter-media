@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { Agency, Group } from "@prisma/client";
-import { Input, Select } from "@/app/components/ui";
+import { Input, Select, MasterInput } from "@/app/components/ui";
 
 interface GroupModalProps {
   toggleModal: () => void;
@@ -65,6 +65,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
 
   const checkEditMode = async () => {
     if (!handleEditGroup) {
+
       setFormData({
         name: "",
         agencyId: "",
@@ -77,8 +78,11 @@ const GroupModal: React.FC<GroupModalProps> = ({
       return;
     }
     setEditMode(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     const groupId = await handleEditGroup();
 
+    
     if (groupId) {
       const groups = await axios.get("api/groups/");
 
@@ -147,13 +151,13 @@ const GroupModal: React.FC<GroupModalProps> = ({
       (group: any) => group.name === formData.name
     );
 
+    if (formData.entry > formData.exit) {
+      toast.error("El dia de entrada no puede ser despues que el dia de salida.")
+      return;
+    }
+
     if (groupExists) {
-      toast.error(`El grupo ${formData.name} ya existe.`, {
-        position: "top-right",
-        theme: "dark",
-        containerId: "toast-container",
-        autoClose: 3000,
-      });
+      toast.error(`El grupo ${formData.name} ya existe.`);
 
       return;
     }
@@ -168,12 +172,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
       const response = await axios.post("/api/new-group", updatedFormData);
 
       if (response.data.success) {
-        toast.success(`${updatedFormData.name} agregado con éxito!`, {
-          position: "top-right",
-          theme: "dark",
-          containerId: "toast-container",
-          autoClose: 3000,
-        });
+        toast.success(`${updatedFormData.name} agregado con éxito!`);
 
         setTimeout(async () => {
           toggleModal();
@@ -182,12 +181,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
           }
         }, 3000);
       } else if (response.data.error) {
-        toast.error(response.data.error, {
-          position: "top-right",
-          theme: "dark",
-          containerId: "toast-container",
-          autoClose: 3000,
-        });
+        toast.error(response.data.error);
       }
     } catch (error) {
       console.error("Error al crear el grupo:", error);
@@ -217,6 +211,16 @@ const GroupModal: React.FC<GroupModalProps> = ({
             <form onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-2 gap-4 mx-auto">
                 <div>
+                  {!editMode ? 
+                  <MasterInput
+                    id="name"
+                    label="Grupo/Master"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(event) => handleInputChange(event, "name")}
+                    error={formErrors.name}
+                  /> : 
                   <Input
                     id="name"
                     label="Grupo/Master"
@@ -225,7 +229,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
                     value={formData.name}
                     onChange={(event) => handleInputChange(event, "name")}
                     error={formErrors.name}
-                  />
+                  />}
                 </div>
                 <div>
                   <Select

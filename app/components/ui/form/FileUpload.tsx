@@ -1,4 +1,5 @@
 import { AiOutlineFileAdd } from "react-icons/ai";
+import { useState } from "react";
 
 interface FileUploadProps {
   label: string;
@@ -12,6 +13,9 @@ interface FileUploadProps {
 }
 
 export const FileUpload = (props: FileUploadProps) => {
+  const [isDragging, setIsDragging] = useState(false);
+
+  
   const {
     id,
     label,
@@ -23,23 +27,63 @@ export const FileUpload = (props: FileUploadProps) => {
     error,
   } = props;
 
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+  
+    const files = event.dataTransfer.files;
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.files = files;
+    const fileChangeEvent = {
+      target: fileInput
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleFileChange(fileChangeEvent);
+  };
+  
+  
+
+
   return (
     <div>
       <label className="text-dark-gray dark:text-light-gray">{label}</label>
-      <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed">
+      <div
+        className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed ${
+          isDragging ? "border-orange-500" : ""
+        }`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+
+      >
         <div className="space-y-1 text-center">
           <AiOutlineFileAdd className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
           <div className="flex text-sm justify-center text-gray-600">
             <label className="relative cursor-pointer px-2 py-1 dark:bg-white bg-gray-300 font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
               <span className="">{buttonText}</span>
               <input
-                
                 required={required}
                 id={id}
                 type="file"
                 className="sr-only"
                 accept="image/png, image/jpeg"
-                onChange={handleFileChange} // Actualizamos el manejador de eventos para capturar el archivo seleccionado
+                onChange={handleFileChange}
               />
             </label>
             <p className="pl-1 text-dark-gray dark:text-white self-center">
@@ -54,7 +98,9 @@ export const FileUpload = (props: FileUploadProps) => {
           </p>
         </div>
       </div>
-          {error && <p className="text-red-500 text-xs text-center">{error}</p>} {/* Mostrar el mensaje de error si existe */}
+      {error && (
+        <p className="text-red-500 text-xs text-center">{error}</p>
+      )}
     </div>
   );
 };

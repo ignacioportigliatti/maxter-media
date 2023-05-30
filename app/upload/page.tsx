@@ -1,6 +1,7 @@
 'use client'
 
 import { UploadTabs } from "./components";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function UploadPage() {
   return (

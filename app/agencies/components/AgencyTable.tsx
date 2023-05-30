@@ -4,19 +4,10 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import NewAgencyModal from "./AgencyModal";
 import Pagination from "@/app/components/Pagination";
+import { Agency } from "@prisma/client";
 import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
 
-interface Agency {
-  name: string;
-  location: string;
-  group: number;
-  phone: string;
-  email: string;
-  logoSrc: string;
-  id: string;
-}
 
-interface AgencyTableProps {}
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -25,17 +16,7 @@ export const AgencyTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [editMode, setEditMode] = useState(false);
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
-  const [agencies, setAgencies] = useState<
-    Array<{
-      name: string;
-      location: string;
-      phone: string;
-      email: string;
-      groups: number;
-      logoSrc: string;
-      id: string;
-    }>
-  >([]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
 
  
 
@@ -156,8 +137,8 @@ export const AgencyTable = () => {
                       <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-orange-100/60 dark:bg-medium-gray">
                         <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
                         <h2 className="text-sm font-normal text-orange-500">
-                          {agency.groups}{" "}
-                          {agency.groups > 1 ? "Grupos" : "Grupo"}
+                          {agency.groupIds.length}{" "}
+                          {agency.groupIds.length !== 1 ? "Grupos" : "Grupo"}
                         </h2>
                       </div>
                     </td>
@@ -218,6 +199,7 @@ export const AgencyTable = () => {
           title="Eliminar Empresa"
           message={`¿Estás seguro que deseas eliminar "${selectedAgency?.name}"? Recuerda que se perderan los grupos.`}
           apiRoute="agencies"
+          toastMessage={`La empresa ${selectedAgency?.name} fue eliminada exitosamente`}
       /> : null
 
     }

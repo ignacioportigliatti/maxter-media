@@ -16,6 +16,7 @@ interface SidebarProps {}
 
 export const Sidebar = (props: SidebarProps) => {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+  
 
   const handleThemeChange = () => {
     document.documentElement.classList.toggle("dark");
@@ -28,8 +29,8 @@ export const Sidebar = (props: SidebarProps) => {
       : "/sidebar/maxter-logo.png";
 
   return (
-    <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
-      <div className="flex flex-col top-0 left-0 w-64 bg-gray-200 dark:bg-dark-gray themeTransition h-screen">
+    <div className="min-h-full h-full flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
+      <div className="flex flex-col sticky h-screen top-0 left-0 w-64 bg-gray-200 dark:bg-dark-gray themeTransition">
         <div className="flex items-center justify-center p-6 h-20 border-b border-orange-500">
           <div>
             <Image

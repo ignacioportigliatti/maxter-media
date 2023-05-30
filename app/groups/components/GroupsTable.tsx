@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import {ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import GroupModal from "./GroupModal";
 import Pagination from "@/app/components/Pagination";
@@ -213,6 +213,7 @@ export const GroupsTable = () => {
           title="Eliminar Grupo"
           message={`¿Estás seguro que deseas eliminar "${selectedGroup?.name}"? Recuerda que se perderan todos los datos y archivos.`}
           apiRoute="groups"
+          toastMessage={`Grupo "${selectedGroup?.name}" eliminado con éxito`}
       /> : null
 
     }

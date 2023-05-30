@@ -1,5 +1,7 @@
+import { Agency, Group } from "@prisma/client";
+
 interface Props {
-  options: {name: string, value: string}[];
+  options: Agency[] | Group[];
   label: string;
   id: string;
   value?: string;
@@ -25,7 +27,7 @@ export const Select = (props: Props) => {
       >
         <option value="" key="default">{editableAgency ? `${editableAgency.name}` : '-- Selecciona una opción --'}</option>
         {options.map((option, index) => {
-          return <option value={option.value} key={index} className="dark:bg-dark-gray">{option.name}</option>;
+          return <option value={option.id} key={index} className="dark:bg-dark-gray">{option.name}</option>;
         })}
       </select>
       {error && <p className="text-red-500 text-xs">{error}</p>} {/* Mostrar el mensaje de error si existe */}

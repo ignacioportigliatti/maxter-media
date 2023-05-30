@@ -23,7 +23,7 @@ export default function RootLayout({
           <div className="hidden lg:flex">
             <Sidebar />
           </div>
-          <div className="lg:h-screen flex mx-auto w-full">
+          <div className="lg:h-full flex mx-auto w-full">
             {children}
           </div>
         </div>

@@ -1,3 +1,5 @@
+'use client'
+
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { useState } from "react";
 

@@ -10,10 +10,11 @@ interface confirmDeleteModalProps {
     title: string;
     message: string;
     apiRoute: string;
+    toastMessage?: string;
 }
 
 export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
-    const {refresh, toggleModal, selectedItem, title, message, apiRoute} = props;
+    const {refresh, toggleModal, selectedItem, title, message, apiRoute, toastMessage} = props;
     console.log(selectedItem);
 
     const handleDeleteItem = async (id: string, name: string) => {
@@ -23,7 +24,7 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
     
           if (response.data.success) {
             // La eliminación fue exitosa
-            toast.success(`La empresa ${name} fue eliminada exitosamente`, {
+            toast.success(toastMessage, {
               theme: "dark",
               autoClose: 3000,
             });

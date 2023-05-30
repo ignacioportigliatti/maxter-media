@@ -78,7 +78,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
       return;
     }
     setEditMode(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
 
     const groupId = await handleEditGroup();
 
@@ -235,7 +235,12 @@ const GroupModal: React.FC<GroupModalProps> = ({
                   <Select
                     options={agencies.map((agency) => ({
                       name: agency.name,
-                      value: agency.id,
+                      id: agency.id,
+                      phone: agency.phone,
+                      email: agency.email,
+                      location: agency.location,
+                      logoSrc : agency.logoSrc,
+                      groupIds: agency.groupIds,
                     }))}
                     label="Empresa"
                     id="empresa"

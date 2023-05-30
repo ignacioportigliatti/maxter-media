@@ -1,3 +1,5 @@
+'use client'
+
 import { Step } from "@/app/components/ui/";
 import { AiOutlineCloudDownload, AiOutlinePlayCircle, AiOutlineSearch } from "react-icons/ai"
 

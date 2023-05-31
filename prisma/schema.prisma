@@ -16,7 +16,7 @@ model Agency {
   location String
   phone    String
   email    String
-  logoSrc  String?
+  logoSrc  String
 
   // Agrega un campo `groupIds` para almacenar los IDs de los grupos asociados a la agencia
   groupIds  String[] 

@@ -8,13 +8,12 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Instala las dependencias de tu aplicación
-RUN npm install --production
+RUN npm install
 
 # Compila la aplicación
-RUN npm run build
 
 # Expone el puerto en el que se ejecutará tu aplicación
-EXPOSE 8080
+EXPOSE 3000
 
 # Define el comando para iniciar la aplicación
 CMD [ "npm", "run", "dev" ]

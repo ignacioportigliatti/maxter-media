@@ -13,7 +13,7 @@ RUN npm install
 # Compila la aplicación
 
 # Expone el puerto en el que se ejecutará tu aplicación
-EXPOSE 3000
+EXPOSE 8080
 
 # Define el comando para iniciar la aplicación
 CMD [ "npm", "run", "dev" ]

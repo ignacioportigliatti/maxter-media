@@ -26,7 +26,7 @@ export const AgencyTable = () => {
 
   const getAgencies = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/agencies");
+      const response = await axios.get("/api/agencies");
       setAgencies(response.data);
     } catch (error) {
       console.log(error);

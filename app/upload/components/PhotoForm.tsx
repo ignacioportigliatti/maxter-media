@@ -43,7 +43,7 @@ export const PhotoForm = () => {
 
   const getAgencies = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/agencies");
+      const response = await axios.get("/api/agencies");
       setAgencies(response.data);
     } catch (error) {
       console.log(error);
@@ -52,7 +52,7 @@ export const PhotoForm = () => {
 
   const getGroups = async (agency: Agency) => {
     try {
-      const groups = await axios.get("http://localhost:3000/api/groups");
+      const groups = await axios.get("http:///api/groups");
       const filteredGroups = groups.data.filter((group: Group) =>
         agency.groupIds.includes(group.id)
       );

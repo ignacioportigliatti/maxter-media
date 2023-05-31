@@ -24,7 +24,7 @@ export default function GroupsPage() {
 
   const getGroups = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/groups");
+      const response = await axios.get("/api/groups");
       setGroups(response.data);
     } catch (error) {
       console.log(error);

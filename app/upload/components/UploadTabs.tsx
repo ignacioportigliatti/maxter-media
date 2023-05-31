@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PhotoForm, VideoForm } from "./";
 import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
+import GroupsTable from "./GroupsTable";
 
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
@@ -43,8 +44,8 @@ export const UploadTabs = () => {
           </li>
         </ul>
       </div>
-      <div className="mx-auto mt-4">
-        {activeTab === "photos" && <PhotoForm />}
+      <div className="mx-auto">
+        {activeTab === "photos" && <GroupsTable />}
         {activeTab === "videos" && <VideoForm />}
       </div>
     </div>

@@ -251,14 +251,15 @@ const AgencyModal: React.FC<AgencyModalProps> = ({
   };
 
   const fileName = selectedFile?.name || "";
+
   const handleFileUpload = async (file: File) => {
-    const timestamp = new Date().getTime();
-    const fileName = `${timestamp}_${file.name}`;
+    
+    const fileName = file.name
 
     try {
       const fileFormData = new FormData();
       fileFormData.append("file", file, fileName);
-      fileFormData.append("folder", "agencies-logos");
+      fileFormData.append("folder", 'agency-logos');
 
       const response = await axios.post("/api/upload", fileFormData);
       console.log(response.data);

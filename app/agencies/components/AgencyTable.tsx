@@ -6,6 +6,7 @@ import NewAgencyModal from "./AgencyModal";
 import Pagination from "@/app/components/Pagination";
 import { Agency } from "@prisma/client";
 import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
+import Image from "next/image";
 
 
 
@@ -117,7 +118,7 @@ export const AgencyTable = () => {
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                       <div className="inline-flex items-center gap-x-3">
                         <div className="flex items-center gap-x-2">
-                          <img
+                          <Image
                             className="object-cover w-10 h-10 rounded-full bg-medium-gray"
                             src={agency.logoSrc}
                             alt={`${agency.name} logo`}

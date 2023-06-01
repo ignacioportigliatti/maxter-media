@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface Props {
   title: string;
   agency: string;
@@ -15,9 +17,10 @@ export const VideoCard = (props: Props) => {
         <div className="w-full flex flex-col">
           <div className="relative">
             <a href="#">
-              <img
+              <Image
                 src={thumbSrc}
                 className="w-96 h-auto"
+                alt="video thumbnail"
               />
             </a>
 

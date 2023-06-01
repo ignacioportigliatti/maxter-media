@@ -1,61 +1,43 @@
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import { NextRequest, NextResponse } from "next/server";
-import { join } from "path";
+import { NextRequest, NextResponse } from 'next/server';
+import { Storage } from '@google-cloud/storage';
+
+const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT, keyFilename: process.env.BUCKET_KEYFILE});
+const bucketName = process.env.BUCKET_NAME!;
 
 export async function POST(request: NextRequest) {
   const data = await request.formData();
-  const file: File | null = data.get("file") as unknown as File;
-  const folder = data.get("folder");
+  const file: File | null = data.get('file') as unknown as File;
+  const folder = data.get('folder');
 
   if (!file) {
-    return NextResponse.json({ success: false });
+    return NextResponse.json({ success: false, error: 'No file selected' });
   }
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadsDir = join(process.cwd(), `public/uploads/${folder}`);
-  const fileName = file.name;
-  const filePath = join(uploadsDir, fileName);
-  const baseDir = join(process.cwd(), "public/");
-  const trimmedUploadPath = filePath.substring(baseDir.length);
-
   try {
-    const uploadsDirExists = existsSync(uploadsDir);
+    const destFileName = `uploads/${folder}/${file.name}`;
 
-    if (!uploadsDirExists) {
-      try {
-        console.log(`Creating uploads directory: ${uploadsDir}`);
-        await mkdir(uploadsDir, { recursive: true });
-      } catch (error) {
-        console.error("Error creating uploads directory:", error);
-        return NextResponse.json({
-          success: false,
-          error: "Failed to create folder",
-        });
-      }
-    }
+    const bucket = storage.bucket(bucketName);
+    const fileObj = bucket.file(destFileName);
 
-    try {
-      console.log(`Writing file: ${filePath}`);
-      await writeFile(filePath, buffer);
-    } catch (error) {
-      console.error("Error writing file:", error);
-      return NextResponse.json({
-        success: false,
-        error: "Failed to write file",
-      });
-    }
+    await fileObj.save(buffer);
+    console.log('File saved');
+   
+    const signedUrl = await fileObj.getSignedUrl({
+      action: 'read',
+      expires: '03-09-2491',
+    });
 
-    console.log(`File uploaded: ${trimmedUploadPath}`);
+    console.log(`File uploaded: ${signedUrl}`);
 
-    return NextResponse.json({ success: true, filePath: trimmedUploadPath });
+    return NextResponse.json({ success: true, filePath: signedUrl.toString() });
   } catch (error) {
-    console.error("Error uploading file:", error);
+    console.error('Error uploading file:', error);
     return NextResponse.json({
       success: false,
-      error: "Failed to upload file",
+      error: 'Failed to upload file',
     });
   }
 }

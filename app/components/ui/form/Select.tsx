@@ -9,15 +9,17 @@ interface Props {
   required?: boolean;
   error?: string;
   editableAgency?: {id: string, name: string};
+  defaultValue?: string;
 }
 
 export const Select = (props: Props) => {
-  const { options, label, id, onChange, value, required, error, editableAgency } = props;
+  const { options, label, id, onChange, defaultValue, value, required, error, editableAgency } = props;
 
   return (
     <div>
       <label className="text-dark-gray dark:text-light-gray">{label}</label>
       <select
+      defaultValue={defaultValue}
         value={value}
         onChange={onChange}
         id={id}

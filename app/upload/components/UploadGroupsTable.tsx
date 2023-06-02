@@ -2,23 +2,28 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import GroupModal from "./PhotoModal";
+import { UploadGroupModal } from "./";
 import { Group } from "@prisma/client";
 import Pagination from "@/app/components/Pagination";
 import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
 import { TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
 
-const columnHeaders = [
-  { key: "name", label: "Grupo/Master" },
-  { key: "agencyName", label: "Empresa" },
-  { key: "coordinator", label: "Coordinador" },
-  { key: "school", label: "Escuela" },
-  { key: "entry", label: "Entrada" },
-  { key: "exit", label: "Salida" },
-];
+interface UploadGroupsTableProps {
+  activeTab: string;
+}
 
-export const GroupsTable = () => {
-  const [showModal, setShowModal] = useState(false);
+export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
+  const columnHeaders = [
+    { key: "name", label: "Grupo/Master" },
+    { key: "agencyName", label: "Empresa" },
+    { key: "coordinator", label: "Coordinador" },
+    { key: "school", label: "Escuela" },
+    { key: "entry", label: "Entrada" },
+    { key: "exit", label: "Salida" },
+  ];
+  const { activeTab } = props;
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [showAutoModal, setShowAutoModal] = useState(false);
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -53,7 +58,11 @@ export const GroupsTable = () => {
   };
 
   const handleToggleModal = () => {
-    setShowModal((modal) => !modal);
+    if (showManualModal) {
+      setShowManualModal((modal) => !modal);
+    } else {
+      setShowAutoModal((modal) => !modal);
+    }
   };
 
   const handleDeleteModal = () => {
@@ -88,6 +97,7 @@ export const GroupsTable = () => {
       updatedGroups.set(group.id, false);
       return updatedGroups;
     });
+    setIsDragging(false);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
@@ -102,7 +112,7 @@ export const GroupsTable = () => {
     setIsDragging(false);
     setDraggedGroups(new Map());
     setSelectedGroup(group);
-    setShowModal(true);
+    setShowAutoModal(true);
     console.log("Dropped group", group);
   };
 
@@ -113,21 +123,19 @@ export const GroupsTable = () => {
   };
 
   const handleEditGroup = async (selectedGroup: Group | null) => {
-    setShowModal(true);
+    setShowManualModal(true);
     const groups = await axios.get("/api/groups");
-
     const groupObj = await groups.data.find(
       (group: Group) => group.id === selectedGroup?.id
     );
-
-    const groupToEdit: string = groupObj.id;
+    const groupToEdit = groupObj;
     return groupToEdit;
   };
 
   const handleAddGroup = () => {
     setEditMode(false);
     setSelectedGroup(null);
-    setShowModal(true);
+    setShowManualModal(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -193,7 +201,7 @@ export const GroupsTable = () => {
       return (
         <input
           type="date"
-          className="mt-1 w-full py-1 px-1 border text-xs border-gray-300 dark:border-medium-gray focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full py-1 px-1 border text-xs dark:bg-dark-gray border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Filtrar..."
           value={filter[column] || ""}
           onChange={(e) => handleFilterChange(column, e.target.value)}
@@ -203,7 +211,7 @@ export const GroupsTable = () => {
       return (
         <input
           type="text"
-          className="mt-1 w-full py-1 px-1 border text-xs border-gray-300 dark:border-medium-gray focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full py-1 px-1 border text-xs dark:bg-dark-gray border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Filtrar..."
           value={filter[column] || ""}
           onChange={(e) => handleFilterChange(column, e.target.value)}
@@ -216,9 +224,9 @@ export const GroupsTable = () => {
     <div>
       <ToastContainer />
       <div className="flex flex-col">
-        <div className="md:overflow-hidden border-y border-gray-200 dark:border-medium-gray">
+        <div className="md:overflow-hidden border-y border-gray-200 dark:border-gray-700">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-dark-gray">
+            <thead className="bg-gray-50 dark:bg-medium-gray">
               <tr className="">
                 {columnHeaders.map(({ key, label }) => (
                   <th
@@ -239,7 +247,7 @@ export const GroupsTable = () => {
                 <th className="px-4 items-center text-sm whitespace-nowrap relative py-3.5">
                   <button
                     className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
-                        dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
+                        dark:bg-dark-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
                     onClick={handleAddGroup}
                   >
                     <span className="font-bold">+</span> Agregar
@@ -296,13 +304,6 @@ export const GroupsTable = () => {
                     </td>
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
-                        <button
-                          className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
-                            hover:text-red-500 focus:outline-none"
-                          onClick={() => handleDeleteButton(group)}
-                        >
-                          <AiOutlineDelete className="w-5 h-5" />
-                        </button>
                         <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
                           <AiOutlineEdit
                             className="w-5 h-5"
@@ -322,17 +323,33 @@ export const GroupsTable = () => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-      {showModal && editMode ? (
-        <GroupModal
-          handleEditGroup={() => handleEditGroup(selectedGroup)}
+      {showManualModal && editMode ? (
+        <UploadGroupModal
+          activeTab={activeTab}
           toggleModal={handleToggleModal}
-          getGroups={getGroups}
+          groupToEdit={selectedGroup}
+          refresh={getGroups}
+          uploadType="manual"
         />
       ) : (
-        showModal && (
-          <GroupModal toggleModal={handleToggleModal} getGroups={getGroups} />
+        showManualModal && (
+          <UploadGroupModal
+            activeTab={activeTab}
+            uploadType="manual"
+            toggleModal={handleToggleModal}
+          />
         )
       )}
+
+      {showAutoModal ? (
+        <UploadGroupModal
+          activeTab={activeTab}
+          toggleModal={handleToggleModal}
+          refresh={getGroups}
+          uploadType="auto"
+        />
+      ) : null}
+
       {showDeleteModal ? (
         <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
@@ -347,5 +364,3 @@ export const GroupsTable = () => {
     </div>
   );
 };
-
-export default GroupsTable;

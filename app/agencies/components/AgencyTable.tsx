@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-import NewAgencyModal from "./AgencyModal";
+import AgencyModal from "./AgencyModal";
 import Pagination from "@/app/components/Pagination";
 import { Agency } from "@prisma/client";
 import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
 import Image from "next/image";
-
-
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -18,8 +16,6 @@ export const AgencyTable = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [agencies, setAgencies] = useState<Agency[]>([]);
-
- 
 
   useEffect(() => {
     getAgencies();
@@ -54,13 +50,15 @@ export const AgencyTable = () => {
     setSelectedAgency(agency);
     setEditMode(true);
     handleEditAgency(selectedAgency);
-   }
+  };
 
-   const handleEditAgency = async (selectedGroup: Agency | null ) => {
+  const handleEditAgency = async (selectedGroup: Agency | null) => {
     setShowModal(true);
-    const agencies = await axios.get('/api/agencies');
-    
-    const agencyObj = await agencies.data.find((group: Agency) => group.id === selectedGroup?.id);
+    const agencies = await axios.get("/api/agencies");
+
+    const agencyObj = await agencies.data.find(
+      (group: Agency) => group.id === selectedGroup?.id
+    );
 
     const agencyToEdit: string = agencyObj.id;
     return agencyToEdit;
@@ -122,6 +120,8 @@ export const AgencyTable = () => {
                             className="object-cover w-10 h-10 rounded-full bg-medium-gray"
                             src={agency.logoSrc}
                             alt={`${agency.name} logo`}
+                            width={40}
+                            height={40}
                           />
                           <div>
                             <h2 className="font-medium text-gray-800 dark:text-white">
@@ -158,11 +158,11 @@ export const AgencyTable = () => {
                         >
                           <AiOutlineDelete className="w-5 h-5" />
                         </button>
-                        <button 
+                        <button
                           className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 
                           dark:text-gray-300 hover:text-yellow-500 focus:outline-none"
                           onClick={() => handleEditButton(agency)}
-                          >
+                        >
                           <AiOutlineEdit className="w-5 h-5" />
                         </button>
                       </div>
@@ -178,22 +178,24 @@ export const AgencyTable = () => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-            {(showModal && editMode) ?
-        <NewAgencyModal
+      {showModal && editMode ? (
+        <AgencyModal
           handleEditAgency={() => handleEditAgency(selectedAgency)}
           toggleModal={handleToggleModal}
           refresh={getAgencies}
           buttonText="Editar Empresa"
         />
-        : showModal &&
-        <NewAgencyModal
-          toggleModal={handleToggleModal}
-          refresh={getAgencies}
-          buttonText="Agregar Empresa"
-        />
-      }
-      {showDeleteModal ? 
-      <ConfirmDeleteModal
+      ) : (
+        showModal && (
+          <AgencyModal
+            toggleModal={handleToggleModal}
+            refresh={getAgencies}
+            buttonText="Agregar Empresa"
+          />
+        )
+      )}
+      {showDeleteModal ? (
+        <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
           refresh={getAgencies}
           selectedItem={selectedAgency}
@@ -201,9 +203,8 @@ export const AgencyTable = () => {
           message={`¿Estás seguro que deseas eliminar "${selectedAgency?.name}"? Recuerda que se perderan los grupos.`}
           apiRoute="agencies"
           toastMessage={`La empresa ${selectedAgency?.name} fue eliminada exitosamente`}
-      /> : null
-
-    }
+        />
+      ) : null}
     </div>
   );
 };

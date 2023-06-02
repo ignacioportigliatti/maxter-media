@@ -1,17 +1,30 @@
-'use client'
+"use client";
 
-import { FileUpload, FolderUpload, Select, TextArea } from "@/app/components/ui/form";
+import {
+  FileUpload,
+  FolderUpload,
+  Select,
+  TextArea,
+} from "@/app/components/ui/form";
 import axios from "axios";
 import { Agency, Group } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
-export const PhotoForm = () => {
+interface UploadFormPhotoProps {
+  editMode?: boolean;
+  groupToEdit?: Group | null;
+  getGroups?: () => void;
+}
+
+export const UploadFormPhoto = (props: UploadFormPhotoProps) => {
+  const { editMode, groupToEdit } = props;
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
+
   const [formErrors, setFormErrors] = useState({
     agency: "",
     group: "",
@@ -29,11 +42,37 @@ export const PhotoForm = () => {
   const maxSize = 1 * 1024 * 1024;
   const maxWidth = 11280;
   const maxHeight = 11128;
-  const requiredFile = true; 
+  const requiredFile = true;
+
+ 
+
+  const checkEditMode = async () => {
+    if (editMode === true) {
+
+      const agency = agencies.find(
+        (agency) => agency.id === groupToEdit?.agencyId
+      );
+
+      
+      setSelectedAgency(agency || null);
+      setSelectedGroup(groupToEdit || null);
+
+      setFormData({
+        agency: agency?.id || "",
+        group: groupToEdit?.id || "",
+        observations: formData.observations || "",
+        folderPath: formData.folderPath || "",
+      });
+  
+    } else {
+
+    }
+  };
 
   useEffect(() => {
+    checkEditMode();
     getAgencies();
-  }, []);
+  }, [editMode]);
 
   useEffect(() => {
     if (selectedAgency) {
@@ -52,7 +91,7 @@ export const PhotoForm = () => {
 
   const getGroups = async (agency: Agency) => {
     try {
-      const groups = await axios.get("http:///api/groups");
+      const groups = await axios.get("/api/groups");
       const filteredGroups = groups.data.filter((group: Group) =>
         agency.groupIds.includes(group.id)
       );
@@ -126,7 +165,10 @@ export const PhotoForm = () => {
     try {
       const fileFormData = new FormData();
       fileFormData.append("file", file, folderName);
-      fileFormData.append("folder", `photos/${formData.agency}/${formData.group}`);
+      fileFormData.append(
+        "folder",
+        `photos/${formData.agency}/${formData.group}`
+      );
 
       const response = await axios.post("/api/upload", fileFormData);
       console.log(response.data);
@@ -159,7 +201,6 @@ export const PhotoForm = () => {
     setFormErrors({ ...formErrors, agency: "" });
   };
 
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -167,19 +208,18 @@ export const PhotoForm = () => {
     const errors = {
       group: formData.group.trim() === "" ? "Debes seleccionar un grupo" : "",
       folderPath: folderName.trim() === "" ? "Debes cargar el material" : "",
-      agency: formData.agency.trim() === "" ? "Debes seleccionar una empresa" : "",
-      observations: ""
+      agency:
+        formData.agency.trim() === "" ? "Debes seleccionar una empresa" : "",
+      observations: "",
     };
 
     setFormErrors(errors);
-    console.log(formData)
-    
-    
-  }
+    console.log(formData);
+  };
 
   return (
     <div className="fade-in animate-in duration-700">
-      <section className="p-6 shadow-md">
+      <section className="p-6 ">
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Select
@@ -190,31 +230,34 @@ export const PhotoForm = () => {
               onChange={handleAgencyChange}
               error={formErrors.agency}
             />
-            <Select 
-            id="grupo" 
-            label="Grupo/Master" 
-            options={groups} 
-            value={formData.group}
-            onChange={(event) => handleInputChange(event, "group")}
-            error={formErrors.group}
+            <Select
+              id="grupo"
+              label="Grupo/Master"
+              options={groups}
+              value={formData.group}
+              onChange={(event) => handleInputChange(event, "group")}
+              error={formErrors.group}
             />
           </div>
           <div className="grid grid-cols-1 mt-2 gap-2">
             <TextArea id="observaciones" label="Observaciones" />
             <FolderUpload
-                  label="Fotos"
-                  id="logo"
-                  description="Arrastra o sube la carpeta del grupo con las fotos de las actividades"
-                  buttonText="Subir carpeta"
-                  handleFolderChange={handleFolderChange}
-                  folderName={folderName}
-                  error={formErrors.folderPath}
-                  required={requiredFile}
-                />
+              label="Fotos"
+              id="logo"
+              description="Arrastra o sube la carpeta del grupo con las fotos de las actividades"
+              buttonText="Subir carpeta"
+              handleFolderChange={handleFolderChange}
+              folderName={folderName}
+              error={formErrors.folderPath}
+              required={requiredFile}
+            />
           </div>
 
           <div className="flex justify-end mt-6">
-            <button id="submit" className="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-orange-500 rounded-md hover:bg-orange-700 focus:outline-none focus:bg-gray-600">
+            <button
+              id="submit"
+              className="px-6 py-2 leading-5 text-white transition-colors duration-200 transform bg-orange-500 rounded-md hover:bg-orange-700 focus:outline-none focus:bg-gray-600"
+            >
               Subir Archivos
             </button>
           </div>

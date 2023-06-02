@@ -28,7 +28,7 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex items-center justify-center gap-2 py-4 dark:bg-[#292929]">
       <button
         className={`buttonWithIcon ${
           currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""

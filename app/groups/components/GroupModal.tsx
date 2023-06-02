@@ -8,13 +8,13 @@ import { Input, Select, MasterInput } from "@/app/components/ui";
 interface GroupModalProps {
   toggleModal: () => void;
   handleEditGroup?: () => Promise<string>;
-  getGroups?: () => void;
+  refresh?: () => void;
 }
 
 const GroupModal: React.FC<GroupModalProps> = ({
   toggleModal,
   handleEditGroup,
-  getGroups,
+  refresh,
 }) => {
   const [formErrors, setFormErrors] = useState({
     name: "",
@@ -65,7 +65,6 @@ const GroupModal: React.FC<GroupModalProps> = ({
 
   const checkEditMode = async () => {
     if (!handleEditGroup) {
-
       setFormData({
         name: "",
         agencyId: "",
@@ -78,11 +77,9 @@ const GroupModal: React.FC<GroupModalProps> = ({
       return;
     }
     setEditMode(true);
-    
 
     const groupId = await handleEditGroup();
 
-    
     if (groupId) {
       const groups = await axios.get("api/groups/");
 
@@ -147,20 +144,25 @@ const GroupModal: React.FC<GroupModalProps> = ({
     }
 
     const groups = await axios.get("/api/groups");
-    const groupExists = groups.data.find(
-      (group: any) => group.name === formData.name
-    );
 
     if (formData.entry > formData.exit) {
-      toast.error("El dia de entrada no puede ser despues que el dia de salida.")
+      toast.error(
+        "El dia de entrada no puede ser despues que el dia de salida."
+      );
       return;
     }
 
-    if (groupExists) {
-      toast.error(`El grupo ${formData.name} ya existe.`);
-
-      return;
-    }
+    const checkName = () => {
+      if (groups.data.some((group: any) => group.name === formData.name)) {
+        toast.error("Ya existe un grupo con ese nombre", {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+        return;
+      }
+    };
 
     try {
       const updatedFormData = {
@@ -169,15 +171,31 @@ const GroupModal: React.FC<GroupModalProps> = ({
         agencyName: selectedAgency.name,
       };
 
-      const response = await axios.post("/api/new-group", updatedFormData);
+      const getResponseFromAPI = async () => {
+        if (editMode) {
+          const response = await axios.post("/api/edit-group", updatedFormData);
+          return response;
+        } else {
+          await checkName();
+          const response = await axios.post("/api/new-group", updatedFormData);
+
+          return response;
+        }
+      };
+
+      const response = await getResponseFromAPI();
 
       if (response.data.success) {
-        toast.success(`${updatedFormData.name} agregado con éxito!`);
+        if (editMode) {
+          toast.success(`${updatedFormData.name} editado con éxito!`);
+        } else {
+          toast.success(`${updatedFormData.name} agregado con éxito!`);
+        }
 
         setTimeout(async () => {
           toggleModal();
-          if (getGroups) {
-            await getGroups();
+          if (refresh) {
+            await refresh();
           }
         }, 3000);
       } else if (response.data.error) {
@@ -202,7 +220,9 @@ const GroupModal: React.FC<GroupModalProps> = ({
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">Añadir nuevo grupo</h2>
+            <h2 className="text-white">
+              {editMode ? "Editar Grupo" : "Añadir Grupo"}
+              </h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">
               <TfiClose className="w-5 h-5 text-white" />
             </button>
@@ -211,25 +231,27 @@ const GroupModal: React.FC<GroupModalProps> = ({
             <form onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-2 gap-4 mx-auto">
                 <div>
-                  {!editMode ? 
-                  <MasterInput
-                    id="name"
-                    label="Grupo/Master"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(event) => handleInputChange(event, "name")}
-                    error={formErrors.name}
-                  /> : 
-                  <Input
-                    id="name"
-                    label="Grupo/Master"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(event) => handleInputChange(event, "name")}
-                    error={formErrors.name}
-                  />}
+                  {!editMode ? (
+                    <MasterInput
+                      id="name"
+                      label="Grupo/Master"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(event) => handleInputChange(event, "name")}
+                      error={formErrors.name}
+                    />
+                  ) : (
+                    <Input
+                      id="name"
+                      label="Grupo/Master"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(event) => handleInputChange(event, "name")}
+                      error={formErrors.name}
+                    />
+                  )}
                 </div>
                 <div>
                   <Select
@@ -239,7 +261,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
                       phone: agency.phone,
                       email: agency.email,
                       location: agency.location,
-                      logoSrc : agency.logoSrc,
+                      logoSrc: agency.logoSrc,
                       groupIds: agency.groupIds,
                     }))}
                     label="Empresa"
@@ -310,7 +332,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
                     className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
                     type="submit"
                   >
-                    Agregar Grupo
+                    {editMode ? "Editar" : "Agregar"} Grupo
                   </button>
                   <button
                     className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"

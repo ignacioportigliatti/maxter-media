@@ -148,7 +148,6 @@ const AgencyModal: React.FC<AgencyModalProps> = ({
         const updatedFormData = { ...formData, logoSrc: filePath };
         if (editMode) {
         const response = await axios.post("/api/edit-agency", updatedFormData);
-       
         return response;
       } else {
         await checkName();

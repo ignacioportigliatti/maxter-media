@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PhotoForm, VideoForm } from "./";
 import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
-import GroupsTable from "./GroupsTable";
+import {UploadGroupsTable} from "./";
 
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
@@ -14,8 +13,8 @@ export const UploadTabs = () => {
 
   return (
     <div className="w-full mx-auto justify-center items-start border dark:border-gray-500 border-gray-200">
-      <div className="border-gray-200 dark:border-gray-700">
-        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400 border-b dark:border-gray-500 border-gray-200">
+      <div className="border-gray-200 dark:border-gray-700 dark:bg-[#292929]">
+        <ul className="flex flex-wrap  -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400 border-b dark:border-gray-500 border-gray-200">
           <li>
             <a
               onClick={() => handleTabChange("photos")}
@@ -45,8 +44,12 @@ export const UploadTabs = () => {
         </ul>
       </div>
       <div className="mx-auto">
-        {activeTab === "photos" && <GroupsTable />}
-        {activeTab === "videos" && <VideoForm />}
+        {activeTab === "photos" && <UploadGroupsTable
+          activeTab={activeTab}
+        />}
+        {activeTab === "videos" && <UploadGroupsTable 
+          activeTab={activeTab}
+        />}
       </div>
     </div>
   );

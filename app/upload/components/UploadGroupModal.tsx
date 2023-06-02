@@ -1,13 +1,6 @@
-import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
-import {
-  UploadAutoPhoto,
-  UploadAutoVideo,
-  UploadFormPhoto,
-  UploadFormVideo,
-} from "./";
-import axios from "axios";
+import { UploadAutoPhoto, UploadAutoVideo, UploadForm } from "./";
 import { Group } from "@prisma/client";
 
 interface UploadGroupModalProps {
@@ -16,51 +9,46 @@ interface UploadGroupModalProps {
   refresh?: () => void;
   activeTab: string;
   uploadType: string;
+  editMode: boolean;
 }
 
 export const UploadGroupModal = (props: UploadGroupModalProps) => {
-  const { toggleModal, groupToEdit, refresh, activeTab, uploadType } =
+  const { toggleModal, groupToEdit, refresh, editMode, activeTab, uploadType } =
     props;
-
-  const [editMode, setEditMode] = useState(false);
- 
-
-  const checkEditMode = async () => {
-    if (groupToEdit) {
-      setEditMode(true);
-    } else {
-      setEditMode(false);
-    }
-  };
-
-  useEffect(() => {
-
-    checkEditMode();
-  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {};
 
   const renderUploadType = () => {
     if (uploadType === "auto") {
-      if (activeTab === "video") {
+      if (activeTab === "videos") {
         return <UploadAutoVideo />;
       } else {
         return <UploadAutoPhoto />;
       }
     } else {
-      if (activeTab === "video") {
+      if (activeTab === "videos") {
         if (editMode) {
-          return <UploadFormVideo editMode={editMode} />;
+          return (
+            <UploadForm
+              editMode={editMode}
+              groupToEdit={groupToEdit}
+              uploadFormat="video"
+            />
+          );
         } else {
-          return <UploadFormVideo />;
+          return <UploadForm editMode={editMode} uploadFormat="video" />;
         }
       } else {
         if (editMode) {
           return (
-            <UploadFormPhoto editMode={editMode} groupToEdit={groupToEdit} />
+            <UploadForm
+              editMode={editMode}
+              groupToEdit={groupToEdit}
+              uploadFormat="photo"
+            />
           );
         } else {
-          return <UploadFormPhoto />;
+          return <UploadForm editMode={editMode} uploadFormat="photo" />;
         }
       }
     }

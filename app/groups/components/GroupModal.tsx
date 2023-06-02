@@ -11,7 +11,7 @@ interface GroupModalProps {
   refresh?: () => void;
 }
 
-const GroupModal: React.FC<GroupModalProps> = ({
+export const GroupModal: React.FC<GroupModalProps> = ({
   toggleModal,
   handleEditGroup,
   refresh,
@@ -280,7 +280,7 @@ const GroupModal: React.FC<GroupModalProps> = ({
                     }}
                     value={selectedAgency.id}
                     error={formErrors.agency}
-                    editableAgency={editableAgency}
+                    selectedItem={editableAgency}
                   />
                 </div>
                 <div>
@@ -350,4 +350,4 @@ const GroupModal: React.FC<GroupModalProps> = ({
   );
 };
 
-export default GroupModal;
+

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import GroupModal from "./GroupModal";
+import { GroupModal } from "./";
 import { Group } from "@prisma/client";
 import Pagination from "@/app/components/Pagination";
 import { ConfirmDeleteModal } from "@/app/components/ConfirmDeleteModal";
@@ -299,5 +299,3 @@ export const GroupsTable = () => {
     </div>
   );
 };
-
-export default GroupsTable;

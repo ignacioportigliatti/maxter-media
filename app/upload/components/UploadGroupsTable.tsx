@@ -267,8 +267,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                     onDragEnter={(e) => handleDragEnter(e, group)}
                     onDragLeave={(e) => handleDragLeave(e, group)}
                     onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, group)}
-                    draggable
+                    onDrop={(e) => handleDrop(e, group)}         
                     className={`${
                       draggedGroups.get(group.id)
                         ? "bg-orange-500/50 themeTransition"
@@ -328,12 +327,14 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
           activeTab={activeTab}
           toggleModal={handleToggleModal}
           groupToEdit={selectedGroup}
+          editMode={editMode}
           refresh={getGroups}
           uploadType="manual"
         />
       ) : (
         showManualModal && (
           <UploadGroupModal
+          editMode={editMode}
             activeTab={activeTab}
             uploadType="manual"
             toggleModal={handleToggleModal}
@@ -343,6 +344,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
 
       {showAutoModal ? (
         <UploadGroupModal
+        editMode={editMode}
           activeTab={activeTab}
           toggleModal={handleToggleModal}
           refresh={getGroups}

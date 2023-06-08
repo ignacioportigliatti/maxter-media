@@ -1,4 +1,4 @@
-import { Steps } from "./components/Steps";
+import { Steps } from "@/components/home/Steps";
 
 export default function Home() {
   return (

@@ -27,7 +27,7 @@ p {
 }
 
 .sideBarButton {
-  @apply relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 
+  @apply relative flex flex-row items-center h-10 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 
   border-l-4 border-transparent hover:border-orange-500 pr-6 transition duration-200
 }
 
@@ -44,11 +44,11 @@ p {
 }
 
 .sideBarIconText {
-  @apply ml-2 text-sm tracking-wide truncate dark:text-light-gray text-dark-gray
+  @apply ml-2 text-[13px] tracking-wide truncate dark:text-light-gray text-dark-gray
 }
 
 .sideBarIconSize {
-  @apply w-5 h-5
+  @apply w-4 h-4
 }
 
 .tabButton {

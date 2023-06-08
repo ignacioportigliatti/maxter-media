@@ -1,7 +1,7 @@
 "use client";
 
 
-import { AgencyTable } from "./components/AgencyTable";
+import { AgencyTable } from "@/components/agencies";
 import "react-toastify/dist/ReactToastify.css";
 
 

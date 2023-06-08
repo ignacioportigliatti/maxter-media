@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GroupsTable } from "./components/";
+import { GroupsTable } from "@/components/groups";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 

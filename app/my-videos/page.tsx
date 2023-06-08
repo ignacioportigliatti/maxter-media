@@ -1,6 +1,6 @@
-import { VideoGrid } from "./components/VideoGrid";
+import { VideoGrid } from "@/components/my-videos/VideoGrid";
 
-export default function Home() {
+export default function MyVideosPage() {
   return (
     <div className="w-full">
       <div>

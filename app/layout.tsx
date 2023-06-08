@@ -1,6 +1,6 @@
 
 import { ToastContainer } from "react-toastify";
-import { Sidebar } from "./components/Sidebar";
+import { Sidebar } from "@/components/layout/Sidebar";
 import './globals.css'
 
 
@@ -17,7 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      
         <div className="flex">
         <ToastContainer />
           <div className="hidden lg:flex">

@@ -6,32 +6,23 @@ export async function DELETE(request: Request) {
   const id = url.searchParams.get("id");
 
   try {
-    await prisma.group.deleteMany({
+    await prisma.user.deleteMany({
       where: {
         id: String(id),
       },
     });
 
-    await prisma.agency.updateMany({
-      where: {
-        groupIds: { has: String(id) },
-      },
-      data: {
-        groupIds: { set: [] },
-      },
-    });
-
     return NextResponse.json({ success: true }); // Agrega la propiedad "success" a la respuesta
   } catch (error) {
-    console.error("Error al eliminar el grupo:", error);
+    console.error("Error al eliminar el usuario:", error);
     return NextResponse.json({
-      error: "Ocurrió un error al eliminar el grupo",
+      error: "Ocurrió un error al eliminar el usuario",
     }); // Agrega la propiedad "error" a la respuesta
   }
 }
 
 
 export async function GET(request: Request) {
-    const groups = await prisma.group.findMany();
-    return NextResponse.json(groups);
+    const users = await prisma.user.findMany();
+    return NextResponse.json(users);
 }

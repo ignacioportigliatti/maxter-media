@@ -8,6 +8,8 @@ import {Pagination } from "@/components/ui/Pagination";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
 import { TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
 
+
+
 export const GroupsTable = () => {
   const columnHeaders = [
     { key: "name", label: "Grupo/Master" },

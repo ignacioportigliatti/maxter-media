@@ -97,16 +97,11 @@ export const UserModal: React.FC<UserModalProps> = ({
         return;
       }
 
-      const hashedPassword = await bcrypt.hash(formData.password, 10, (err, hash) => {
-        if (err) {
-          console.error("Error al encriptar la contraseña:", err);
-        }
-        return hash;
-      });
+
       
       const updatedFormData = {
         ...formData,
-        password: hashedPassword,
+
       };
 
       const getResponseFromAPI = async () => {

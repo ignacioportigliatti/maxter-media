@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { formatBytes } from "@/utils";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import axios, {AxiosResponse} from "axios";
+import axios, { AxiosResponse } from "axios";
 
 interface UploadAutoVideoProps {
   dataToUpload: any;

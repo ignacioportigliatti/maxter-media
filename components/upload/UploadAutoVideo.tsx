@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { formatBytes } from "@/utils";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
 import axios, { AxiosResponse } from "axios";
+import generateOAuth2Token from "@/utils/generateOAuth2Token";
+import { uploadFile } from "@/utils/uploadFile";
 
 interface UploadAutoVideoProps {
   dataToUpload: any;
@@ -44,52 +46,6 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
     }
   };
 
-  const uploadFile = async () => {
-    const file = filesToUpload[0];
-    const formData = new FormData();
-    formData.append("archivo", file);
-    const accessToken = process.env.GCLOUD_API_ACCESS_TOKEN;
-    console.log("accessToken", accessToken);
-    const uploadOptions = {
-      autoClose: false as false, // No cerrar automáticamente el toast
-    };
-  
-    const uploadToastId = toast.info("Subiendo archivo...", uploadOptions); // Obtener el ID del toast
-  
-    try {
-      const response: AxiosResponse = await axios.post(
-        `https://www.googleapis.com/upload/storage/v1/b/maxter-media/o?uploadType=media&name=${selectedGroup.name}/${file.name}`,
-        formData,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${process.env.NEXT_PUBLIC_GCLOUD_API_ACCESS_TOKEN}`,
-          },
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round(
-              (progressEvent.loaded / file.size) * 100
-            );
-            toast.update(uploadToastId, {
-              render: `Subiendo archivo (${progress}%)...`, // Actualizar el contenido del toast con el porcentaje de carga
-            });
-          },
-        }
-      );
-  
-      if (response.status === 200) {
-        console.log("Archivo subido exitosamente", response);
-        toast.success("Archivo subido exitosamente"); // Mostrar toast de éxito
-      } else {
-        console.error("Error al subir el archivo:", response.data);
-        toast.error("Error al subir el archivo"); // Mostrar toast de error
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al subir el archivo"); // Mostrar toast de error
-    } finally {
-      toast.dismiss(uploadToastId); // Cerrar el toast de carga una vez que la carga se complete o ocurra un error
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -104,15 +60,15 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
       }
 
       setIsSubmitting(true); // Marcar la solicitud en progreso
-      await uploadFile();
+      const filePath = await uploadFile(filesToUpload[0], `${selectedGroup.name}/videos`);
 
       const formData = new FormData();
+      formData.append("groupName", selectedGroup.name);
+      formData.append("groupId", selectedGroup.id);
+      formData.append("fileName", filesToUpload[0].name);
+      formData.append("filePath", filePath);
 
-      {
-        /* Generate Upload File function */
-      }
-
-      const response = await fetch("/api/upload/", {
+      const response = await fetch("/api/upload/videos", {
         method: "POST",
         body: formData,
       });

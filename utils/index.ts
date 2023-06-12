@@ -1,2 +1,3 @@
 export * from './formatBytes';
-export * from './generatePresignedUrl';
+export { default as generateOAuth2Token } from './generateOAuth2Token';
+export * from './uploadFile';

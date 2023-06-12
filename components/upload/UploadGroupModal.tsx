@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
@@ -16,25 +16,30 @@ interface UploadGroupModalProps {
 }
 
 export const UploadGroupModal = (props: UploadGroupModalProps) => {
-  const { toggleModal, selectedGroup, refresh, editMode, activeTab, uploadType, filesToUpload } =
-    props;
+  const {
+    toggleModal,
+    selectedGroup,
+    refresh,
+    editMode,
+    activeTab,
+    uploadType,
+    filesToUpload,
+  } = props;
 
-  const dataToUpload = filesToUpload ? {group: selectedGroup, files: filesToUpload} : {};
-
- 
-
+  const dataToUpload = filesToUpload
+    ? { group: selectedGroup, files: filesToUpload }
+    : {};
 
   const renderUploadType = () => {
     if (uploadType === "auto") {
       if (activeTab === "videos") {
         return (
-          <UploadAutoVideo 
-              toggleModal={toggleModal}
-              editMode={editMode}
-              dataToUpload={dataToUpload}
+          <UploadAutoVideo
+            toggleModal={toggleModal}
+            editMode={editMode}
+            dataToUpload={dataToUpload}
           />
         );
-
       } else {
         return <UploadAutoPhoto />;
       }

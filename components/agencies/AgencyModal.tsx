@@ -3,6 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { FileUpload, Input } from "@/components/ui";
+import { uploadFile } from "@/utils";
 
 interface AgencyModalProps {
   toggleModal: () => void;
@@ -256,6 +257,9 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     const fileName = file.name
 
     try {
+
+      const filePath = await uploadFile(file, 'agency-logos');
+
       const fileFormData = new FormData();
       fileFormData.append("file", file, fileName);
       fileFormData.append("folder", 'agency-logos');

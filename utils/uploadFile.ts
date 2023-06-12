@@ -15,7 +15,7 @@ export const uploadFile = async (file: File, folder: string) => {
     try {
       const OAuthToken = await generateOAuth2Token(process.env.NEXT_PUBLIC_BUCKET_KEYFILE as string)
       const response: AxiosResponse = await axios.post(
-        `https://www.googleapis.com/upload/storage/v1/b/maxter-media/o?uploadType=media&name=${folder}/${file.name}`,
+        `https://www.googleapis.com/upload/storage/v1/b/${process.env.NEXT_PUBLIC_BUCKET_NAME}/o?uploadType=media&name=${folder}/${file.name}`,
         formData,
         {
           headers: {

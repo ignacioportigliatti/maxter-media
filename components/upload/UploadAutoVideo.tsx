@@ -4,8 +4,6 @@ import React, { useState, useContext } from "react";
 import { formatBytes } from "@/utils";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import axios, { AxiosResponse } from "axios";
-import generateOAuth2Token from "@/utils/generateOAuth2Token";
 import { uploadFile } from "@/utils/uploadFile";
 
 interface UploadAutoVideoProps {
@@ -60,7 +58,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
       }
 
       setIsSubmitting(true); // Marcar la solicitud en progreso
-      const filePath = await uploadFile(filesToUpload[0], `${selectedGroup.name}/videos`);
+      const filePath = await uploadFile(filesToUpload[0], `media/${selectedGroup.name}/videos`);
 
       const formData = new FormData();
       formData.append("groupName", selectedGroup.name);

@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { AiOutlineEdit } from "react-icons/ai";
+import { AiOutlineEdit, AiOutlineVideoCameraAdd } from "react-icons/ai";
 import { UploadGroupModal } from "./";
 import { Group } from "@prisma/client";
 import { Pagination } from "@/components/ui/";
@@ -30,10 +30,11 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(undefined);
-  const [editMode, setEditMode] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
+    undefined
+  );
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]); // [
-
+  const [isDragging, setIsDragging] = useState(false); //
   const [draggedGroups, setDraggedGroups] = useState<Map<string, boolean>>(
     new Map()
   );
@@ -94,7 +95,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
 
   const handleDragLeave = (
     e: React.DragEvent<HTMLTableRowElement>,
-    group: Group,
+    group: Group
   ) => {
     e.preventDefault();
     setDraggedGroups((prevGroups) => {
@@ -102,8 +103,6 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
       updatedGroups.set(group.id, false);
       return updatedGroups;
     });
-
-    
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
@@ -111,14 +110,23 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
   };
 
   const checkFilesFormat = (files: File[]) => {
-    const videoAllowedFormats = ["video/mp4", "video/quicktime", "video/x-msvideo", "video/x-ms-wmv", "video/x-flv", "video/x-matroska", "video/webm"];
+    const videoAllowedFormats = [
+      "video/mp4",
+      "video/quicktime",
+      "video/x-msvideo",
+      "video/x-ms-wmv",
+      "video/x-flv",
+      "video/x-matroska",
+      "video/webm",
+    ];
     const photoAllowedFormats = ["application/zip"];
-    const allowedFormats = activeTab === "videos" ? videoAllowedFormats : photoAllowedFormats;
-  
+    const allowedFormats =
+      activeTab === "videos" ? videoAllowedFormats : photoAllowedFormats;
+
     const invalidFiles = files.filter((file) => {
       return !allowedFormats.includes(file.type);
     });
-  
+
     if (invalidFiles.length === 0) {
       return true;
     } else {
@@ -127,44 +135,29 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
       return false;
     }
   };
-  
+
   const handleDrop = (
     e: React.DragEvent<HTMLTableRowElement>,
-    group: Group,
+    group: Group
   ) => {
     e.preventDefault();
-   
+
     const filesToUpload = Array.from(e.dataTransfer.files);
     const allowed = checkFilesFormat(filesToUpload);
     if (allowed === true) {
       setFilesToUpload(filesToUpload);
-    setDraggedGroups(new Map());
-    setSelectedGroup(group);
-    setShowAutoModal(true);
+      setIsDragging(true);
+      setDraggedGroups(new Map());
+      setSelectedGroup(group);
+      setShowAutoModal(true);
     }
     console.log("Dropped group", group, filesToUpload);
   };
 
-  const handleEditButton = (group: any) => {
+  const handleAddMedia = (group: Group) => {
     setSelectedGroup(group);
-    setEditMode(true);
-    handleEditGroup(selectedGroup);
-  };
-
-  const handleEditGroup = async (selectedGroup: Group | undefined) => {
-    setShowManualModal(true);
-    const groups = await axios.get("/api/groups");
-    const groupObj = await groups.data.find(
-      (group: Group) => group.id === selectedGroup?.id
-    );
-    const groupToEdit = groupObj;
-    return groupToEdit;
-  };
-
-  const handleAddGroup = () => {
-    setEditMode(false);
-    setSelectedGroup(undefined);
-    setShowManualModal(true);
+    setIsDragging(false);
+    setShowAutoModal(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -273,15 +266,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                   </th>
                 ))}
 
-                <th className="px-4 items-center text-sm whitespace-nowrap relative py-3.5">
-                  <button
-                    className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
-                        dark:bg-dark-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
-                    onClick={handleAddGroup}
-                  >
-                    <span className="font-bold">+</span> Agregar
-                  </button>
-                </th>
+                <th className="px-4 items-center text-sm whitespace-nowrap relative py-3.5"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
@@ -296,7 +281,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                     onDragEnter={(e) => handleDragEnter(e, group)}
                     onDragLeave={(e) => handleDragLeave(e, group)}
                     onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, group)}         
+                    onDrop={(e) => handleDrop(e, group)}
                     className={`${
                       draggedGroups.get(group.id)
                         ? "bg-orange-500/50 themeTransition"
@@ -333,9 +318,9 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
                         <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
-                          <AiOutlineEdit
+                          <AiOutlineVideoCameraAdd
                             className="w-5 h-5"
-                            onClick={() => handleEditButton(group)}
+                            onClick={() => handleAddMedia(group)}
                           />
                         </button>
                       </div>
@@ -351,37 +336,16 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-      {showManualModal && editMode ? (
+      {showAutoModal && (
         <UploadGroupModal
           activeTab={activeTab}
           toggleModal={handleToggleModal}
-          selectedGroup={selectedGroup}
-          editMode={editMode}
           refresh={getGroups}
-          uploadType="manual"
-        />
-      ) : (
-        showManualModal && (
-          <UploadGroupModal
-          editMode={editMode}
-            activeTab={activeTab}
-            uploadType="manual"
-            toggleModal={handleToggleModal}
-          />
-        )
-      )}
-
-      {showAutoModal ? (
-        <UploadGroupModal
-        editMode={editMode}
-          activeTab={activeTab}
-          toggleModal={handleToggleModal}
-          refresh={getGroups}
-          uploadType="auto"
           filesToUpload={filesToUpload}
           selectedGroup={selectedGroup}
+          isDragging={isDragging}
         />
-      ) : null}
+      )}
 
       {showDeleteModal ? (
         <ConfirmDeleteModal

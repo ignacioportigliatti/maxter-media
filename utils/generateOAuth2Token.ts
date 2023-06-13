@@ -17,7 +17,6 @@ export default async function generateOAuth2Token(keyfile: string) {
     const refreshedToken = await client.getAccessToken();
     return refreshedToken.token;
   }
-  console.log("Token válido, usándolo...");
   return token.token;
 }
 

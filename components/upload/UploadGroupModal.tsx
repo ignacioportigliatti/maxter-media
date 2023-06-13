@@ -10,72 +10,35 @@ interface UploadGroupModalProps {
   selectedGroup?: Group | undefined;
   refresh?: () => void;
   activeTab: string;
-  uploadType: string;
-  editMode: boolean;
   filesToUpload?: Blob[];
+  isDragging?: boolean;
 }
 
 export const UploadGroupModal = (props: UploadGroupModalProps) => {
-  const {
-    toggleModal,
-    selectedGroup,
-    refresh,
-    editMode,
-    activeTab,
-    uploadType,
-    filesToUpload,
-  } = props;
+  const { toggleModal, selectedGroup, activeTab, filesToUpload, isDragging } = props;
 
   const dataToUpload = filesToUpload
     ? { group: selectedGroup, files: filesToUpload }
     : {};
 
   const renderUploadType = () => {
-    if (uploadType === "auto") {
-      if (activeTab === "videos") {
-        return (
-          <UploadAutoVideo
-            toggleModal={toggleModal}
-            editMode={editMode}
-            dataToUpload={dataToUpload}
-          />
-        );
-      } else {
-        return <UploadAutoPhoto />;
-      }
-    } else {
-      if (activeTab === "videos") {
-        if (editMode) {
-          return (
-            <UploadForm
-              editMode={editMode}
-              groupToEdit={selectedGroup}
-              uploadFormat="video"
-            />
-          );
-        } else {
-          return <UploadForm editMode={editMode} uploadFormat="video" />;
-        }
-      } else {
-        if (editMode) {
-          return (
-            <UploadForm
-              editMode={editMode}
-              groupToEdit={selectedGroup}
-              uploadFormat="photo"
-            />
-          );
-        } else {
-          return <UploadForm editMode={editMode} uploadFormat="photo" />;
-        }
-      }
+    if (activeTab === "videos") {
+      return (
+        <UploadAutoVideo
+          toggleModal={toggleModal}
+          dataToUpload={dataToUpload as any}
+          isDragging={isDragging}
+        />
+      );
+    } else if (activeTab === "photos") {
+      return <UploadAutoPhoto />;
     }
   };
 
   return (
     <div>
       <ToastContainer />
-      <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-full min-h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
+      <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-full min-h-screen w-full absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[60%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
             <h2 className="text-white">Añadir material</h2>

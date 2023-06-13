@@ -118,7 +118,7 @@ export const AgencyTable = () => {
                         <div className="flex items-center gap-x-2">
                           <Image
                             className="object-cover w-10 h-10 rounded-full bg-medium-gray"
-                            src={agency.logoSrc}
+                            src={agency.logoSrc as string}
                             alt={`${agency.name} logo`}
                             width={40}
                             height={40}

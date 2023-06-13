@@ -4,7 +4,7 @@ const nextConfig = {
         serverActions: true,
     },
     images: {
-        domains: ['localhost', 'storage.googleapis.com'],
+        domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com'],
     },
 }
 

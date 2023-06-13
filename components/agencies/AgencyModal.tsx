@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { FileUpload, Input } from "@/components/ui";
-import { uploadFile } from "@/utils";
+import { uploadGoogleStorageFile } from "@/utils";
 
 interface AgencyModalProps {
   toggleModal: () => void;
@@ -254,25 +254,11 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
 
   const handleFileUpload = async (file: File) => {
     
-    const fileName = file.name
-
     try {
 
-      const filePath = await uploadFile(file, 'agency-logos');
+      const filePath = await uploadGoogleStorageFile(file, 'agency-logos', 'maxter-app', true);
 
-      const fileFormData = new FormData();
-      fileFormData.append("file", file, fileName);
-      fileFormData.append("folder", 'agency-logos');
-
-      const response = await axios.post("/api/upload", fileFormData);
-      console.log(response.data);
-
-      if (response.data.success) {
-        const filePath = await response.data.filePath;
-        console.log(`Archivo subido con éxito! filePath: ${filePath}`);
-        setFormData({ ...formData, logoSrc: filePath });
-        return filePath;
-      }
+      return filePath;
     } catch (error) {
       console.error("Error al subir el archivo:", error);
     }

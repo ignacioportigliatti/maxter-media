@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { Agency, Group } from "@prisma/client";
-import { Input, Select, MasterInput } from "@/components/ui";
+import { Input, Select, MasterInput } from "@/components/ui/form";
 
 interface GroupModalProps {
   toggleModal: () => void;

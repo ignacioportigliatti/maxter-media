@@ -38,7 +38,7 @@ export const uploadGoogleStorageFile = async (
     if (response.status === 200) {
       if (isPublic === true) {
         try {
-          const publicResponse: AxiosResponse = await axios.post(
+          await axios.post(
             `https://www.googleapis.com/storage/v1/b/${bucket}/o/${folder}%2F${file.name}/acl`,
             {
               entity: "allUsers",
@@ -57,7 +57,7 @@ export const uploadGoogleStorageFile = async (
         }
       }
       toast.success("Archivo subido exitosamente"); // Mostrar toast de éxito
-      return response.data.selfLink;
+      return response.data;
     } else {
       console.error("Error al subir el archivo:", response.data);
       toast.error("Error al subir el archivo"); // Mostrar toast de error

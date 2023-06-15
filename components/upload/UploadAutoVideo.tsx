@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { formatBytes, getFiles, uploadGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
 import { deleteGoogleStorageFile } from "@/utils/deleteGoogleStorageFile";
+import Queue from "queue";
+
 
 interface UploadAutoVideoProps {
   dataToUpload: {
@@ -16,16 +18,25 @@ interface UploadAutoVideoProps {
   toggleModal: any;
 }
 
+type fileData = {
+  name: string;
+  size: number;
+};
+
 export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   dataToUpload,
   toggleModal,
-  isDragging
+  isDragging,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(dataToUpload.group);
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
-  const [filesToUpload, setFilesToUpload] = useState<File[]>(
-    dataToUpload.files
-  );
+  const [uploadedFiles, setUploadedFiles] = useState<fileData[]>([
+    { name: "", size: 0 },
+  ]);
+  const [filesToUpload, setFilesToUpload] = useState<File[]>(dataToUpload.files);
+  const uploadQueue = new Queue({ concurrency: 1 }); // Ajusta el número de concurrencia según tus necesidades
+
+  
 
   const checkFiles = async () => {
     const files = await getFiles(
@@ -39,8 +50,10 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   };
 
   useEffect(() => {
-    const uploadedFiles = checkFiles();
-    console.log("uploadedFiles", uploadedFiles);
+    setIsLoading(true);
+    const uploadedFiles = checkFiles()
+      .then (() => setIsLoading(false));
+    
     if (isDragging === true) {
       setFilesToUpload(dataToUpload.files);
     } else {
@@ -71,52 +84,97 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
       if (isSubmitting) {
         return; // Evitar envío de solicitudes múltiples
       }
-
+  
       if (filesToUpload.length === 0) {
         toast.error("Selecciona al menos un archivo de video");
         return;
       }
-
+  
       setIsSubmitting(true); // Marcar la solicitud en progreso
-      const filePath = await uploadGoogleStorageFile(
-        filesToUpload[0],
-        `media/${selectedGroup.name}/videos`,
-        "maxter-media"
-      );
-
-      const formData = new FormData();
-      formData.append("groupName", selectedGroup.name);
-      formData.append("groupId", selectedGroup.id);
-      formData.append("fileName", filesToUpload[0].name);
-      formData.append("filePath", filePath);
-
-      const response = await fetch("/api/upload/videos", {
-        method: "POST",
-        body: formData,
+  
+      const uploadedFileJobs = filesToUpload.map((file: File) => async (cb: any) => {
+        try {
+          const uploadedFile = await uploadGoogleStorageFile(
+            file,
+            `media/${selectedGroup.name}/videos`,
+            "maxter-media"
+          );
+          console.log("uploadedFile", uploadedFile);
+          const videoId = uploadedFile.id;
+  
+          const formData = new FormData();
+          formData.append("videoId", videoId);
+          formData.append("groupId", selectedGroup.id);
+  
+          const response = await fetch("/api/upload/videos", {
+            method: "POST",
+            body: formData,
+          });
+  
+          // Manejar la respuesta de la API según tus necesidades
+          if (response.ok) {
+            console.log("response", response.json());
+            cb(null); // Indicar que el trabajo se ha completado sin errores
+          } else {
+            throw new Error("Error al subir el archivo");
+          }
+        } catch (error) {
+          console.error(error);
+          cb(error); // Indicar que el trabajo ha fallado con el error correspondiente
+        }
       });
-
-      // Manejar la respuesta de la API según tus necesidades
-      if (response.ok) {
-        console.log("response", response.json());
-        toggleModal();
-      } else {
-        throw new Error("Error al subir el archivo");
-      }
+  
+      // Agregar los trabajos a la cola
+      uploadedFileJobs.forEach((job: any) => uploadQueue.push(job));
+  
+      // Iniciar el procesamiento de la cola
+      uploadQueue.start((err: any) => {
+        if (err) {
+          console.error(err);
+          toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
+        } else {
+          console.log("Todos los archivos se han subido correctamente");
+          toggleModal();
+        }
+        setIsSubmitting(false); // Marcar la solicitud como finalizada
+      });
     } catch (error) {
       console.error(error);
       toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
-    } finally {
-      setIsSubmitting(false); // Marcar la solicitud como finalizada
+      setIsSubmitting(false); // Marcar la solicitud como finalizada en caso de error
     }
   };
+  
 
-  const handleDelete = async (fileName: string) => {
+  const handleDelete = async (fileName: string, videoId: string) => {
     try {
-      deleteGoogleStorageFile(fileName, `media%2F${selectedGroup.name}%2Fvideos`, "maxter-media");
+      await deleteGoogleStorageFile(
+        fileName,
+        `media%2F${selectedGroup.name}%2Fvideos`,
+        "maxter-media"
+      );
+
+      const response = await fetch(
+        `/api/upload/videos?groupId=${selectedGroup.id}&videoId=${videoId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (response.ok) {
+        toast.success("Archivo eliminado");
+        const updatedFiles = await checkFiles();
+        if ( !updatedFiles) {
+          setUploadedFiles([{ name: "", size: 0 }]);
+        } else {
+          setIsLoading(true);
+          setUploadedFiles(updatedFiles);
+          setIsLoading(false);
+        }
+      }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col">
@@ -131,9 +189,9 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
         />
         <label
           htmlFor="fileInput"
-          className="flex py-1 flex-row items-center justify-center gap-1"
+          className="flex py-1 cursor-pointer hover:text-orange-500 flex-row items-center justify-center gap-1"
         >
-          <p className="text-xs">{`Añadir Archivos a ${dataToUpload.group.name}`}</p>
+          <p className="text-xs ">{`Añadir Videos a ${dataToUpload.group.name}`}</p>
           <span>
             <AiOutlineFileAdd className="w-7 h-7 p-1 text-right  text-light-gray hover:border-white hover:bg-orange-500 hover:text-white cursor-pointer themeTransition" />
           </span>
@@ -144,42 +202,55 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
           <div className="w-1/2 p-1 flex flex-col justify-center">
             <div>
               <h4 className="text-sm">Archivos Subidos:</h4>
-              {uploadedFiles.map((file: any) => {
-                return (
-                  <div key={file.name} className="flex items-center w-full">
-                    <div className="flex flex-row items-center gap-2">
-                      <p className="text-xs font-semibold">
-                        {file.name.replace(
-                          `media/${selectedGroup.name}/videos/`,
-                          ""
-                        )}
-                      </p>
-                      <p className="text-[10px] text-gray-500">
-                        {formatBytes(file.size)}
-                      </p>
+              {isLoading ? <p className="text-xs">Cargando...</p> 
+              : 
+              uploadedFiles[0].name === '' ? (
+                <p className="text-xs">No hay videos subidos en el grupo</p>
+                
+              ) : (
+                uploadedFiles.map((file: any) => {
+                  return (
+                    <div key={file.name} className="flex items-center w-full">
+                      <div className="flex flex-row items-center gap-2">
+                        <p className="text-xs font-semibold">
+                          {file.name.replace(
+                            `media/${selectedGroup.name}/videos/`,
+                            ""
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-row ml-2 justify-center items-center">
+                        <p className="text-[10px] text-gray-500">
+                          {formatBytes(file.size)}
+                        </p>
+                        <button
+                          className="text-light-gray hover:text-orange-500 ml-1 themeTransition font-semibold text-sm"
+                          onClick={() =>
+                            handleDelete(
+                              file.name.replace(
+                                `media/${selectedGroup.name}/videos/`,
+                                ""
+                              ),
+                              file.id
+                            )
+                          }
+                          type="button"
+                        >
+                          <AiOutlineDelete />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <button
-                        className="text-light-gray hover:text-orange-500 ml-1 themeTransition font-semibold text-sm"
-                        onClick={() => handleDelete(file.name.replace(
-                          `media/${selectedGroup.name}/videos/`,
-                          ""
-                        ))}
-                        type="button"
-                      >
-                        <AiOutlineDelete />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
           <div className="w-1/2 p-1 flex flex-col justify-start items-start">
             <div>
               <h4 className="text-sm">Archivos a Subir:</h4>
               {filesToUpload.length === 0 ? (
-                <p className="text-xs">Agregá archivos para subir</p>
+                <p className="text-xs">Agregá videos .mp4 para subir</p>
               ) : (
                 filesToUpload.map((file: File) => (
                   <div key={file.name} className="flex items-center w-full">

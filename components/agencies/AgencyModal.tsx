@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
-import { FileUpload, Input } from "@/components/ui";
+import { FileUpload, Input } from "@/components/ui/form";
 import { uploadGoogleStorageFile } from "@/utils";
 
 interface AgencyModalProps {

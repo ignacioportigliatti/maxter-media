@@ -38,29 +38,13 @@ model Group {
   agency      Agency?  @relation(fields: [agencyId], references: [id])
 
   agencyName  String? 
-  photos      Photos[]
-  videos      Videos[]
+  photosIds   String[]
+  videoIds    String[]
 }
 
 
 
-model Photos {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  url      String
-  fileName String
-  groupId  String @db.ObjectId
-  group    Group  @relation(fields: [groupId], references: [id])
-  uploadedAt DateTime @default(now())
-}
 
-model Videos {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  fileName String
-  url      String
-  groupId  String @db.ObjectId
-  group    Group  @relation(fields: [groupId], references: [id])
-  uploadedAt DateTime @default(now())
-}
 
 model User {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId

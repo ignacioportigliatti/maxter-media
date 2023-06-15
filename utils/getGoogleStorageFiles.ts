@@ -13,7 +13,7 @@ export const getFiles = async (
     
     let url = `https://www.googleapis.com/storage/v1/b/${bucket}/o`;
     if (fileName) {
-      url += `/${folder}/${encodeURIComponent(fileName)}`;
+      url += `/${folder}%2F${encodeURIComponent(fileName)}`;
     } else {
       url += `?prefix=${encodeURIComponent(folder)}`;
     }

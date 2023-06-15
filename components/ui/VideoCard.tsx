@@ -17,7 +17,7 @@ export const VideoCard = (props: Props) => {
         <div className="w-full flex flex-col">
           <div className="relative">
             <a href="#">
-              <Image
+              <img
                 src={thumbSrc}
                 className="w-96 h-auto"
                 alt="video thumbnail"

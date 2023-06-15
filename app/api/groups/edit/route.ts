@@ -32,13 +32,15 @@ export async function POST(request: Request) {
           select: { groupIds: true },
         });
 
+        const updatedGroupIds = oldAgencyGroupIds?.groupIds.filter(
+          (oldId) => oldId !== id
+        );
+
         await prisma.agency.update({
           where: { id: groupToEdit?.agencyId as string },
           data: {
             groupIds: {
-              set: oldAgencyGroupIds?.groupIds.filter(
-                (oldId) => oldId !== id
-              ),
+              set: updatedGroupIds,
             },
           },
         });

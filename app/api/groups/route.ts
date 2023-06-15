@@ -6,20 +6,50 @@ export async function DELETE(request: Request) {
   const id = url.searchParams.get("id");
 
   try {
+    
+
+    const agencyIdArray = await prisma.group.findMany({
+      where: {
+        id: String(id),
+      },
+      select: {
+        agencyId: true,
+      },
+    });
+
+    const agencyId = agencyIdArray[0].agencyId; 
+
+    const groupIdsArray = await prisma.agency.findMany({
+      where: {
+        id: agencyId as string,
+      },
+      select: {
+        groupIds: true,
+      },
+    });
+
+    const updatedGroupIds = groupIdsArray[0].groupIds.filter(
+      (group) => group !== id
+    );
+
+    await prisma.agency.updateMany({
+      where: {
+        id: agencyId as string,
+      },
+      data: {
+        groupIds: { set: updatedGroupIds },
+      },
+    });
+
+    console.log(`Group ${id} deleted from agency ${agencyId}`);
+
     await prisma.group.deleteMany({
       where: {
         id: String(id),
       },
     });
 
-    await prisma.agency.updateMany({
-      where: {
-        groupIds: { has: String(id) },
-      },
-      data: {
-        groupIds: { set: [] },
-      },
-    });
+    console.log(`Group ${id} deleted`);
 
     return NextResponse.json({ success: true }); // Agrega la propiedad "success" a la respuesta
   } catch (error) {
@@ -30,8 +60,7 @@ export async function DELETE(request: Request) {
   }
 }
 
-
 export async function GET(request: Request) {
-    const groups = await prisma.group.findMany();
-    return NextResponse.json(groups);
+  const groups = await prisma.group.findMany();
+  return NextResponse.json(groups);
 }

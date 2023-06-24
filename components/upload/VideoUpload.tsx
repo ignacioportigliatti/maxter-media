@@ -3,13 +3,14 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { formatBytes, getFiles, uploadGoogleStorageFile } from "@/utils";
+import { formatBytes, getFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
-import { deleteGoogleStorageFile } from "@/utils/deleteGoogleStorageFile";
+
 import Queue from "queue";
+import { VideoTransferContext } from "./VideoTransferContext";
 
 
-interface UploadAutoVideoProps {
+interface VideoUploadProps {
   dataToUpload: {
     group: Group;
     files: File[];
@@ -23,13 +24,13 @@ type fileData = {
   size: number;
 };
 
-export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
+export const VideoUpload: React.FC<VideoUploadProps> = ({
   dataToUpload,
   toggleModal,
   isDragging,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<any>(dataToUpload.group);
+  const selectedGroup = dataToUpload.group;
   const [uploadedFiles, setUploadedFiles] = useState<fileData[]>([
     { name: "", size: 0 },
   ]);
@@ -37,6 +38,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   const uploadQueue = new Queue({ concurrency: 1 }); // Ajusta el número de concurrencia según tus necesidades
 
   
+  const { transferQueue, addToTransferQueue } = useContext(VideoTransferContext);
 
   const checkFiles = async () => {
     const files = await getFiles(
@@ -77,7 +79,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
       }
     }
   };
-
+  
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -91,53 +93,23 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
       }
   
       setIsSubmitting(true); // Marcar la solicitud en progreso
-  
-      const uploadedFileJobs = filesToUpload.map((file: File) => async (cb: any) => {
-        try {
-          const uploadedFile = await uploadGoogleStorageFile(
-            file,
-            `media/${selectedGroup.name}/videos`,
-            "maxter-media"
-          );
-          console.log("uploadedFile", uploadedFile);
-          const videoId = uploadedFile.id;
-  
-          const formData = new FormData();
-          formData.append("videoId", videoId);
-          formData.append("groupId", selectedGroup.id);
-  
-          const response = await fetch("/api/upload/videos", {
-            method: "POST",
-            body: formData,
-          });
-  
-          // Manejar la respuesta de la API según tus necesidades
-          if (response.ok) {
-            console.log("response", response.json());
-            cb(null); // Indicar que el trabajo se ha completado sin errores
-          } else {
-            throw new Error("Error al subir el archivo");
-          }
-        } catch (error) {
-          console.error(error);
-          cb(error); // Indicar que el trabajo ha fallado con el error correspondiente
-        }
+      console.log("transferQueue", transferQueue);
+      const updatedTransferQueue = filesToUpload.forEach((file: File) => {
+        transferQueue.push([file, {
+          groupId: selectedGroup.id,
+          groupName: selectedGroup.name,
+          agencyName: selectedGroup.agencyName as string,
+          fileName: file.name
+        }]);
       });
   
-      // Agregar los trabajos a la cola
-      uploadedFileJobs.forEach((job: any) => uploadQueue.push(job));
-  
-      // Iniciar el procesamiento de la cola
-      uploadQueue.start((err: any) => {
-        if (err) {
-          console.error(err);
-          toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
-        } else {
-          console.log("Todos los archivos se han subido correctamente");
-          toggleModal();
-        }
+      if (transferQueue !== undefined) {
+        console.log("updatedTransferQueue", updatedTransferQueue);
+        // toggleModal();
         setIsSubmitting(false); // Marcar la solicitud como finalizada
-      });
+      }
+  
+      console.log("updatedTransferQueue", updatedTransferQueue);
     } catch (error) {
       console.error(error);
       toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
@@ -145,6 +117,8 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
     }
   };
   
+
+      
 
   const handleDelete = async (fileName: string, videoId: string) => {
     try {
@@ -177,6 +151,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   };
 
   return (
+    <VideoTransferContext.Provider value={{transferQueue, addToTransferQueue}}>
     <div className="flex flex-col">
       <div className="flex justify-end">
         {/* Add File Button */}
@@ -295,7 +270,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
         </div>
       </form>
     </div>
+    </ VideoTransferContext.Provider>
   );
 };
 
-export default UploadAutoVideo;

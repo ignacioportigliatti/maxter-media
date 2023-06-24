@@ -1,18 +1,19 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
 import { uploadGoogleStorageFile } from "@/utils/uploadGoogleStorageFile";
 
-type TransferContextProps = {
+type TransferData = {
+  groupId?: string;
+  groupName?: string;
+  agencyName?: string;
+  fileName?: string;
+};
+
+type PhotoTransferContextProps = {
   transferQueue: [File, TransferData][];
   addToTransferQueue: (item: File, transferData?: TransferData) => void;
 };
 
-type TransferData = {
-  groupName?: string;
-  groupId?: string;
-  fileName?: string;
-};
-
-export const TransferContext = createContext<TransferContextProps>({
+export const PhotoTransferContext = createContext<PhotoTransferContextProps>({
   transferQueue: [],
   addToTransferQueue: () => {},
 });
@@ -29,14 +30,15 @@ export const TransferProvider: React.FC<TransferProviderProps> = ({
 
   const addToTransferQueue = (item: File, transferData?: TransferData) => {
     setTransferQueue((prevQueue) => [...prevQueue, [item, transferData || {}]]);
+    console.log("transferQueue", transferQueue);
   };
 
   
 
   return (
-    <TransferContext.Provider value={{ transferQueue, addToTransferQueue }}>
+    <PhotoTransferContext.Provider value={{ transferQueue, addToTransferQueue }}>
       {children}
-    </TransferContext.Provider>
+    </PhotoTransferContext.Provider>
   );
 };
 

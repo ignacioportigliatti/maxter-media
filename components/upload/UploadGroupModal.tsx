@@ -1,8 +1,8 @@
 "use client";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
-import { UploadAutoPhoto, UploadAutoVideo, UploadForm } from "./";
+import { PhotoUpload, VideoUpload} from "./";
 import { Group } from "@prisma/client";
 
 interface UploadGroupModalProps {
@@ -24,14 +24,18 @@ export const UploadGroupModal = (props: UploadGroupModalProps) => {
   const renderUploadType = () => {
     if (activeTab === "videos") {
       return (
-        <UploadAutoVideo
+        <VideoUpload
           toggleModal={toggleModal}
           dataToUpload={dataToUpload as any}
           isDragging={isDragging}
         />
       );
     } else if (activeTab === "photos") {
-      return <UploadAutoPhoto />;
+      return <PhotoUpload
+      toggleModal={toggleModal}
+      dataToUpload={dataToUpload as any}
+      isDragging={isDragging}
+    />;
     }
   };
 

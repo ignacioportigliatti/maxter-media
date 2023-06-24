@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { AiOutlineEdit, AiOutlineVideoCameraAdd } from "react-icons/ai";
+import { AiOutlineFileAdd, AiOutlineVideoCameraAdd } from "react-icons/ai";
 import { UploadGroupModal } from "./";
 import { Group } from "@prisma/client";
 import { Pagination } from "@/components/ui/";
@@ -110,16 +109,8 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
   };
 
   const checkFilesFormat = (files: File[]) => {
-    const videoAllowedFormats = [
-      "video/mp4",
-      "video/quicktime",
-      "video/x-msvideo",
-      "video/x-ms-wmv",
-      "video/x-flv",
-      "video/x-matroska",
-      "video/webm",
-    ];
-    const photoAllowedFormats = ["application/zip"];
+    const videoAllowedFormats = ["video/mp4"];
+    const photoAllowedFormats = ["application/zip", "image/jpeg", "image/png"];
     const allowedFormats =
       activeTab === "videos" ? videoAllowedFormats : photoAllowedFormats;
 
@@ -318,10 +309,17 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
                         <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
-                          <AiOutlineVideoCameraAdd
-                            className="w-5 h-5"
-                            onClick={() => handleAddMedia(group)}
-                          />
+                          {activeTab === "videos" ? (
+                            <AiOutlineVideoCameraAdd
+                              className="w-5 h-5"
+                              onClick={() => handleAddMedia(group)}
+                            />
+                          ) : activeTab === "photos" ? (
+                            <AiOutlineFileAdd
+                              className="w-5 h-5"
+                              onClick={() => handleAddMedia(group)}
+                            />
+                          ) : null}
                         </button>
                       </div>
                     </td>

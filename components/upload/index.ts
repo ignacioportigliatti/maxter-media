@@ -1,8 +1,7 @@
-export * from './TransferContext';
-export { default as TransferQueue } from './TransferQueue';
-export * from './UploadAutoPhoto';
-export { default as UploadAutoVideo } from './UploadAutoVideo';
-export * from './UploadForm';
+export * from './PhotoUpload';
 export * from './UploadGroupModal';
 export * from './UploadGroupsTable';
 export * from './UploadTabs';
+export * from './VideoTransferContext';
+export { default as VideoTransferQueue } from './TransferQueue';
+export * from './VideoUpload';

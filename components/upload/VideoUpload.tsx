@@ -6,8 +6,8 @@ import { toast } from "react-toastify";
 import { formatBytes, getFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
 
-import Queue from "queue";
-import { VideoTransferContext } from "./VideoTransferContext";
+
+import { VideoUploadContext } from "./VideoUploadContext";
 
 
 interface VideoUploadProps {
@@ -35,10 +35,9 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     { name: "", size: 0 },
   ]);
   const [filesToUpload, setFilesToUpload] = useState<File[]>(dataToUpload.files);
-  const uploadQueue = new Queue({ concurrency: 1 }); // Ajusta el número de concurrencia según tus necesidades
 
   
-  const { transferQueue, addToTransferQueue } = useContext(VideoTransferContext);
+  const { uploadQueue, addToUploadQueue } = useContext(VideoUploadContext);
 
   const checkFiles = async () => {
     const files = await getFiles(
@@ -93,9 +92,9 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
       }
   
       setIsSubmitting(true); // Marcar la solicitud en progreso
-      console.log("transferQueue", transferQueue);
+      console.log("uploadQueue", uploadQueue);
       const updatedTransferQueue = filesToUpload.forEach((file: File) => {
-        transferQueue.push([file, {
+        uploadQueue.push([file, {
           groupId: selectedGroup.id,
           groupName: selectedGroup.name,
           agencyName: selectedGroup.agencyName as string,
@@ -103,7 +102,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
         }]);
       });
   
-      if (transferQueue !== undefined) {
+      if (uploadQueue !== undefined) {
         console.log("updatedTransferQueue", updatedTransferQueue);
         // toggleModal();
         setIsSubmitting(false); // Marcar la solicitud como finalizada
@@ -151,7 +150,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   };
 
   return (
-    <VideoTransferContext.Provider value={{transferQueue, addToTransferQueue}}>
+    <VideoUploadContext.Provider value={{uploadQueue, addToUploadQueue}}>
     <div className="flex flex-col">
       <div className="flex justify-end">
         {/* Add File Button */}
@@ -270,7 +269,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
         </div>
       </form>
     </div>
-    </ VideoTransferContext.Provider>
+    </ VideoUploadContext.Provider>
   );
 };
 

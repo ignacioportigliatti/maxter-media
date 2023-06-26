@@ -1,90 +1,86 @@
 import React, { useContext } from "react";
-import { VideoTransferContext } from "./VideoTransferContext";
+import { VideoUploadContext } from "./VideoUploadContext";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
-import { PhotoTransferContext } from "./PhotoTransferContext";
+import { PhotoUploadContext } from "./PhotoUploadContext";
 import Queue from "queue";
 import { uploadGoogleStorageFile } from "@/utils";
 
-interface TransferQueueProps {
+interface UploadQueueProps {
   toggleModal: () => void;
   activeTab: string;
-  queueArray?: any[];
 }
 
-const TransferQueue = (props: TransferQueueProps) => {
+const UploadQueue = (props: UploadQueueProps) => {
   const { toggleModal } = props;
 
-  const transferQueueContext = props.activeTab === "videos" ? useContext(VideoTransferContext) : useContext(PhotoTransferContext);
-  const { transferQueue, addToTransferQueue } = transferQueueContext;
-  const uploadQueue = new Queue({ concurrency: 1 }); // Ajusta el número de concurrencia según tus necesidades
+  const uploadQueueContext = props.activeTab === "videos" ? useContext(VideoUploadContext) : useContext(PhotoUploadContext);
+  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = uploadQueueContext;
+  const uploadingQueue = new Queue({ concurrency: 1 });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  
+
+  const handleDelete = async (file: File, uploadData: any) => {
+    deleteFromUploadQueue ? deleteFromUploadQueue(file, uploadData) : undefined
+  };
+
   const uploadFiles = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       if (isSubmitting) {
-        return; // Evitar envío de solicitudes múltiples
+        return;
       }
-  
-      if (transferQueue.length === 0) {
+
+      if (uploadQueue.length === 0) {
         toast.info("Cola Vacia, no hay archivos para subir");
         return;
       }
-      
-      console.log("transferQueue", transferQueue);
-      setIsSubmitting(true); // Marcar la solicitud en progreso
-  
-      const uploadedFileJobs = transferQueue.map(([file, transferData]) => async () => {
+
+      setIsSubmitting(true);
+
+      const uploadedFileJobs = uploadQueue.map(([file, uploadData]) => async () => {
         try {
           const uploadedFile = await uploadGoogleStorageFile(
             file,
-            `media/${transferData.groupName}/videos`,
+            `media/${uploadData.groupName}/videos`,
             "maxter-media"
           );
-          console.log("uploadedFile", uploadedFile);
           const videoId = uploadedFile.id;
-  
+
           const formData = new FormData();
           formData.append("videoId", videoId);
-          formData.append("groupId", transferData.groupId as string);
-  
+          formData.append("groupId", uploadData.groupId as string);
+
           const response = await fetch("/api/upload/videos", {
             method: "POST",
             body: formData,
           });
-  
-          // Manejar la respuesta de la API según tus necesidades
+
           if (response.ok) {
             console.log("response", response.json());
-            
+            await handleDelete(file, uploadData);
           } else {
             throw new Error("Error al subir el archivo");
           }
         } catch (error) {
           console.error(error);
-         
         }
       });
-  
-      // Agregar los trabajos a la cola
-      uploadedFileJobs.forEach((job: any) => uploadQueue.push(job));
-  
-      // Iniciar el procesamiento de la cola
-      uploadQueue.start((err: any) => {
+
+      uploadedFileJobs.forEach((job: any) => uploadingQueue.push(job));
+
+      uploadingQueue.start((err: any) => {
         if (err) {
           console.error(err);
           toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
         } else {
           console.log("Todos los archivos se han subido correctamente");
-          toggleModal();
         }
-        setIsSubmitting(false); // Marcar la solicitud como finalizada
+        setIsSubmitting(false);
       });
     } catch (error) {
       console.error(error);
       toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
-      setIsSubmitting(false); // Marcar la solicitud como finalizada en caso de error
+      setIsSubmitting(false);
     }
   };
 
@@ -116,16 +112,16 @@ const TransferQueue = (props: TransferQueueProps) => {
                 </th>
               </thead>
               <tbody className="bg-light-gray text-left">
-                {transferQueue.map(([file, transferData]) => (
+                {uploadQueue.map(([file, uploadData]) => (
                   <tr key={file.name}>
                     <td>
                       <p className="text-sm font-semibold p-4">
-                        {transferData.groupName}
+                        {uploadData.groupName}
                       </p>
                     </td>
                     <td>
                       <p className="text-sm font-semibold p-4">
-                        {transferData.agencyName}
+                        {uploadData.agencyName}
                       </p>
                     </td>
                     <td>
@@ -140,9 +136,9 @@ const TransferQueue = (props: TransferQueueProps) => {
             </table>
           </div>
           <form onSubmit={uploadFiles}>
-                  <button type="submit">
-                    Subir
-                  </button>
+            <button type="submit">
+              Subir
+            </button>
           </form>
         </div>
       </div>
@@ -150,4 +146,7 @@ const TransferQueue = (props: TransferQueueProps) => {
   );
 };
 
-export default TransferQueue;
+export default UploadQueue;
+
+
+

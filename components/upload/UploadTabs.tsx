@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
 import { UploadGroupsTable } from "./";
 import { AiOutlineCloudUpload } from "react-icons/ai";
-import TransferQueue from "./TransferQueue";
+import UploadQueue from "./UploadQueue";
 
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
@@ -13,7 +13,7 @@ export const UploadTabs = () => {
 
   const [showModal, setShowModal] = useState(false);
 
-  const showTransferQueue = () => {
+  const showUploadQueue = () => {
     setShowModal((prev) => !prev);
   };
 
@@ -56,21 +56,21 @@ export const UploadTabs = () => {
       <div className="fixed bottom-2 right-2">
         <button
           className="bg-light-gray hover:bg-medium-gray themeTransition p-2"
-          onClick={showTransferQueue}
+          onClick={showUploadQueue}
         >
           <AiOutlineCloudUpload className="text-white w-5 h-5" />
         </button>
       </div>
       <div className="">
         {activeTab === "photos" && showModal && (
-          <TransferQueue
-            toggleModal={showTransferQueue}
+          <UploadQueue
+            toggleModal={showUploadQueue}
             activeTab={activeTab}
           />
         )}
         {activeTab === "videos" && showModal && (
-          <TransferQueue
-            toggleModal={showTransferQueue}
+          <UploadQueue
+            toggleModal={showUploadQueue}
             activeTab={activeTab}
           />
         )}

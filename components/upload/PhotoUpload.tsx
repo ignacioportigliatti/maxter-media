@@ -9,7 +9,7 @@ import { deleteGoogleStorageFile } from "@/utils/deleteGoogleStorageFile";
 import Queue from "queue";
 
 
-interface UploadAutoVideoProps {
+interface PhotoUploadProps {
   dataToUpload: {
     group: Group;
     files: File[];
@@ -23,7 +23,7 @@ type fileData = {
   size: number;
 };
 
-export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
+export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   dataToUpload,
   toggleModal,
   isDragging,
@@ -41,7 +41,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   const checkFiles = async () => {
     const files = await getFiles(
       "maxter-media",
-      `media/${dataToUpload.group.name}/videos`
+      `media/${dataToUpload.group.name}/photos`
     );
     if (files !== undefined && files.length > 0) {
       setUploadedFiles(files);
@@ -191,7 +191,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
           htmlFor="fileInput"
           className="flex py-1 cursor-pointer hover:text-orange-500 flex-row items-center justify-center gap-1"
         >
-          <p className="text-xs ">{`Añadir Videos a ${dataToUpload.group.name}`}</p>
+          <p className="text-xs ">{`Añadir Fotos a ${dataToUpload.group.name}`}</p>
           <span>
             <AiOutlineFileAdd className="w-7 h-7 p-1 text-right  text-light-gray hover:border-white hover:bg-orange-500 hover:text-white cursor-pointer themeTransition" />
           </span>
@@ -205,7 +205,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
               {isLoading ? <p className="text-xs">Cargando...</p> 
               : 
               uploadedFiles[0].name === '' ? (
-                <p className="text-xs">No hay videos subidos en el grupo</p>
+                <p className="text-xs">No hay fotos subidas en el grupo</p>
                 
               ) : (
                 uploadedFiles.map((file: any) => {
@@ -250,7 +250,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
             <div>
               <h4 className="text-sm">Archivos a Subir:</h4>
               {filesToUpload.length === 0 ? (
-                <p className="text-xs">Agregá videos .mp4 para subir</p>
+                <p className="text-xs">Agregá el .zip de las fotos para subir</p>
               ) : (
                 filesToUpload.map((file: File) => (
                   <div key={file.name} className="flex items-center w-full">
@@ -284,7 +284,7 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
             type="submit"
             disabled={isSubmitting} // Deshabilitar el botón mientras la solicitud está en progreso
           >
-            {isSubmitting ? "Agregando..." : "Añadir material"}
+            {isSubmitting ? "Agregando..." : "Añadir Fotos"}
           </button>
           <button
             className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
@@ -298,4 +298,3 @@ export const UploadAutoVideo: React.FC<UploadAutoVideoProps> = ({
   );
 };
 
-export default UploadAutoVideo;

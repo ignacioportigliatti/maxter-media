@@ -24,6 +24,7 @@ model Agency {
   // Remueve la relación `groups` existente
 
   groups    Group[] 
+  inQueue Queue[]
 }
 
 model Group {
@@ -40,11 +41,8 @@ model Group {
   agencyName  String? 
   photosIds   String[]
   videoIds    String[]
+  inQueue    Queue[]
 }
-
-
-
-
 
 model User {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -55,4 +53,15 @@ model User {
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Queue {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  filename    String
+  status      String
+  createdAt   DateTime @default(now())
+  groupId     String?  @db.ObjectId
+  group       Group?   @relation(fields: [groupId], references: [id])
+  agencyId    String?  @db.ObjectId
+  agency      Agency?  @relation(fields: [agencyId], references: [id])
 }

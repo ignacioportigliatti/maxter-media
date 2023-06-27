@@ -78,11 +78,6 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
     await setShowDeleteModal(true);
   };
 
-  const handleDeleteButton = async (agency: any) => {
-    await confirmDeleteModal();
-    await setSelectedGroup(agency);
-  };
-
   const handleDragEnter = (
     e: React.DragEvent<HTMLTableRowElement>,
     group: Group

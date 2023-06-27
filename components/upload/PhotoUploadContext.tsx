@@ -10,7 +10,7 @@ type UploadData = {
 type PhotoUploadContextProps = {
   uploadQueue: [File, UploadData][];
   addToUploadQueue: (item: File, uploadData?: UploadData) => void;
-  deleteFromUploadQueue?: (item: File) => void;
+  deleteFromUploadQueue: (item: File) => void;
 };
 
 export const PhotoUploadContext = createContext<PhotoUploadContextProps>({

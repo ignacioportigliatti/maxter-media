@@ -3,9 +3,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { formatBytes, getFiles, uploadGoogleStorageFile } from "@/utils";
+import { formatBytes, getGoogleStorageFiles, uploadGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
-import { deleteGoogleStorageFile } from "@/utils/deleteGoogleStorageFile";
+import { deleteGoogleStorageFile } from "@/utils/googleStorage/deleteGoogleStorageFile";
 import Queue from "queue";
 
 
@@ -39,7 +39,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   
 
   const checkFiles = async () => {
-    const files = await getFiles(
+    const files = await getGoogleStorageFiles(
       "maxter-media",
       `media/${dataToUpload.group.name}/photos`
     );

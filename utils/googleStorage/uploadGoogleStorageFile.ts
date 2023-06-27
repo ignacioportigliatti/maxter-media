@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { generateOAuth2Token } from ".";
+import { generateOAuth2Token } from "..";
 import { toast } from "react-toastify";
 
 export const uploadGoogleStorageFile = async (

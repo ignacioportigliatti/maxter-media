@@ -1,15 +1,36 @@
+import { Agency } from "@prisma/client";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface Props {
   title: string;
-  agency: string;
+  agencyName: string;
   duration: string;
   uploadedAt: string;
   thumbSrc?: string;
 }
 
 export const VideoCard = (props: Props) => {
-  const { title, agency, duration, uploadedAt, thumbSrc = "https://picsum.photos/seed/59/300/200" } = props;
+  const { title, agencyName, duration, uploadedAt, thumbSrc = "https://picsum.photos/seed/59/300/200" } = props;
+  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
+
+  const getSelectedAgency = async () => {
+    try {
+      const response = await fetch('/api/agencies')
+      const agencies: Agency[] = await response.json()
+      const agency = await agencies.find((agency: Agency) => agency.name === agencyName)
+      setSelectedAgency(agency as Agency)
+      return agency
+    } catch (error) {
+      console.error("Error al obtener el logo de la agencia:", error);
+    }
+  }
+
+  useEffect(() => {
+    getSelectedAgency()
+  }, [])
+
+  
 
   return (
     <div>
@@ -32,7 +53,7 @@ export const VideoCard = (props: Props) => {
           <div className="flex flex-row mt-3 gap-2">
             <a href="#">
               <img
-                src="/agency/astros-logo.png"
+                src={selectedAgency?.logoSrc as string}
                 className="rounded-full max-h-10 max-w-10 mr-2"
               />
             </a>
@@ -43,7 +64,7 @@ export const VideoCard = (props: Props) => {
               </a>
               <p className="text-gray-400 text-xs">
                 {" "}
-                {agency}{" "}
+                {agencyName}{" "}
               </p>
               <p className="text-gray-400 text-xs">{uploadedAt}</p>
             </div>

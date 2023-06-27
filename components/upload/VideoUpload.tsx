@@ -3,7 +3,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { formatBytes, getFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
+import { formatBytes, getGoogleStorageFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
 
 
@@ -35,12 +35,10 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     { name: "", size: 0 },
   ]);
   const [filesToUpload, setFilesToUpload] = useState<File[]>(dataToUpload.files);
-
-  
-  const { uploadQueue, addToUploadQueue } = useContext(VideoUploadContext);
+  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = useContext(VideoUploadContext);
 
   const checkFiles = async () => {
-    const files = await getFiles(
+    const files = await getGoogleStorageFiles(
       "maxter-media",
       `media/${dataToUpload.group.name}/videos`
     );
@@ -66,18 +64,34 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
-    if (fileList && fileList.length > 0) {
-      const filesArray = Array.from(fileList);
-      const filteredFiles = filesArray.filter(
-        (file: File) => file.type === "video/mp4"
-      );
-      console.log("filteredFiles", filteredFiles);
-      setFilesToUpload(filteredFiles);
-      if (filesArray.length !== filteredFiles.length) {
-        toast.error("Solo se permiten archivos de video .mp4");
+    try {
+      if (fileList && fileList.length > 0) {
+        const filesArray = Array.from(fileList);
+        const filteredFiles = filesArray.filter(
+          (file: File) => file.type === "video/mp4"
+        );
+  
+        filteredFiles.forEach((file) => {
+          const fileNameExists = filesToUpload.some(
+            (uploadedFile) => uploadedFile.name === file.name
+          );
+          if (fileNameExists) {
+            toast.error(`El archivo "${file.name}" ya está en la lista.`);
+          } else {
+            setFilesToUpload((prevFiles) => [...prevFiles, file]);
+          }
+        });
+  
+        if (filesArray.length !== filteredFiles.length) {
+          toast.error("Solo se permiten archivos de video .mp4");
+        }
       }
+    } catch (error) {
+      toast.error("Error al cargar los archivos");
     }
   };
+  
+  
   
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -93,22 +107,27 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   
       setIsSubmitting(true); // Marcar la solicitud en progreso
       console.log("uploadQueue", uploadQueue);
-      const updatedTransferQueue = filesToUpload.forEach((file: File) => {
-        uploadQueue.push([file, {
-          groupId: selectedGroup.id,
-          groupName: selectedGroup.name,
-          agencyName: selectedGroup.agencyName as string,
-          fileName: file.name
-        }]);
+  
+      const updatedTransferQueue = filesToUpload.map((file: File) => {
+        uploadQueue.push([
+          file,
+          {
+            groupId: selectedGroup.id,
+            groupName: selectedGroup.name,
+            agencyName: selectedGroup.agencyName as string,
+            fileName: file.name,
+          },
+        ]);
+  
+        return uploadQueue;
       });
   
-      if (uploadQueue !== undefined) {
-        console.log("updatedTransferQueue", updatedTransferQueue);
-        // toggleModal();
+      if (updatedTransferQueue.length > 0) {
+        toggleModal();
+        toast.success("Archivo(s) agregado(s) a la cola de reproducción");
         setIsSubmitting(false); // Marcar la solicitud como finalizada
       }
   
-      console.log("updatedTransferQueue", updatedTransferQueue);
     } catch (error) {
       console.error(error);
       toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
@@ -116,8 +135,6 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     }
   };
   
-
-      
 
   const handleDelete = async (fileName: string, videoId: string) => {
     try {
@@ -150,7 +167,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   };
 
   return (
-    <VideoUploadContext.Provider value={{uploadQueue, addToUploadQueue}}>
+    <VideoUploadContext.Provider value={{uploadQueue, addToUploadQueue, deleteFromUploadQueue}}>
     <div className="flex flex-col">
       <div className="flex justify-end">
         {/* Add File Button */}

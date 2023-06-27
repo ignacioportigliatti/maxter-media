@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-import { generateOAuth2Token } from ".";
+import { generateOAuth2Token } from "..";
 
-export const getFiles = async (
+export const getGoogleStorageFiles = async (
   bucket: string,
   folder: string,
   fileName?: string

@@ -1,26 +1,41 @@
-import { VideoCard } from "@/components/ui/";
+"use client";
 
-interface Props {}
+import { useEffect, useState } from "react";
 
-export const VideoGrid = (props: Props) => {
-  const videos = [
-    {
-      title: "01 - Cocoguana",
-      agency: "Astros Viajes",
-      duration: "35:21",
-      uploadedAt: "Subido hace 2 Horas.",
-      thumbSrc: "https://picsum.photos/seed/59/300/200",
-    },
-    {
-      title: "02 - Pekos",
-      agency: "Astros Viajes",
-      duration: "07:21",
-      uploadedAt: "Subido hace 2 Horas.",
-      thumbSrc: "https://picsum.photos/seed/59/300/200",
-    },
-    // Agrega más objetos de video aquí...
-  ];
+import { VideoCard } from "@/components/ui";
+import { getGoogleStorageFiles } from "@/utils";
+import { Group } from "@prisma/client";
 
+interface VideoGridProps {
+  selectedGroup: Group;
+}
+
+export const VideoGrid = (props: VideoGridProps) => {
+  const { selectedGroup } = props;
+  const [videos, setVideos] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const getVideoList = async () => {
+      try {
+        const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
+        const folderPath = `media/M0023/videos`;
+
+        const videos = await getGoogleStorageFiles(
+          bucketName as string,
+          folderPath
+        );
+        console.log("videos", videos);
+
+        setVideos(videos);
+      } catch (error) {
+        console.error("Error al obtener la lista de videos:", error);
+      }
+    };
+
+    getVideoList();
+  }, []);
+
+  // Resto del código del componente
   return (
     <div>
       <div className="flex">
@@ -29,11 +44,11 @@ export const VideoGrid = (props: Props) => {
             {videos.map((video, index) => (
               <VideoCard
                 key={index}
-                title={video.title}
-                agency={video.agency}
-                duration={video.duration}
-                uploadedAt={video.uploadedAt}
-                thumbSrc={video.thumbSrc}
+                title={video.name.split("/")[3].split(".")[0]}
+                agencyName={selectedGroup.agencyName as string}
+                duration={video.size}
+                uploadedAt={video.timeCreated}
+                thumbSrc={video.mediaLink}
               />
             ))}
           </div>

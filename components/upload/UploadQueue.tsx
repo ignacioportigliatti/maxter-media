@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { VideoUploadContext } from "./VideoUploadContext";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
@@ -17,11 +17,13 @@ const UploadQueue = (props: UploadQueueProps) => {
   const uploadQueueContext = props.activeTab === "videos" ? useContext(VideoUploadContext) : useContext(PhotoUploadContext);
   const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = uploadQueueContext;
   const uploadingQueue = new Queue({ concurrency: 1 });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadQueueState, setUploadQueueState] = useState<[File, any][]>(uploadQueue);
 
-  const handleDelete = async (file: File, uploadData: any) => {
-    deleteFromUploadQueue ? deleteFromUploadQueue(file, uploadData) : undefined
-  };
+  useEffect(() => {
+    console.log("uploadQueue", uploadQueue);
+    setUploadQueueState(uploadQueue);
+  }, [uploadQueue]);
 
   const uploadFiles = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,7 +47,7 @@ const UploadQueue = (props: UploadQueueProps) => {
             "maxter-media"
           );
           const videoId = uploadedFile.id;
-
+          
           const formData = new FormData();
           formData.append("videoId", videoId);
           formData.append("groupId", uploadData.groupId as string);
@@ -57,6 +59,7 @@ const UploadQueue = (props: UploadQueueProps) => {
 
           if (response.ok) {
             console.log("response", response.json());
+            console.log("Eliminando de la cola de subida");
             await handleDelete(file, uploadData);
           } else {
             throw new Error("Error al subir el archivo");
@@ -73,7 +76,7 @@ const UploadQueue = (props: UploadQueueProps) => {
           console.error(err);
           toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
         } else {
-          console.log("Todos los archivos se han subido correctamente");
+          toast.success("Todos los archivos se han subido correctamente");
         }
         setIsSubmitting(false);
       });
@@ -83,6 +86,18 @@ const UploadQueue = (props: UploadQueueProps) => {
       setIsSubmitting(false);
     }
   };
+
+  const handleDelete = async (file: File, uploadData: any) => {
+    try {
+      await deleteFromUploadQueue(file, uploadData);
+      toast.success("Archivo eliminado de la cola de subida");
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al eliminar el archivo de la cola de subida");
+    }
+  }
+  
 
   return (
     <div>
@@ -98,21 +113,26 @@ const UploadQueue = (props: UploadQueueProps) => {
           <div className="w-full px-7 flex flex-col justify-center">
             <table>
               <thead className="dark:bg-medium-gray bg-gray-200">
-                <th>
-                  <p className="text-sm font-semibold p-4">Grupo</p>
-                </th>
-                <th>
-                  <p className="text-sm font-semibold p-4">Empresa</p>
-                </th>
-                <th>
-                  <p className="text-sm font-semibold p-4">Archivo</p>
-                </th>
-                <th>
-                  <p className="text-sm font-semibold p-4">Progreso</p>
-                </th>
+                <tr>
+                  <th>
+                    <p className="text-sm font-semibold p-4">Grupo</p>
+                  </th>
+                  <th>
+                    <p className="text-sm font-semibold p-4">Empresa</p>
+                  </th>
+                  <th>
+                    <p className="text-sm font-semibold p-4">Archivo</p>
+                  </th>
+                  <th>
+                    <p className="text-sm font-semibold p-4">Progreso</p>
+                  </th>
+                  <th>
+                    <p className="text-sm font-semibold p-4">Acciones</p>
+                  </th>
+                </tr>
               </thead>
               <tbody className="bg-light-gray text-left">
-                {uploadQueue.map(([file, uploadData]) => (
+                {uploadQueueState.map(([file, uploadData]) => (
                   <tr key={file.name}>
                     <td>
                       <p className="text-sm font-semibold p-4">
@@ -129,6 +149,14 @@ const UploadQueue = (props: UploadQueueProps) => {
                     </td>
                     <td>
                       <p className="text-sm font-semibold p-4">Progreso</p>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleDelete(file, uploadData)}
+                        className="text-sm font-semibold p-4"
+                      >
+                        Eliminar
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -147,6 +175,3 @@ const UploadQueue = (props: UploadQueueProps) => {
 };
 
 export default UploadQueue;
-
-
-

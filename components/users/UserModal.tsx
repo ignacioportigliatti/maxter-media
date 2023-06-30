@@ -4,7 +4,7 @@ import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { User } from "@prisma/client";
 import { Input } from "@/components/ui/form";
-import bcrypt from "bcrypt";
+
 
 interface UserModalProps {
   toggleModal: () => void;

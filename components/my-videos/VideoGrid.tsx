@@ -1,7 +1,4 @@
-"use client";
-
 import { useEffect, useState } from "react";
-
 import { VideoCard } from "@/components/ui";
 import { getGoogleStorageFiles } from "@/utils";
 import { Group } from "@prisma/client";
@@ -13,7 +10,7 @@ interface VideoGridProps {
 export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
   const [videos, setVideos] = useState<any[]>([]);
-  
+
   useEffect(() => {
     const getVideoList = async () => {
       try {
@@ -35,20 +32,19 @@ export const VideoGrid = (props: VideoGridProps) => {
     getVideoList();
   }, []);
 
-  // Resto del código del componente
   return (
     <div>
       <div className="flex">
         <div className="flex flex-row items-start justify-center mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 gap-y-4 max-w-6xl">
-            {videos.map((video, index) => (
+            {videos.map((video) => (
               <VideoCard
-                key={index}
+                key={video.id} // Utilizar una propiedad única del video como clave
                 title={video.name.split("/")[3].split(".")[0]}
                 agencyName={selectedGroup.agencyName as string}
                 duration={video.size}
                 uploadedAt={video.timeCreated}
-                thumbSrc={video.mediaLink}
+                filePath={video.name}
               />
             ))}
           </div>

@@ -4,17 +4,17 @@ import prisma from "@/libs/prismadb";
 export async function POST(req: Request, res: NextResponse) {
   const form = await req.formData();
   const groupId = form.get("groupId");
-  const videoId = form.get("videoId");
+  const fileId = form.get("fileId");
 
   console.log("groupId", groupId);
-  console.log("videoId", videoId);
+  console.log("fileId", fileId);
 
   try {
     const video = await prisma.group.update({
       where: { id: groupId as string },
       data: {
         videoIds: {
-          push: videoId as string,
+          push: fileId as string,
         },
       },
     });
@@ -31,7 +31,7 @@ export async function POST(req: Request, res: NextResponse) {
 export async function DELETE(req: Request, res: NextResponse) {
   const url = new URL(req.url);
   const groupId = url.searchParams.get("groupId");
-  const videoId = url.searchParams.get("videoId");
+  const fileId = url.searchParams.get("fileId");
 
   try {
     const videosArray = await prisma.group.findMany({
@@ -44,7 +44,7 @@ export async function DELETE(req: Request, res: NextResponse) {
     });
 
     const updatedVideos = videosArray[0].videoIds.filter(
-      (video) => video !== videoId
+      (video) => video !== fileId
     );
 
     const video = await prisma.group.update({
@@ -55,7 +55,7 @@ export async function DELETE(req: Request, res: NextResponse) {
         },
       },
     });
-    console.log(`Video ${videoId} deleted from group ${groupId}`)
+    console.log(`Video ${fileId} deleted from group ${groupId}`)
     return new NextResponse(JSON.stringify({ success: true, video }));
   } catch (error) {
     console.error("Error uploading file:", error);

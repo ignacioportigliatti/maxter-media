@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import { PhotoUploadContext } from "./PhotoUploadContext";
 import Queue from "queue";
-import { uploadGoogleStorageFile } from "@/utils";
+import { uploadGoogleStorageFile } from "@/utils/googleStorage/";
 
 interface UploadQueueProps {
   toggleModal: () => void;
@@ -12,13 +12,17 @@ interface UploadQueueProps {
 }
 
 const UploadQueue = (props: UploadQueueProps) => {
-  const { toggleModal } = props;
+  const { toggleModal, activeTab } = props;
 
-  const uploadQueueContext = props.activeTab === "videos" ? useContext(VideoUploadContext) : useContext(PhotoUploadContext);
-  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = uploadQueueContext;
+  const uploadQueueContext =
+    props.activeTab === "videos"
+      ? useContext(VideoUploadContext)
+      : useContext(PhotoUploadContext);
+  const { uploadQueue, deleteFromUploadQueue } = uploadQueueContext;
   const uploadingQueue = new Queue({ concurrency: 1 });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadQueueState, setUploadQueueState] = useState<[File, any][]>(uploadQueue);
+  const [uploadQueueState, setUploadQueueState] =
+    useState<[File, any][]>(uploadQueue);
 
   useEffect(() => {
     console.log("uploadQueue", uploadQueue);
@@ -34,47 +38,71 @@ const UploadQueue = (props: UploadQueueProps) => {
 
       if (uploadQueue.length === 0) {
         toast.info("Cola Vacia, no hay archivos para subir");
+        toggleModal();
         return;
       }
 
       setIsSubmitting(true);
 
-      const uploadedFileJobs = uploadQueue.map(([file, uploadData]) => async () => {
-        try {
-          const uploadedFile = await uploadGoogleStorageFile(
-            file,
-            `media/${uploadData.groupName}/videos`,
-            "maxter-media"
-          );
-          const videoId = uploadedFile.id;
-          
-          const formData = new FormData();
-          formData.append("videoId", videoId);
-          formData.append("groupId", uploadData.groupId as string);
+      const uploadedFileJobs = uploadQueue.map(
+        ([file, uploadData]) =>
+          async () => {
+            try {
+              const bucketName = "maxter-media";
+              const filePath = `media/${uploadData.groupName}/${
+                activeTab === "videos" ? "videos" : "photos"
+              }/`;
+              const uploadedFile = await uploadGoogleStorageFile(
+                file,
+                filePath,
+                bucketName
+              );
+              const fileId = uploadedFile.id;
 
-          const response = await fetch("/api/upload/videos", {
-            method: "POST",
-            body: formData,
-          });
+              // if (activeTab === "videos") {
+              //   const thumbnail = await generateVideoThumbnail(file.webkitRelativePath)
+              //   const thumbnailPath = `media/${uploadData.groupName}/videos/thumbs/`;
+              //   const thumbnailFile = await uploadGoogleStorageFile(
+              //     thumbnail,
+              //     thumbnailPath,
+              //     bucketName
+              //   );
+              //   console.log("thumbnailFile uploaded", thumbnailFile);
+              // }
 
-          if (response.ok) {
-            console.log("response", response.json());
-            console.log("Eliminando de la cola de subida");
-            await handleDelete(file, uploadData);
-          } else {
-            throw new Error("Error al subir el archivo");
+              const formData = new FormData();
+              formData.append("fileId", fileId);
+              formData.append("groupId", uploadData.groupId as string);
+
+              const response = await fetch(
+                `/api/upload/${activeTab === "videos" ? "videos" : "photos"}`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+
+              if (response.ok) {
+                console.log("response", response.json());
+                console.log("Eliminando de la cola de subida");
+                await deleteFromUploadQueue(file, uploadData);
+              } else {
+                throw new Error("Error al subir el archivo");
+              }
+            } catch (error) {
+              console.error(error);
+            }
           }
-        } catch (error) {
-          console.error(error);
-        }
-      });
+      );
 
       uploadedFileJobs.forEach((job: any) => uploadingQueue.push(job));
 
       uploadingQueue.start((err: any) => {
         if (err) {
           console.error(err);
-          toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
+          toast.error(
+            "Error al agregar el(s) video(s) a la cola de reproducción"
+          );
         } else {
           toast.success("Todos los archivos se han subido correctamente");
         }
@@ -91,17 +119,14 @@ const UploadQueue = (props: UploadQueueProps) => {
     try {
       await deleteFromUploadQueue(file, uploadData);
       toast.success("Archivo eliminado de la cola de subida");
-      
     } catch (error) {
       console.error(error);
       toast.error("Error al eliminar el archivo de la cola de subida");
     }
-  }
-  
+  };
 
   return (
     <div>
-      <ToastContainer />
       <div className="animate-in animate-out z-50 duration-500 fade-in flex justify-center items-center h-full min-h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[60%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
@@ -148,7 +173,15 @@ const UploadQueue = (props: UploadQueueProps) => {
                       <p className="text-sm font-semibold p-4">{file.name}</p>
                     </td>
                     <td>
-                      <p className="text-sm font-semibold p-4">Progreso</p>
+                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                      <div
+                        className="bg-orange-500 w-[45%] text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                        
+                      >
+                        {" "}
+                        45%
+                      </div>
+                    </div>
                     </td>
                     <td>
                       <button
@@ -164,9 +197,7 @@ const UploadQueue = (props: UploadQueueProps) => {
             </table>
           </div>
           <form onSubmit={uploadFiles}>
-            <button type="submit">
-              Subir
-            </button>
+            <button type="submit">Subir</button>
           </form>
         </div>
       </div>

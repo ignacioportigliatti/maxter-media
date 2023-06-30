@@ -4,19 +4,21 @@ import { generateOAuth2Token } from "..";
 export const getGoogleStorageFiles = async (
   bucket: string,
   folder: string,
-  fileName?: string
+  fileName?: string,
+  isMedia?: boolean
 ) => {
   try {
     const OAuthToken = await generateOAuth2Token(
       process.env.NEXT_PUBLIC_BUCKET_KEYFILE as string
     );
     
-    let url = `https://www.googleapis.com/storage/v1/b/${bucket}/o`;
+    let url = ``;
     if (fileName) {
-      url += `/${folder}%2F${encodeURIComponent(fileName)}`;
+      url += `https://storage.googleapis.com/download/storage/v1/b/${bucket}/o/${encodeURIComponent(folder)}%2F${encodeURIComponent(fileName)}` + (isMedia === true ? "?alt=media" : "");
     } else {
-      url += `?prefix=${encodeURIComponent(folder)}`;
+      url += `https://www.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(folder)}`;
     }
+    console.log('url', url);
     
     const response: AxiosResponse = await axios.get(url, {
       headers: {
@@ -25,7 +27,11 @@ export const getGoogleStorageFiles = async (
     });
 
     if (response.status === 200) {
-      return response.data.items;
+      if (fileName) {
+        return response.data;
+      } else {
+        return response.data.items;
+      }
     } else {
       console.error("Error al obtener los archivos:", response);
     }

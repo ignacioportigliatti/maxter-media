@@ -1,36 +1,78 @@
+import { useState, useEffect, useRef } from "react";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
 import { Agency } from "@prisma/client";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 
 interface Props {
   title: string;
   agencyName: string;
   duration: string;
   uploadedAt: string;
-  thumbSrc?: string;
+  filePath?: string;
 }
 
 export const VideoCard = (props: Props) => {
-  const { title, agencyName, duration, uploadedAt, thumbSrc = "https://picsum.photos/seed/59/300/200" } = props;
+  const { title, agencyName, duration, uploadedAt, filePath } = props;
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
-
-  const getSelectedAgency = async () => {
-    try {
-      const response = await fetch('/api/agencies')
-      const agencies: Agency[] = await response.json()
-      const agency = await agencies.find((agency: Agency) => agency.name === agencyName)
-      setSelectedAgency(agency as Agency)
-      return agency
-    } catch (error) {
-      console.error("Error al obtener el logo de la agencia:", error);
-    }
-  }
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    getSelectedAgency()
-  }, [])
+    const getSelectedAgency = async () => {
+      try {
+        const response = await fetch("/api/agencies");
+        const agencies: Agency[] = await response.json();
+        const agency = agencies.find(
+          (agency: Agency) => agency.name === agencyName
+        );
+        setSelectedAgency(agency || null);
+      } catch (error) {
+        console.error("Error al obtener el logo de la agencia:", error);
+      }
+    };
 
-  
+    getSelectedAgency();
+  }, [agencyName]);
+
+  useEffect(() => {
+    const getVideoSrc = async () => {
+      try {
+        const video = await getSignedUrl('maxter-media', filePath as string);
+        console.log("video", video);
+        setVideoSrc(video);
+      } catch (error) {
+        console.error("Error al obtener el video:", error);
+      }
+    };
+
+    if (filePath) {
+      getVideoSrc();
+    }
+  }, [filePath]);
+
+  useEffect(() => {
+    if (videoRef.current && videoSrc) {
+      const player = videojs(videoRef.current, {
+        sources: [
+          {
+            src: videoSrc,
+            type: "video/mp4",
+          },
+        ],
+      });
+
+      return () => {
+        player.dispose();
+      };
+    }
+  }, [videoSrc]);
+
+  const handleTitleClick = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
 
   return (
     <div>
@@ -38,10 +80,11 @@ export const VideoCard = (props: Props) => {
         <div className="w-full flex flex-col">
           <div className="relative">
             <a href="#">
-              <img
-                src={thumbSrc}
-                className="w-96 h-auto"
-                alt="video thumbnail"
+              <video
+                controls
+                width={320}
+                ref={videoRef}
+                className="video-js vjs-default-skin"
               />
             </a>
 
@@ -60,12 +103,14 @@ export const VideoCard = (props: Props) => {
 
             <div className="flex flex-col">
               <a href="#">
-                <p className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-orange-500">{title}</p>
+                <p
+                  className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-orange-500"
+                  onClick={handleTitleClick}
+                >
+                  {title}
+                </p>
               </a>
-              <p className="text-gray-400 text-xs">
-                {" "}
-                {agencyName}{" "}
-              </p>
+              <p className="text-gray-400 text-xs">{agencyName}</p>
               <p className="text-gray-400 text-xs">{uploadedAt}</p>
             </div>
           </div>

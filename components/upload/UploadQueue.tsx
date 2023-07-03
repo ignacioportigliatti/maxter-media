@@ -51,7 +51,7 @@ const UploadQueue = (props: UploadQueueProps) => {
               const bucketName = "maxter-media";
               const filePath = `media/${uploadData.groupName}/${
                 activeTab === "videos" ? "videos" : "photos"
-              }/`;
+              }`;
               const uploadedFile = await uploadGoogleStorageFile(
                 file,
                 filePath,

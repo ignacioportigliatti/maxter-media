@@ -7,16 +7,17 @@ import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 interface Props {
   title: string;
   agencyName: string;
-  duration: string;
   uploadedAt: string;
   filePath?: string;
 }
 
 export const VideoCard = (props: Props) => {
-  const { title, agencyName, duration, uploadedAt, filePath } = props;
+  const { title, agencyName, uploadedAt, filePath } = props;
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
 
   useEffect(() => {
     const getSelectedAgency = async () => {
@@ -38,8 +39,7 @@ export const VideoCard = (props: Props) => {
   useEffect(() => {
     const getVideoSrc = async () => {
       try {
-        const video = await getSignedUrl('maxter-media', filePath as string);
-        console.log("video", video);
+        const video = await getSignedUrl("maxter-media", filePath as string);
         setVideoSrc(video);
       } catch (error) {
         console.error("Error al obtener el video:", error);
@@ -76,21 +76,18 @@ export const VideoCard = (props: Props) => {
 
   return (
     <div>
-      <div className="col-span-12 sm:col-span-6 md:col-span-3">
+      <div className="min-w-[350px]">
         <div className="w-full flex flex-col">
-          <div className="relative">
-            <a href="#">
-              <video
-                controls
-                width={320}
-                ref={videoRef}
-                className="video-js vjs-default-skin"
-              />
-            </a>
+          <div className="w-full">
+            <video
+              height={200}
+              controls
+              width={350}
+              ref={videoRef}
+              preload="metadata"
+              className="video-js vjs-default-skin w-full"
+            />
 
-            <p className="absolute right-2 bottom-2 text-gray-100 text-xs px-1 py">
-              {duration}
-            </p>
           </div>
 
           <div className="flex flex-row mt-3 gap-2">

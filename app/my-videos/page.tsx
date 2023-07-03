@@ -15,6 +15,8 @@ export default function MyVideosPage() {
     return groups;
   };
 
+  const group = groups[1];
+
   useEffect(() => {
     getGroupsList();
   }, []);
@@ -28,14 +30,14 @@ export default function MyVideosPage() {
           </div>
           {groups.length > 0 && (
             <div className="flex flex-col justify-end items-end">
-              <h4>{`Escuela ${groups[0].school} `}</h4>
-              <h5 className="text-xs">{`${groups[0].name} - ${groups[0].agencyName}`}</h5>
+              <h4>{`Escuela ${group.school} `}</h4>
+              <h5 className="text-xs">{`${group.name} - ${group.agencyName}`}</h5>
             </div>
           )}
         </div>
       </div>
       <div className="py-14 px-7">
-        <VideoGrid selectedGroup={groups[0]} />
+        <VideoGrid selectedGroup={group} />
       </div>
     </div>
   );

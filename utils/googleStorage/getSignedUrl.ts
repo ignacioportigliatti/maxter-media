@@ -1,7 +1,6 @@
-'use server'
+"use server";
 
-import { Storage } from '@google-cloud/storage';
-
+import { Storage } from "@google-cloud/storage";
 
 // Creates a client
 const storage = new Storage({
@@ -19,19 +18,24 @@ interface SignedUrlCache {
 // Objeto para almacenar el caché de URLs firmadas
 const signedUrlCache: SignedUrlCache = {};
 
-export async function getSignedUrl(bucketName: string, fileName: string): Promise<string> {
+export async function getSignedUrl(
+  bucketName: string,
+  fileName: string
+): Promise<string> {
   const cacheKey = `${bucketName}/${fileName}`;
 
   // Verificar si la URL firmada está en caché y aún es válida
-  if (signedUrlCache[cacheKey] && signedUrlCache[cacheKey].expires > Date.now()) {
-    console.log(`La URL firmada para ${fileName} ya existe en caché.`);
+  if (
+    signedUrlCache[cacheKey] &&
+    signedUrlCache[cacheKey].expires > Date.now()
+  ) {
     return signedUrlCache[cacheKey].url;
   }
 
   // Las opciones permitirán acceso de lectura temporal al archivo
   const options = {
-    version: 'v2' as const,
-    action: 'read' as const,
+    version: "v2" as const,
+    action: "read" as const,
     expires: Date.now() + 1000 * 60 * 60, // una hora
   };
 
@@ -40,8 +44,6 @@ export async function getSignedUrl(bucketName: string, fileName: string): Promis
     .bucket(bucketName)
     .file(fileName)
     .getSignedUrl(options);
-
-  console.log(`La URL firmada para ${fileName} es ${url}.`);
 
   // Almacenar la URL firmada en caché
   signedUrlCache[cacheKey] = {

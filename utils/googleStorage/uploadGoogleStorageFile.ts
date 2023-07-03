@@ -1,6 +1,7 @@
 import axios, { AxiosResponse, AxiosProgressEvent } from "axios";
 import { generateOAuth2Token } from "..";
 import { toast } from "react-toastify";
+import { gzip } from "zlib";
 
 type ProgressCallback = (progress: number) => void;
 

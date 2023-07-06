@@ -15,7 +15,7 @@ export default function MyVideosPage() {
     return groups;
   };
 
-  const group = groups[1];
+  const group = groups[4];
 
   useEffect(() => {
     getGroupsList();

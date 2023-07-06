@@ -1,8 +1,9 @@
+'use client'
+
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import { User } from "@prisma/client";
 import { Input } from "@/components/ui/form";
 
@@ -97,24 +98,14 @@ export const UserModal: React.FC<UserModalProps> = ({
         toast.error("Ya existe un usuario con ese nombre");
         return;
       }
-      
-      const hashedPassword = await bcrypt.hash(
-        formData.password,
-        10
-      );
-
-      const updatedFormData = {
-        ...formData, password: hashedPassword
-
-      };
 
       const getResponseFromAPI = async () => {
         if (editMode) {
-          const response = await axios.post("/api/users/edit", updatedFormData);
+          const response = await axios.post("/api/users/edit", formData);
           return response;
         } else {
           await checkName();
-          const response = await axios.post("/api/users/add", updatedFormData);
+          const response = await axios.post("/api/users/add", formData);
           return response;
         }
       };

@@ -10,6 +10,7 @@ import {
   TfiExport,
 } from "react-icons/tfi";
 import {
+  TbDoorExit,
   TbFileUpload,
   TbMoonStars,
   TbQrcode,
@@ -19,7 +20,7 @@ import {
 } from "react-icons/tb";
 import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 import Link from "next/link";
-import Modal from "../ui/Modal";
+import { usePathname } from "next/navigation"
 
 interface SidebarProps {}
 
@@ -35,6 +36,12 @@ export const Sidebar = (props: SidebarProps) => {
     isDarkTheme === true
       ? "/sidebar/maxter-logo-dark.png"
       : "/sidebar/maxter-logo.png";
+
+  const pathName = usePathname();
+
+  if (pathName === "/auth/signin" || pathName === "/auth/signup") {
+    return <></>
+  }
 
   return (
     <div className="min-h-full h-full flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
@@ -165,6 +172,14 @@ export const Sidebar = (props: SidebarProps) => {
                   <TbUserCheck className="sideBarIconSize" />
                 </span>
                 <span className="sideBarIconText">Usuarios</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/api/auth/signout" className="sideBarButton">
+                <span className="sideBarIcon">
+                  <TbDoorExit className="sideBarIconSize" />
+                </span>
+                <span className="sideBarIconText">Cerrar Sesion</span>
               </Link>
             </li>
           </ul>

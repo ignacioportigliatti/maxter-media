@@ -2,7 +2,9 @@
 
 import './globals.css'
 import { Providers } from "@/components/auth/Providers";
-import { Login } from '@/components/auth/Login';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export const metadata = {
   title: "Maxter",
@@ -18,7 +20,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-            <Login children={children} />
+        <div className="flex">
+          <ToastContainer />
+          <div className="hidden lg:flex">
+            <Sidebar />
+          </div>
+          <div className="lg:h-full flex mx-auto w-full">{children}</div>
+        </div>
         </Providers>
       </body>
     </html>

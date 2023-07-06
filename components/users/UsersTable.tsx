@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { UserModal } from "./";
 import { User } from "@prisma/client";
@@ -11,7 +10,7 @@ export const UsersTable = () => {
   const columnHeaders = [
     { key: "email", label: "Email" },
     { key: "password", label: "Contraseña" },
-    { key: "createdAt", label: "Creación" },
+    { key: "name", label: "Nombre" },
 
   ];
 
@@ -96,7 +95,6 @@ export const UsersTable = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex flex-col">
         <div className="md:overflow-hidden border border-gray-200 dark:border-medium-gray">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -151,7 +149,7 @@ export const UsersTable = () => {
                       <h2 className="text-sm">*********</h2>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                      {user.createdAt.toString().slice(0, 10)}
+                      {user.name}
                     </td>
                     
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">

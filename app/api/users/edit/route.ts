@@ -1,6 +1,7 @@
 import prisma from "@/libs/prismadb";
 import { User } from "@prisma/client";
 import { NextResponse } from "next/server";
+import bcrypt from 'bcrypt'
 
 export async function POST(request: Request) {
   //Getting body
@@ -16,12 +17,14 @@ export async function POST(request: Request) {
 
 
     try {
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const user = await prisma.user.update({
         where: { id: userToEdit?.id },
         data: {
           email: email,
-          password: password,
-          updatedAt: new Date(),
+          password: hashedPassword,
         },
       });
       

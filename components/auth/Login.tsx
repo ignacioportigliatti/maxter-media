@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { ToastContainer } from "react-toastify";
 import { Sidebar } from "../layout/Sidebar";
+import { Providers } from "./Providers";
 
 type LoginProps = {
   children: React.ReactNode;
@@ -11,28 +12,23 @@ type LoginProps = {
 
 export const Login = (props: LoginProps) => {
   const { data: session, status: sessionStatus } = useSession();
+  console.log(JSON.stringify(session));
 
-  useEffect(() => {
-    if (!session) {
-      signIn();
-    }
-  }, []);
 
   const renderChildren = () => {
-    if (sessionStatus === "loading") {
-      return <div>Cargando...</div>;
-    } else if (sessionStatus === "authenticated") {
+  if (session !== null && session !== undefined) {
       return (
-        <div className="flex">
-          <ToastContainer />
-          <div className="hidden lg:flex">
-            <Sidebar />
-          </div>
-          <div className="lg:h-full flex mx-auto w-full">{props.children}</div>
+
+        <div>
+          
         </div>
+
       );
-    } else {
-      return <div>Not authenticated</div>;
+    } else if (session === null || session === undefined) {
+      return <div>
+        <p>Not Authenticated</p>
+        <button onClick={() => signIn()}>Sign In</button>
+      </div>;
     }
   };
 

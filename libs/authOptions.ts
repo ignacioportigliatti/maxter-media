@@ -1,6 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/libs/prismadb";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcrypt";
+import { User } from "@prisma/client";
 
 export const authOptions = {
   providers: [
@@ -15,58 +17,59 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        try {
-          const res = await fetch("http://127.0.0.1:3000/api/auth/login", {
-            method: "POST",
-            body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" },
-          });
-          console.log(`res: ${JSON.stringify(res)}`);
-          const data = await res.json();
-          console.log(`data: ${JSON.stringify(data)}`);
-          if (res.ok && data.success) {
-            // Construct the user object to return
-            const user = {
-              id: data.user.id,
-              name: data.user.name,
-              email: data.user.email,
-              image: data.user.image,
-            };
+        if (!credentials?.email || !credentials?.password) return null;
+        const user = await prisma.user.findFirst({
+          where: {
+            email: credentials.email,
+          },
+        });
 
-            return user;
-          } else {
-            throw new Error("Invalid credentials");
-          }
-        } catch (error) {
-          console.error(`Error tratando de ingresar: ${error}`);
-          return null;
-        }
+        if (!user) return null;
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isPasswordValid) return null;
+        
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
   ],
-  adapter: PrismaAdapter(prisma),
   callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.user;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.role = token.role;
+    session: ({ session, token }: {session: any, token: any}) => {
+      const sessionCallback = {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          role: token.role,
+        },
       }
-
-      return session;
+      return sessionCallback
     },
-    async jwt({ token, user }) {
+    jwt: ({ token, user }: { token:any, user:any }) => {
       if (user) {
-        token.user = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.picture = user.image;
-        token.role = user.role;
+        const u = user as unknown as User;
+        return {
+          ...token,
+          id: u.id,
+          role: u.role,
+        }
       }
-
       return token;
     },
+  },
+  session: {
+    strategy: 'jwt' as const,
+  },
+  pages: {
+    signIn: "/auth/signin",
   },
 };

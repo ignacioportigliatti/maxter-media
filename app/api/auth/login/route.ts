@@ -1,5 +1,5 @@
 import prisma from "@/libs/prismadb";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 
 
@@ -20,7 +20,20 @@ export async function POST(request: Request) {
 
   try {
     if (user && (await bcrypt.compare(body.password, user.password))) {
-      return user
+      try {
+        return NextResponse.json({
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            role: user.role,
+          },
+        });
+      } catch (error) {
+        
+      }
     } else {
       return NextResponse.json({
         success: false,

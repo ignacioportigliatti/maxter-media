@@ -33,7 +33,7 @@ export const Pagination = ({
     <div className="flex items-center justify-center gap-2 py-4 dark:bg-[#292929]">
       <button
         className={`buttonWithIcon ${
-          currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          currentPage === 1 ? "cursor-not-allowed" : ""
         }`}
         onClick={handlePrevPage}
         disabled={currentPage === 1}
@@ -58,7 +58,7 @@ export const Pagination = ({
       </div>
       <button
         className={`buttonWithIcon ${
-          currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+          currentPage === totalPages ? "cursor-not-allowed" : ""
         }`}
         onClick={handleNextPage}
         disabled={currentPage === totalPages}

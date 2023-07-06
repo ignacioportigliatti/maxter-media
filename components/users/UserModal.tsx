@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
+import bcrypt from "bcryptjs";
 import { User } from "@prisma/client";
 import { Input } from "@/components/ui/form";
 
@@ -96,11 +97,14 @@ export const UserModal: React.FC<UserModalProps> = ({
         toast.error("Ya existe un usuario con ese nombre");
         return;
       }
-
-
       
+      const hashedPassword = await bcrypt.hash(
+        formData.password,
+        10
+      );
+
       const updatedFormData = {
-        ...formData,
+        ...formData, password: hashedPassword
 
       };
 
@@ -111,7 +115,6 @@ export const UserModal: React.FC<UserModalProps> = ({
         } else {
           await checkName();
           const response = await axios.post("/api/users/add", updatedFormData);
-
           return response;
         }
       };

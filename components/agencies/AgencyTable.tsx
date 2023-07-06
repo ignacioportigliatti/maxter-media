@@ -94,7 +94,7 @@ export const AgencyTable = () => {
                 <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
                   Email
                 </th>
-                <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap relative py-3.5">
+                <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap  py-3.5">
                   <button
                     className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
                         dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"

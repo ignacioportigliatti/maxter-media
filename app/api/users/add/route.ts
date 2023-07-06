@@ -10,17 +10,15 @@ export async function POST(request: Request) {
       data: {
         email: data.email,
         password: data.password,
-        createdAt: new Date(timestamp),
-        updatedAt: new Date(timestamp),
     }});
 
-    // Agrega el grupo a la agencia
+   
 
-    console.log("Grupo creado correctamente");
+    console.log("Usuario creado correctamente");
     return NextResponse.json({ success: true, user: createdUser });
   } catch (error) {
-    console.error("Error al crear el grupo:", error);
-    return NextResponse.json({ error: "Ocurrió un error al crear el grupo" });
+    console.error("Error al crear el usuario:", error);
+    return NextResponse.json({ error: "Ocurrió un error al crear el usuario" });
   }
 }
 

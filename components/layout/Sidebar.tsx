@@ -2,17 +2,29 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {  TfiCamera,  TfiVideoCamera,  TfiSettings,  TfiHome,  TfiExport,
+import {
+  TfiCamera,
+  TfiVideoCamera,
+  TfiSettings,
+  TfiHome,
+  TfiExport,
 } from "react-icons/tfi";
-import { TbFileUpload, TbMoonStars, TbQrcode, TbUser, TbUserCheck, TbUsers} from "react-icons/tb";
+import {
+  TbFileUpload,
+  TbMoonStars,
+  TbQrcode,
+  TbUser,
+  TbUserCheck,
+  TbUsers,
+} from "react-icons/tb";
 import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 import Link from "next/link";
+import Modal from "../ui/Modal";
 
 interface SidebarProps {}
 
 export const Sidebar = (props: SidebarProps) => {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
-  
 
   const handleThemeChange = () => {
     document.documentElement.classList.toggle("dark");
@@ -92,7 +104,10 @@ export const Sidebar = (props: SidebarProps) => {
               </a>
             </li>
             <li>
-              <a onClick={handleThemeChange} className="sideBarButton cursor-pointer">
+              <a
+                onClick={handleThemeChange}
+                className="sideBarButton cursor-pointer"
+              >
                 <span className="sideBarIcon">
                   <TbMoonStars className="sideBarIconSize" />
                 </span>

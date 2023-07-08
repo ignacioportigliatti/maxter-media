@@ -1,14 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
 import { VideoUploadContext } from "./VideoUploadContext";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import { PhotoUploadContext } from "./PhotoUploadContext";
-import Queue from "queue";
 import { uploadGoogleStorageFile } from "@/utils/googleStorage/";
+import { generateVideoThumbnail } from "@/utils/generateVideoThumbnail";
+import JSZip from "jszip";
+import FastQ from "fastq";
 
 interface UploadQueueProps {
   toggleModal: () => void;
   activeTab: string;
+}
+
+interface UploadTask {
+  file: File;
+  uploadData: any;
 }
 
 const UploadQueue = (props: UploadQueueProps) => {
@@ -19,10 +26,9 @@ const UploadQueue = (props: UploadQueueProps) => {
       ? useContext(VideoUploadContext)
       : useContext(PhotoUploadContext);
   const { uploadQueue, deleteFromUploadQueue } = uploadQueueContext;
-  const uploadingQueue = new Queue({ concurrency: 1 });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadQueueState, setUploadQueueState] =
-    useState<[File, any][]>(uploadQueue);
+  const [uploadQueueState, setUploadQueueState] = useState<[File, any][]>(uploadQueue);
+  const [uploadingProgress, setUploadingProgress] = useState<number[]>([]);
 
   useEffect(() => {
     console.log("uploadQueue", uploadQueue);
@@ -44,73 +50,142 @@ const UploadQueue = (props: UploadQueueProps) => {
 
       setIsSubmitting(true);
 
-      const uploadedFileJobs = uploadQueue.map(
-        ([file, uploadData]) =>
-          async () => {
-            try {
-              const bucketName = "maxter-media";
-              const filePath = `media/${uploadData.groupName}/${
-                activeTab === "videos" ? "videos" : "photos"
-              }`;
-              const uploadedFile = await uploadGoogleStorageFile(
-                file,
-                filePath,
-                bucketName
-              );
-              const fileId = uploadedFile.id;
+      const uploadQueueTasks: UploadTask[] = uploadQueue.map(([file, uploadData]) => ({
+        file,
+        uploadData,
+      }));
 
-              // if (activeTab === "videos") {
-              //   const thumbnail = await generateVideoThumbnail(file.webkitRelativePath)
-              //   const thumbnailPath = `media/${uploadData.groupName}/videos/thumbs/`;
-              //   const thumbnailFile = await uploadGoogleStorageFile(
-              //     thumbnail,
-              //     thumbnailPath,
-              //     bucketName
-              //   );
-              //   console.log("thumbnailFile uploaded", thumbnailFile);
-              // }
+      const uploadingQueue = FastQ(async (task: UploadTask, cb) => {
+        try {
+          
+          const bucketName = "maxter-media";
+          const filePath = `media/${task.uploadData.groupName}/${activeTab}`;
 
-              const formData = new FormData();
-              formData.append("fileId", fileId);
-              formData.append("groupId", uploadData.groupId as string);
+          if (activeTab === "videos") {
+            console.log("Generating thumbnail");
+            const thumbnail = await generateVideoThumbnail(task.file);
+            console.log("thumbnail", thumbnail);
+            const thumbnailPath = `media/${task.uploadData.groupName}/videos/thumbs`;
+            const thumbnailFile = await uploadGoogleStorageFile(thumbnail as File, thumbnailPath, bucketName);
+            console.log("thumbnailFile uploaded", thumbnailFile);
 
-              const response = await fetch(
-                `/api/upload/${activeTab === "videos" ? "videos" : "photos"}`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
+            const uploadedFile = await uploadGoogleStorageFile(task.file, filePath, bucketName);
+            const fileId = uploadedFile.id;
 
-              if (response.ok) {
-                console.log("response", response.json());
-                console.log("Eliminando de la cola de subida");
-                await deleteFromUploadQueue(file, uploadData);
-              } else {
-                throw new Error("Error al subir el archivo");
-              }
-            } catch (error) {
-              console.error(error);
+            const formData = new FormData();
+            formData.append("fileId", fileId);
+            formData.append("groupId", task.uploadData.groupId as string);
+
+            const response = await fetch(`/api/upload/${activeTab}`, {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              console.log("response", response.json());
+
+              toast.success("Video subido correctamente");
+            } else {
+              throw new Error("Error al subir el video");
             }
+          } else if (activeTab === "photos") {
+            const unzipFile = async (file: File) => {
+              return new Promise<File[]>((resolve, reject) => {
+                const unzip = new JSZip();
+                unzip.loadAsync(file).then((zip) => {
+                  const fileEntries = Object.entries(zip.files);
+                  const filteredEntries = fileEntries.filter(([fileName, file]) => {
+                    return !file.dir;
+                  });
+                  const groups = [];
+                  const groupSize = 10; // Número de archivos a subir simultáneamente
+
+                  for (let i = 0; i < filteredEntries.length; i += groupSize) {
+                    groups.push(filteredEntries.slice(i, i + groupSize));
+                  }
+
+                  const promises = groups.map((group) => {
+                    const groupPromises = group.map(([fileName, file]) => {
+                      return file.async("blob").then((blob) => {
+                        const fileType = "image/jpg";
+                        const convertedFile = new File([blob], fileName, { type: fileType });
+                        return convertedFile;
+                      });
+                    });
+                    return Promise.all(groupPromises);
+                  });
+
+                  Promise.all(promises)
+                    .then((groupedFiles) => {
+                      const files = groupedFiles.flat();
+                      resolve(files);
+                    })
+                    .catch((error) => {
+                      reject(error);
+                    });
+                });
+              });
+            };
+
+            const files: any = await unzipFile(task.file);
+            console.log("blobs", files);
+
+            const uploadPromises = files.map((file: File) => {
+              return uploadGoogleStorageFile(file, filePath, bucketName);
+            });
+
+            const uploadedFiles = await Promise.all(uploadPromises);
+            console.log("uploadedFiles", uploadedFiles);
+            const fileIds = uploadedFiles.map((file) => file.id);
+            const formData = new FormData();
+            formData.append("fileIds", JSON.stringify(fileIds));
+            formData.append("groupId", task.uploadData.groupId as string);
+
+            const response = await fetch(`/api/upload/${activeTab}`, {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              console.log("response", response.json());
+
+              toast.success(`Archivo ${task.file.name} subido correctamente`);
+            } else {
+              throw new Error(`Error al subir el archivo ${task.file.name}`);
+            }
+          } else {
+            toast.error(`Error al subir el archivo ${task.file.name}`);
+            throw new Error(`Error al subir el archivo ${task.file.name}`);
           }
-      );
 
-      uploadedFileJobs.forEach((job: any) => uploadingQueue.push(job));
+          // Llama a `cb` para notificar que el trabajo ha finalizado correctamente
+          cb(null);
+        } catch (error) {
+          console.error(error);
+          toast.error(`Error al subir el archivo ${task.file.name}`);
 
-      uploadingQueue.start((err: any) => {
+          // Llama a `cb` con el error para notificar que el trabajo ha fallado
+          cb(error as Error);
+        }
+      }, 1); // Establece la concurrencia en 1
+
+      uploadingQueue.drain();
+
+      uploadQueueTasks.forEach((task) => {
+
+      uploadingQueue.push(task, (err: any) => {
         if (err) {
           console.error(err);
           toast.error(
-            "Error al agregar el(s) video(s) a la cola de reproducción"
+            "Error al subir los archivos, por favor intenta de nuevo"
           );
-        } else {
-          toast.success("Todos los archivos se han subido correctamente");
         }
-        setIsSubmitting(false);
       });
+    });
+    
     } catch (error) {
       console.error(error);
-      toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
+      toast.error("Error al subir los archivos, por favor intenta de nuevo");
       setIsSubmitting(false);
     }
   };
@@ -118,6 +193,11 @@ const UploadQueue = (props: UploadQueueProps) => {
   const handleDelete = async (file: File, uploadData: any) => {
     try {
       await deleteFromUploadQueue(file, uploadData);
+      const updatedQueue = uploadQueue.filter(
+        ([uploadedFile, uploadedData]) =>
+          uploadedFile !== file || uploadedData !== uploadData
+      );
+      setUploadQueueState(updatedQueue);
       toast.success("Archivo eliminado de la cola de subida");
     } catch (error) {
       console.error(error);
@@ -157,7 +237,7 @@ const UploadQueue = (props: UploadQueueProps) => {
                 </tr>
               </thead>
               <tbody className="bg-light-gray text-left">
-                {uploadQueueState.map(([file, uploadData]) => (
+                {uploadQueueState.map(([file, uploadData], index) => (
                   <tr key={file.name}>
                     <td>
                       <p className="text-sm font-semibold p-4">
@@ -173,15 +253,21 @@ const UploadQueue = (props: UploadQueueProps) => {
                       <p className="text-sm font-semibold p-4">{file.name}</p>
                     </td>
                     <td>
-                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                      <div
-                        className="bg-orange-500 w-[45%] text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                        
-                      >
-                        {" "}
-                        45%
+                      <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                        <div
+                          className="bg-orange-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                          style={{
+                            width: `${
+                              uploadingProgress[index] ? uploadingProgress[index] * 100 : 0
+                            }%`,
+                          }}
+                        >
+                          {uploadingProgress[index]
+                            ? Math.round(uploadingProgress[index] * 100)
+                            : 0}
+                          %
+                        </div>
                       </div>
-                    </div>
                     </td>
                     <td>
                       <button

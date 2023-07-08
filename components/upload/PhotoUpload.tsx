@@ -3,10 +3,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { formatBytes, getGoogleStorageFiles, uploadGoogleStorageFile } from "@/utils";
+import { formatBytes, getGoogleStorageFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
-import { deleteGoogleStorageFile } from "@/utils/googleStorage/deleteGoogleStorageFile";
-import Queue from "queue";
+
+
+import { PhotoUploadContext } from "./PhotoUploadContext";
 
 
 interface PhotoUploadProps {
@@ -29,14 +30,12 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   isDragging,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<any>(dataToUpload.group);
+  const selectedGroup = dataToUpload.group;
   const [uploadedFiles, setUploadedFiles] = useState<fileData[]>([
     { name: "", size: 0 },
   ]);
   const [filesToUpload, setFilesToUpload] = useState<File[]>(dataToUpload.files);
-  const uploadQueue = new Queue({ concurrency: 1 }); // Ajusta el número de concurrencia según tus necesidades
-
-  
+  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = useContext(PhotoUploadContext);
 
   const checkFiles = async () => {
     const files = await getGoogleStorageFiles(
@@ -65,19 +64,35 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
-    if (fileList && fileList.length > 0) {
-      const filesArray = Array.from(fileList);
-      const filteredFiles = filesArray.filter(
-        (file: File) => file.type === "video/mp4"
-      );
-      console.log("filteredFiles", filteredFiles);
-      setFilesToUpload(filteredFiles);
-      if (filesArray.length !== filteredFiles.length) {
-        toast.error("Solo se permiten archivos de video .mp4");
+    try {
+      if (fileList && fileList.length > 0) {
+        const filesArray = Array.from(fileList);
+        const filteredFiles = filesArray.filter(
+          (file: File) => file.type === "application/zip" || file.type === "application/x-zip-compressed"
+        );
+  
+        filteredFiles.forEach((file) => {
+          const fileNameExists = filesToUpload.some(
+            (uploadedFile) => uploadedFile.name === file.name
+          );
+          if (fileNameExists) {
+            toast.error(`El archivo "${file.name}" ya está en la lista.`);
+          } else {
+            setFilesToUpload((prevFiles) => [...prevFiles, file]);
+          }
+        });
+  
+        if (filesArray.length !== filteredFiles.length) {
+          toast.error("Solo se permiten archivos .zip con fotos");
+        }
       }
+    } catch (error) {
+      toast.error("Error al cargar los archivos");
     }
   };
-
+  
+  
+  
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -86,76 +101,51 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
       }
   
       if (filesToUpload.length === 0) {
-        toast.error("Selecciona al menos un archivo de video");
+        toast.error("Selecciona al menos un archivo de photo");
         return;
       }
   
       setIsSubmitting(true); // Marcar la solicitud en progreso
+      console.log("uploadQueue", uploadQueue);
   
-      const uploadedFileJobs = filesToUpload.map((file: File) => async (cb: any) => {
-        try {
-          const uploadedFile = await uploadGoogleStorageFile(
-            file,
-            `media/${selectedGroup.name}/videos`,
-            "maxter-media"
-          );
-          console.log("uploadedFile", uploadedFile);
-          const videoId = uploadedFile.id;
+      const updatedTransferQueue = filesToUpload.map((file: File) => {
+        uploadQueue.push([
+          file,
+          {
+            groupId: selectedGroup.id,
+            groupName: selectedGroup.name,
+            agencyName: selectedGroup.agencyName as string,
+            fileName: file.name,
+          },
+        ]);
   
-          const formData = new FormData();
-          formData.append("videoId", videoId);
-          formData.append("groupId", selectedGroup.id);
-  
-          const response = await fetch("/api/upload/videos", {
-            method: "POST",
-            body: formData,
-          });
-  
-          // Manejar la respuesta de la API según tus necesidades
-          if (response.ok) {
-            console.log("response", response.json());
-            cb(null); // Indicar que el trabajo se ha completado sin errores
-          } else {
-            throw new Error("Error al subir el archivo");
-          }
-        } catch (error) {
-          console.error(error);
-          cb(error); // Indicar que el trabajo ha fallado con el error correspondiente
-        }
+        return uploadQueue;
       });
   
-      // Agregar los trabajos a la cola
-      uploadedFileJobs.forEach((job: any) => uploadQueue.push(job));
-  
-      // Iniciar el procesamiento de la cola
-      uploadQueue.start((err: any) => {
-        if (err) {
-          console.error(err);
-          toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
-        } else {
-          console.log("Todos los archivos se han subido correctamente");
-          toggleModal();
-        }
+      if (updatedTransferQueue.length > 0) {
+        toggleModal();
+        toast.success("Archivo(s) agregado(s) a la cola de reproducción");
         setIsSubmitting(false); // Marcar la solicitud como finalizada
-      });
+      }
+  
     } catch (error) {
       console.error(error);
-      toast.error("Error al agregar el(s) video(s) a la cola de reproducción");
+      toast.error("Error al agregar el(s) photo(s) a la cola de reproducción");
       setIsSubmitting(false); // Marcar la solicitud como finalizada en caso de error
     }
   };
   
 
-  const handleDelete = async (fileName: string, videoId: string) => {
+  const handleDelete = async (fileName: string, photoId: string) => {
     try {
       await deleteGoogleStorageFile(
         fileName,
-        `media%2F${selectedGroup.name}%2Fvideos`,
+        `media%2F${selectedGroup.name}%2Fphotos`,
         "maxter-media"
       );
 
       const response = await fetch(
-        `/api/upload/videos?groupId=${selectedGroup.id}&videoId=${videoId}`,
+        `/api/upload/photos?groupId=${selectedGroup.id}&photoId=${photoId}`,
         {
           method: "DELETE",
         }
@@ -177,6 +167,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   };
 
   return (
+    <PhotoUploadContext.Provider value={{uploadQueue, addToUploadQueue, deleteFromUploadQueue}}>
     <div className="flex flex-col">
       <div className="flex justify-end">
         {/* Add File Button */}
@@ -191,7 +182,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           htmlFor="fileInput"
           className="flex py-1 cursor-pointer hover:text-orange-500 flex-row items-center justify-center gap-1"
         >
-          <p className="text-xs ">{`Añadir Fotos a ${dataToUpload.group.name}`}</p>
+          <p className="text-xs ">{`Añadir Photos a ${dataToUpload.group.name}`}</p>
           <span>
             <AiOutlineFileAdd className="w-7 h-7 p-1 text-right  text-light-gray hover:border-white hover:bg-orange-500 hover:text-white cursor-pointer themeTransition" />
           </span>
@@ -205,7 +196,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
               {isLoading ? <p className="text-xs">Cargando...</p> 
               : 
               uploadedFiles[0].name === '' ? (
-                <p className="text-xs">No hay fotos subidas en el grupo</p>
+                <p className="text-xs">No hay photos subidos en el grupo</p>
                 
               ) : (
                 uploadedFiles.map((file: any) => {
@@ -214,7 +205,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                       <div className="flex flex-row items-center gap-2">
                         <p className="text-xs font-semibold">
                           {file.name.replace(
-                            `media/${selectedGroup.name}/videos/`,
+                            `media/${selectedGroup.name}/photos/`,
                             ""
                           )}
                         </p>
@@ -229,7 +220,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                           onClick={() =>
                             handleDelete(
                               file.name.replace(
-                                `media/${selectedGroup.name}/videos/`,
+                                `media/${selectedGroup.name}/photos/`,
                                 ""
                               ),
                               file.id
@@ -250,7 +241,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
             <div>
               <h4 className="text-sm">Archivos a Subir:</h4>
               {filesToUpload.length === 0 ? (
-                <p className="text-xs">Agregá el .zip de las fotos para subir</p>
+                <p className="text-xs">Agregá el archivo .zip de las fotos para subir</p>
               ) : (
                 filesToUpload.map((file: File) => (
                   <div key={file.name} className="flex items-center w-full">
@@ -284,7 +275,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
             type="submit"
             disabled={isSubmitting} // Deshabilitar el botón mientras la solicitud está en progreso
           >
-            {isSubmitting ? "Agregando..." : "Añadir Fotos"}
+            {isSubmitting ? "Agregando..." : "Añadir material"}
           </button>
           <button
             className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
@@ -295,6 +286,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         </div>
       </form>
     </div>
+    </ PhotoUploadContext.Provider>
   );
 };
 

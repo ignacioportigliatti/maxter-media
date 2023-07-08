@@ -105,10 +105,10 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
 
   const checkFilesFormat = (files: File[]) => {
     const videoAllowedFormats = ["video/mp4"];
-    const photoAllowedFormats = ["application/zip", "image/jpeg", "image/png"];
+    const photoAllowedFormats = ["application/zip", 'application/x-zip-compressed', 'multipart/x-zip'];
     const allowedFormats =
       activeTab === "videos" ? videoAllowedFormats : photoAllowedFormats;
-
+    console.log('filetype', files[0].type);
     const invalidFiles = files.filter((file) => {
       return !allowedFormats.includes(file.type);
     });
@@ -230,7 +230,6 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex flex-col">
         <div className="md:overflow-hidden border-y border-gray-200 dark:border-gray-700">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

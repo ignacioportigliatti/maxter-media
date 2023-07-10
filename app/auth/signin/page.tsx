@@ -21,7 +21,8 @@ const LoginPage = (props: LoginPageProps) => {
       const result = await signIn("credentials", {
         email: userInfo.email,
         password: userInfo.password,
-        callbackUrl: "localhost:3000",
+        callbackUrl: "http://localhost:3000/admin",
+        redirect: true,
       });
       console.log(result);
 

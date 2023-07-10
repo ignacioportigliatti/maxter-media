@@ -1,6 +1,6 @@
 'use client'
 
-import './globals.css'
+import '../globals.css'
 import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,7 +20,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          {children}
+        <div className="flex">
+          <ToastContainer />
+          <div className="hidden lg:flex">
+            <Sidebar />
+          </div>
+          <div className="lg:h-full flex mx-auto w-full">{children}</div>
+        </div>
         </Providers>
       </body>
     </html>

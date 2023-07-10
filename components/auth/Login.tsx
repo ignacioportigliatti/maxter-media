@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { ToastContainer } from "react-toastify";
-import { Sidebar } from "../layout/Sidebar";
+import { Sidebar } from "../admin/Sidebar";
 import { Providers } from "./Providers";
 
 type LoginProps = {

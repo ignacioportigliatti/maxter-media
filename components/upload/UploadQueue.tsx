@@ -27,8 +27,12 @@ const UploadQueue = (props: UploadQueueProps) => {
       : useContext(PhotoUploadContext);
   const { uploadQueue, deleteFromUploadQueue } = uploadQueueContext;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadQueueState, setUploadQueueState] = useState<[File, any][]>(uploadQueue);
+  const [uploadQueueState, setUploadQueueState] =
+    useState<[File, any][]>(uploadQueue);
   const [uploadingProgress, setUploadingProgress] = useState<number[]>([]);
+  const [photoProgress, setPhotoProgress] = useState<{
+    [filename: string]: number;
+  }>({});
 
   useEffect(() => {
     console.log("uploadQueue", uploadQueue);
@@ -50,14 +54,15 @@ const UploadQueue = (props: UploadQueueProps) => {
 
       setIsSubmitting(true);
 
-      const uploadQueueTasks: UploadTask[] = uploadQueue.map(([file, uploadData]) => ({
-        file,
-        uploadData,
-      }));
+      const uploadQueueTasks: UploadTask[] = uploadQueue.map(
+        ([file, uploadData]) => ({
+          file,
+          uploadData,
+        })
+      );
 
       const uploadingQueue = FastQ(async (task: UploadTask, cb) => {
         try {
-          
           const bucketName = "maxter-media";
           const filePath = `media/${task.uploadData.groupName}/${activeTab}`;
 
@@ -66,10 +71,22 @@ const UploadQueue = (props: UploadQueueProps) => {
             const thumbnail = await generateVideoThumbnail(task.file);
             console.log("thumbnail", thumbnail);
             const thumbnailPath = `media/${task.uploadData.groupName}/videos/thumbs`;
-            const thumbnailFile = await uploadGoogleStorageFile(thumbnail as File, thumbnailPath, bucketName);
+            const thumbnailFile = await uploadGoogleStorageFile(
+              thumbnail as File,
+              thumbnailPath,
+              bucketName
+            );
             console.log("thumbnailFile uploaded", thumbnailFile);
-
-            const uploadedFile = await uploadGoogleStorageFile(task.file, filePath, bucketName);
+            toast.update("uploading", {
+              render: "Subiendo video",
+              type: "info",
+              autoClose: false,
+            });
+            const uploadedFile = await uploadGoogleStorageFile(
+              task.file,
+              filePath,
+              bucketName
+            );
             const fileId = uploadedFile.id;
 
             const formData = new FormData();
@@ -94,9 +111,11 @@ const UploadQueue = (props: UploadQueueProps) => {
                 const unzip = new JSZip();
                 unzip.loadAsync(file).then((zip) => {
                   const fileEntries = Object.entries(zip.files);
-                  const filteredEntries = fileEntries.filter(([fileName, file]) => {
-                    return !file.dir;
-                  });
+                  const filteredEntries = fileEntries.filter(
+                    ([fileName, file]) => {
+                      return !file.dir;
+                    }
+                  );
                   const groups = [];
                   const groupSize = 10; // Número de archivos a subir simultáneamente
 
@@ -108,7 +127,9 @@ const UploadQueue = (props: UploadQueueProps) => {
                     const groupPromises = group.map(([fileName, file]) => {
                       return file.async("blob").then((blob) => {
                         const fileType = "image/jpg";
-                        const convertedFile = new File([blob], fileName, { type: fileType });
+                        const convertedFile = new File([blob], fileName, {
+                          type: fileType,
+                        });
                         return convertedFile;
                       });
                     });
@@ -129,12 +150,68 @@ const UploadQueue = (props: UploadQueueProps) => {
 
             const files: any = await unzipFile(task.file);
             console.log("blobs", files);
+            const totalFiles = files.length;
+            let processedFiles = 0;
 
-            const uploadPromises = files.map((file: File) => {
-              return uploadGoogleStorageFile(file, filePath, bucketName);
+            const updatePhotoProgress = (fileName: string, progress: number) => {
+              setPhotoProgress((prevProgress) => ({
+                ...prevProgress,
+                [fileName]: progress,
+              }));
+            };
+
+           
+
+            const toastId = toast("Subiendo fotos", {
+              type: "info",
+              autoClose: false,
             });
+            toast.update(toastId, {
+              render: `Subiendo fotos del grupo ${task.uploadData.groupName}`,
+              type: "info",
+              autoClose: false,
+            });
+            
+            const uploadPromises = files.map((file: File, i: number) => {
+              return new Promise((resolve, reject) => {
+                const progressInterval = setInterval(() => {
+                  const progress = (i + 1) / files.length;
+                  updatePhotoProgress(file.name, Math.round(progress * 100));
+                }, 100); // Actualiza el progreso cada 100 ms
+        
+                uploadGoogleStorageFile(file, filePath, bucketName)
+                  .then((uploadedFile) => {
+                    clearInterval(progressInterval); // Detiene la actualización del progreso
+                    resolve(uploadedFile);
+                  })
+                  .catch((error) => {
+                    clearInterval(progressInterval); // Detiene la actualización del progreso
+                    reject(error);
+                  });
+              });
+            });
+        
 
-            const uploadedFiles = await Promise.all(uploadPromises);
+            const uploadedFiles = await Promise.all(
+              uploadPromises.map((uploadPromise: any, i: any) => {
+                return new Promise((resolve, reject) => {
+                  uploadPromise
+                    .then((uploadedFile: any) => {
+                      const progress = (i + 1) / uploadPromises.length;
+                      setUploadingProgress((prevProgress) => {
+                        const updatedProgress = [...prevProgress];
+                        updatedProgress[i] = progress;
+                        return updatedProgress;
+                      });
+                      resolve(uploadedFile);
+                    })
+                    .catch((error: Error) => {
+                      reject(error);
+                    });
+                });
+              })
+            );
+
             console.log("uploadedFiles", uploadedFiles);
             const fileIds = uploadedFiles.map((file) => file.id);
             const formData = new FormData();
@@ -172,17 +249,15 @@ const UploadQueue = (props: UploadQueueProps) => {
       uploadingQueue.drain();
 
       uploadQueueTasks.forEach((task) => {
-
-      uploadingQueue.push(task, (err: any) => {
-        if (err) {
-          console.error(err);
-          toast.error(
-            "Error al subir los archivos, por favor intenta de nuevo"
-          );
-        }
+        uploadingQueue.push(task, (err: any) => {
+          if (err) {
+            console.error(err);
+            toast.error(
+              "Error al subir los archivos, por favor intenta de nuevo"
+            );
+          }
+        });
       });
-    });
-    
     } catch (error) {
       console.error(error);
       toast.error("Error al subir los archivos, por favor intenta de nuevo");
@@ -192,18 +267,16 @@ const UploadQueue = (props: UploadQueueProps) => {
 
   const handleDelete = async (file: File, uploadData: any) => {
     try {
-      await deleteFromUploadQueue(file, uploadData);
-      const updatedQueue = uploadQueue.filter(
-        ([uploadedFile, uploadedData]) =>
-          uploadedFile !== file || uploadedData !== uploadData
-      );
-      setUploadQueueState(updatedQueue);
+      const newQueue = await deleteFromUploadQueue(file, uploadData);
+      setUploadQueueState(newQueue as any);
+      console.log("newQueue", newQueue);
       toast.success("Archivo eliminado de la cola de subida");
     } catch (error) {
       console.error(error);
       toast.error("Error al eliminar el archivo de la cola de subida");
     }
   };
+  
 
   return (
     <div>
@@ -258,7 +331,12 @@ const UploadQueue = (props: UploadQueueProps) => {
                           className="bg-orange-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
                           style={{
                             width: `${
-                              uploadingProgress[index] ? uploadingProgress[index] * 100 : 0
+                              activeTab === "photos" &&
+                              file.name in photoProgress
+                                ? photoProgress[file.name]
+                                : uploadingProgress[index] !== undefined
+                                ? uploadingProgress[index] * 100
+                                : 0
                             }%`,
                           }}
                         >

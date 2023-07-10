@@ -10,13 +10,13 @@ type UploadData = {
 type PhotoUploadContextProps = {
   uploadQueue: [File, UploadData][];
   addToUploadQueue: (item: File, uploadData?: UploadData) => void;
-  deleteFromUploadQueue: (item: File) => void;
+  deleteFromUploadQueue: (item: File, data: UploadData) => [File, UploadData][];
 };
 
 export const PhotoUploadContext = createContext<PhotoUploadContextProps>({
   uploadQueue: [],
   addToUploadQueue: () => {},
-  deleteFromUploadQueue: () => {},
+  deleteFromUploadQueue: () => [],
 });
 
 type UploadProviderProps = {
@@ -30,15 +30,12 @@ export const PhotoUploadProvider: React.FC<UploadProviderProps> = ({
   const isInitialRender = useRef(true); // Ref to track initial render
 
   const addToUploadQueue = (item: File, uploadData?: UploadData) => {
-    setUploadQueue((prevQueue) => {
-      const newQueue: [File, UploadData][] = prevQueue.concat([[item, uploadData || {}]]);
-      console.log("uploadQueue", newQueue);
-      return newQueue;
-    });
+    const newQueue: [File, UploadData][] = uploadQueue.concat([[item, uploadData || {}]]);
+    setUploadQueue(newQueue);
   };
 
-  const deleteFromUploadQueue = (item: File) => {
-    const newQueue: [File, UploadData][] = uploadQueue.filter(([file, uploadData]) => file.name !== item.name);
+  const deleteFromUploadQueue = (item: File, data: UploadData) => {
+    const newQueue: [File, UploadData][] = uploadQueue.filter(([file, uploadData]) => file.name !== item.name && uploadData.groupName !== data.groupName);
     setUploadQueue(newQueue);
     return newQueue;
   };

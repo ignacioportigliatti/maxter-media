@@ -208,7 +208,7 @@ export const GroupsTable = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 dark:bg-[#292929]">
               {sortedGroups
                 .slice(
                   (currentPage - 1) * itemsPerPage,
@@ -220,7 +220,7 @@ export const GroupsTable = () => {
                     draggable
                   
                   >
-                    <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap pointer-events-none">
+                    <td className="px-4 text-sm font-medium text-gray-700 whitespace-nowrap pointer-events-none">
                       <div className="inline-flex gap-x-3 pointer-events-none">
                         <div className="flex gap-x-2 pointer-events-none">
                           <div>
@@ -235,19 +235,19 @@ export const GroupsTable = () => {
                       <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
                       <h2 className="text-sm">{group.agencyName}</h2>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {group.coordinator}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {group.school}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {group.entry}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {group.exit}
                     </td>
-                    <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
+                    <td className="flex justify-end px-4 items-center my-3 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
                         <button
                           className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 

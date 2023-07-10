@@ -13,49 +13,28 @@ import {
 import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
-interface SidebarProps {}
-
-const navigationItems = [
-  {
-    label: "Grupos",
-    icon: <TbUsers className="sideBarIconSize" />,
-    href: "/admin/groups",
-  },
-  {
-    label: "Empresas",
-    icon: <AiOutlineGroup className="sideBarIconSize" />,
-    href: "/admin/agencies",
-  },
-  {
-    label: "Subir Material",
-    icon: <TbFileUpload className="sideBarIconSize" />,
-    href: "/admin/upload",
-  },
-  {
-    label: "Generar Códigos",
-    icon: <TbQrcode className="sideBarIconSize" />,
-    href: "/admin/upload",
-  },
-  {
-    label: "Usuarios",
-    icon: <TbUserCheck className="sideBarIconSize" />,
-    href: "/admin/users",
-  },
-];
+interface SidebarProps {
+  navigationItems: {
+    label: string;
+    icon: React.ReactNode;
+    href: string;
+  }[];
+}
 
 export const Sidebar = (props: SidebarProps) => {
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const { navigationItems } = props;
+  const { theme, setTheme } = useTheme();
 
   const handleThemeChange = () => {
-    document.documentElement.classList.toggle("dark");
-    setIsDarkTheme((isDarkTheme) => !isDarkTheme);
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const logoSrc =
-    isDarkTheme === true
-      ? "/sidebar/maxter-logo-dark.png"
-      : "/sidebar/maxter-logo.png";
+  theme === 'light'
+      ? "/sidebar/maxter-logo.png"
+      : "/sidebar/maxter-logo-dark.png";
 
   const pathName = usePathname();
 

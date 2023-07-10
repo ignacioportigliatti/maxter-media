@@ -1,6 +1,7 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
 import { ReactNode } from "react";
 
 interface ProvidersProps {
@@ -8,6 +9,9 @@ interface ProvidersProps {
 }
 
 export const Providers = (props: ProvidersProps) => {
-  
-  return <SessionProvider>{props.children}</SessionProvider>;
+  return (
+    <SessionProvider>
+      <ThemeProvider attribute="class">{props.children}</ThemeProvider>
+    </SessionProvider>
+  );
 };

@@ -3,8 +3,8 @@
 import './globals.css'
 import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Sidebar } from '@/components/admin/Sidebar';
+
+
 
 export const metadata = {
   title: "Maxter",
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body>
         <Providers>
           {children}

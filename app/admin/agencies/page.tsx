@@ -2,7 +2,7 @@
 
 
 import { AgencyTable } from "@/components/agencies";
-import "react-toastify/dist/ReactToastify.css";
+
 
 
 export default function EnterprisesPage() {

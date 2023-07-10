@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { VideoCard } from "@/components/ui";
+import { VideoCard } from "./VideoCard";
 import { getGoogleStorageFiles } from "@/utils";
 import { Group } from "@prisma/client";
 
@@ -32,12 +32,6 @@ export const VideoGrid = (props: VideoGridProps) => {
     getVideoList();
   }, [selectedGroup]);
 
-  const extractFileName = (filePath: string) => {
-    const parts = filePath.split("/");
-    const fileNameWithExtension = parts[parts.length - 1];
-    const fileName = fileNameWithExtension.split(".")[0];
-    return fileName;
-  };
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();

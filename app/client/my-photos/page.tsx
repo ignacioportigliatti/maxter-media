@@ -1,14 +1,12 @@
 "use client";
 
-import { VideoGrid } from "@/components/my-videos/VideoGrid";
+
+import { PhotoGrid } from "@/components/my-photos/PhotoGrid";
 import { getGroups } from "@/utils";
 import { Group } from "@prisma/client";
-import { Sidebar } from "@/components/admin/Sidebar";
 import { useEffect, useState } from "react";
-import { AiOutlineHome, AiOutlinePhone, AiOutlineVideoCamera } from "react-icons/ai";
-import { TbPhotoAi } from "react-icons/tb";
 
-export default function MyVideosPage() {
+export default function MyPhotosPage() {
   const [groups, setGroups] = useState<Group[]>([]);
 
   const getGroupsList = async () => {
@@ -30,7 +28,7 @@ export default function MyVideosPage() {
       <div>
         <div className="dark:bg-dark-gray flex flex-row items-center justify-between themeTransition bg-gray-200 py-[26px] px-[15%] text-black dark:text-white drop-shadow-sm">
           <div>
-            <h2>{`Mis Videos`}</h2>
+            <h2>{`Mis Fotos`}</h2>
           </div>
           {groups.length > 0 && (
             <div className="flex flex-col justify-end items-end">
@@ -42,7 +40,7 @@ export default function MyVideosPage() {
       </div>
       <div className="py-14 px-7">
         <div>
-        <VideoGrid selectedGroup={group} />
+        <PhotoGrid selectedGroup={group} />
         </div>
       </div>
     </div>

@@ -33,13 +33,13 @@ const LoginPage = (props: LoginPageProps) => {
   }
   
   return (
-    <div className="bg-orange-500 dark:bg-gray-900 w-full">
+    <div className="bg-orange-500 w-full">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
 
           <Image
-             width={128}
-             height={26}
-            className="mb-2"
+             width={256}
+             height={51}
+            className="mb-4"
             src="/sidebar/maxter-logo.png"
             alt="logo"
           />

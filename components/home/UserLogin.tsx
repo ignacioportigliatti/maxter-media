@@ -13,20 +13,21 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export const UserLogin = () => {
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("submit");
-    return redirect("http://localhost:3000/client/my-videos");
+    router.push("/client/my-videos");
   };
 
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full h-full flex justify-center items-center">
         <a href="/admin">
-            <button className="absolute top-4 right-4 z-20">Administradores</button>
+            <button className="button !border-white !text-white opacity-0 hover:opacity-100 !transition !duration-500 absolute top-4 right-4 z-20">Administradores</button>
             
             </a>
         <video
@@ -34,11 +35,11 @@ export const UserLogin = () => {
             autoPlay
             loop
             muted
-            className="absolute z-[1] w-full h-full object-cover"
+            className="absolute z-[1] w-full max-h-screen object-cover "
         />
-        <div className="z-10 bg-black/90 h-screen w-screen absolute"></div>
+        <div className="z-10 bg-orange-500/95 h-full w-screen absolute"></div>
       <div className="z-20 animate-in fade-in-0 transition-all duration-1000 delay-1000">
-        <Card className="w-[450px] h-[450px] flex flex-col items-center justify-center shadow-2xl bg-orange-500">
+        <Card className="w-[450px] h-[450px] flex flex-col items-center justify-center shadow-2xl bg-gray-200 dark:bg-medium-gray/90">
           <CardHeader className="flex flex-col justify-center items-center">
             <Image
               src="/sidebar/maxter-logo-dark.png"
@@ -47,10 +48,10 @@ export const UserLogin = () => {
               alt="logo"
               className="mb-5"
             />
-            <CardTitle className="text-center text-white text-3xl">
+            <CardTitle className="text-center dark:text-white text-medium-gray text-3xl">
               Mi Viaje de Egresados
             </CardTitle>
-            <CardDescription className="text-center text-white dark:text-white px-12">
+            <CardDescription className="text-center dark:text-white text-medium-gray px-12">
               Buscá el codigo en tu tarjeta digital e ingresalo aquí o escanea
               el codigo QR de la misma.
             </CardDescription>
@@ -70,7 +71,7 @@ export const UserLogin = () => {
           <CardFooter className="flex gap-2 justify-center">
             <Button
               type="submit"
-              className="border border-white text-white"
+              className="border border-white dark:text-white text-medium-gray"
               variant={"ghost"}
               >
               Ver mi Material

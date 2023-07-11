@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getGoogleStorageFiles } from "@/utils";
 import { Group } from "@prisma/client";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
+import Image from "next/image";
 
 interface PhotoGridProps {
   selectedGroup: Group;
@@ -17,6 +18,7 @@ interface FolderWithPhotos {
 export const PhotoGrid = (props: PhotoGridProps) => {
   const { selectedGroup } = props;
   const [foldersWithPhotos, setFoldersWithPhotos] = useState<FolderWithPhotos[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const getPhotosList = async () => {
@@ -24,17 +26,14 @@ export const PhotoGrid = (props: PhotoGridProps) => {
         const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
         const folderPath = `media/${selectedGroup.name}/photos`;
 
-        const photos = await getGoogleStorageFiles(
-          bucketName as string,
-          folderPath,
-        );
-        console.log("photos", photos);
+        const photos = await getGoogleStorageFiles(bucketName as string, folderPath);
 
         // Crear una estructura de carpetas y fotos
         const foldersMap = new Map<string, any[]>();
 
         photos.forEach((photo: any) => {
-          const folder = photo.name.split("/")[3];
+          const folderPath = photo.name.split("/");
+          const folder = folderPath[folderPath.length - 2]; // Obtener la carpeta en lugar de la fecha
           const folderPhotos = foldersMap.get(folder) || [];
           folderPhotos.push(photo);
           foldersMap.set(folder, folderPhotos);
@@ -46,20 +45,8 @@ export const PhotoGrid = (props: PhotoGridProps) => {
           photos,
         }));
 
-        // Firmar las URL de las fotos y reemplazar las fotos dentro de FolderWithPhotos
-        const signedPhotos = await Promise.all(
-          foldersWithPhotosArray.map(async (folderWithPhotos) => {
-            const signedPhotos = await Promise.all(
-              folderWithPhotos.photos.map(async (photo) => {
-                const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
-                return { ...photo, url: signedPhoto };
-              })
-            );
-            return { ...folderWithPhotos, photos: signedPhotos };
-          })
-        );
-
-        setFoldersWithPhotos(signedPhotos);
+        setFoldersWithPhotos(foldersWithPhotosArray);
+        console.log("foldersWithPhotos", foldersWithPhotos);
       } catch (error) {
         console.error("Error al obtener la lista de videos:", error);
       }
@@ -67,6 +54,31 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
     getPhotosList();
   }, [selectedGroup]);
+
+  const handleFolderClick = async (folder: string) => {
+    setSelectedFolder(folder);
+
+    const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
+
+    // Firmar las URL de las fotos para la carpeta seleccionada y reemplazar las fotos dentro de FolderWithPhotos
+    const signedPhotos = await Promise.all(
+      foldersWithPhotos.map(async (folderWithPhotos) => {
+        if (folderWithPhotos.folder === folder) {
+          const signedPhotos = await Promise.all(
+            folderWithPhotos.photos.map(async (photo) => {
+              const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
+              return { ...photo, url: signedPhoto };
+            })
+          );
+          return { ...folderWithPhotos, photos: signedPhotos };
+        } else {
+          return folderWithPhotos;
+        }
+      })
+    );
+
+    setFoldersWithPhotos(signedPhotos);
+  };
 
 
   const formatUploadedAt = (dateString: string) => {
@@ -92,21 +104,29 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
   return (
     <div>
+      {/* Mapping folders with photos */}
       {foldersWithPhotos.map((folderWithPhotos) => (
         <div key={folderWithPhotos.folder}>
-          <h2>Folder: {folderWithPhotos.folder}</h2>
-          <div className="gallery">
-            {folderWithPhotos.photos.map((photo) => (
-              <div key={photo.id} className="gallery-item">
-                <img src={photo.url} alt={photo.name} className="gallery-image" />
-                <div className="gallery-overlay">
-                  <div className="gallery-caption">
-                    <h3>{photo.name}</h3>
-                    <p>{formatUploadedAt(photo.timeCreated)}</p>
+          <div onClick={() => handleFolderClick(folderWithPhotos.folder)}>
+            <h2>Folder: {folderWithPhotos.folder}</h2>
+            {selectedFolder === folderWithPhotos.folder && (
+              <div className="gallery">
+                {/* Mapping photos of the requested folder */}
+                {folderWithPhotos.photos.map((photo, index) => (
+                  <div key={photo.id} className="gallery-item">
+
+                      <img src={photo.url} alt={photo.name} className="gallery-thumbnail" />
+
+                    <div className="gallery-overlay">
+                      <div className="gallery-caption">
+                        <h3>{photo.name}</h3>
+                        <p>{formatUploadedAt(photo.timeCreated)}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
       ))}

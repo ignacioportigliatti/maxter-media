@@ -1,31 +1,24 @@
-import axios, { AxiosResponse } from "axios";
-import generateOAuth2Token from "./generateOAuth2Token";
+import { Storage } from "@google-cloud/storage";
 
-export const getGoogleStorageFolders = async (
-    bucket: string,
-    folder: string
-  ) => {
-    try {
-      const OAuthToken = await generateOAuth2Token(
-        process.env.NEXT_PUBLIC_BUCKET_KEYFILE as string
-      );
-  
-      const url = `https://www.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(folder)}`;
-      console.log('url', url);
-  
-      const response: AxiosResponse = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${OAuthToken}`,
-        },
-      });
-  
-      if (response.status === 200) {
-        return response.data.items.filter((item: any) => item.name.endsWith("/"));
-      } else {
-        console.error("Error al obtener las carpetas:", response);
+export const getGoogleStorageFolders = async (bucketName: string, folderPath: string) => {
+  try {
+    const storage = new Storage();
+    const bucket = storage.bucket(bucketName);
+    const prefix = `${folderPath}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+    const folders = new Set<string>();
+
+    files.forEach((file) => {
+      const filePath = file.name.split("/");
+      if (filePath.length > 1) {
+        folders.add(filePath[1]);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
+    });
+
+    return Array.from(folders);
+  } catch (error) {
+    console.error("Error al obtener las carpetas:", error);
+    throw error;
+  }
+};

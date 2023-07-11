@@ -49,42 +49,35 @@ export const PhotoGallery = (props: PhotoGalleryProps) => {
     }
   }, [filePath]);
 
-  useEffect(() => {
-    if (photoRef.current && photoSrc) {
-      const player = photojs(photoRef.current, {
-        sources: [
-          {
-            src: photoSrc,
-            type: "image/jpg",
-          },
-        ],
-      });
+  // useEffect(() => {
+  //   if (photoRef.current && photoSrc) {
+  //     const player = photojs(photoRef.current, {
+  //       sources: [
+  //         {
+  //           src: photoSrc,
+  //           type: "image/jpg",
+  //         },
+  //       ],
+  //     });
 
-      return () => {
-        player.dispose();
-      };
-    }
-  }, [photoSrc]);
+  //     return () => {
+  //       player.dispose();
+  //     };
+  //   }
+  // }, [photoSrc]);
 
-  const handleTitleClick = () => {
-    if (photoRef.current) {
-      photoRef.current.play();
-    }
-  };
+  // const handleTitleClick = () => {
+  //   if (photoRef.current) {
+  //     photoRef.current.play();
+  //   }
+  // };
 
   return (
     <div>
       <div className="min-w-[350px]">
         <div className="w-full flex flex-col">
           <div className="w-full">
-            <photo
-              height={200}
-              controls
-              width={350}
-              ref={photoRef}
-              preload="metadata"
-              className="photo-js vjs-default-skin w-full"
-            />
+           
 
           </div>
 
@@ -100,7 +93,7 @@ export const PhotoGallery = (props: PhotoGalleryProps) => {
               <a href="#">
                 <p
                   className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-orange-500"
-                  onClick={handleTitleClick}
+                  // onClick={handleTitleClick}
                 >
                   {title}
                 </p>

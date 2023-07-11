@@ -16,7 +16,7 @@ export default function MyPhotosPage() {
     return groups;
   };
 
-  const group = groups[5];
+  const group = groups[4];
 
   useEffect(() => {
     getGroupsList();
@@ -26,7 +26,7 @@ export default function MyPhotosPage() {
   return (
     <div className="w-full">
       <div>
-        <div className="dark:bg-dark-gray flex flex-row items-center justify-between themeTransition bg-gray-200 py-[26px] px-[15%] text-black dark:text-white drop-shadow-sm">
+        <div className="dark:bg-dark-gray flex flex-row items-center justify-between themeTransition bg-gray-200 py-[26px] px-6 text-black dark:text-white drop-shadow-sm">
           <div>
             <h2>{`Mis Fotos`}</h2>
           </div>

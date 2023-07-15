@@ -9,16 +9,14 @@ import { AiOutlineHome, AiOutlinePhone, AiOutlineVideoCamera } from "react-icons
 import { TbPhotoAi } from "react-icons/tb";
 
 export default function MyVideosPage() {
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [group, setGroup] = useState<Group>();
 
   const getGroupsList = async () => {
     const groups: Group[] = await getGroups();
-    await setGroups(groups);
+    setGroup(groups[5]);
     console.log("groups", groups);
     return groups;
   };
-
-  const group = groups[4];
 
   useEffect(() => {
     getGroupsList();
@@ -32,7 +30,7 @@ export default function MyVideosPage() {
           <div>
             <h2>{`Mis Videos`}</h2>
           </div>
-          {groups.length > 0 && (
+          {group && (
             <div className="flex flex-col justify-end items-end">
               <h4>{`Escuela ${group.school} `}</h4>
               <h5 className="text-xs">{`${group.name} - ${group.agencyName}`}</h5>
@@ -42,7 +40,7 @@ export default function MyVideosPage() {
       </div>
       <div className="py-14 px-7">
         <div>
-        <VideoGrid selectedGroup={group} />
+        {group && <VideoGrid selectedGroup={group as Group} />}
         </div>
       </div>
     </div>

@@ -37,6 +37,7 @@ export async function getSignedUrl(
     version: "v2" as const,
     action: "read" as const,
     expires: Date.now() + 1000 * 60 * 60, // una hora
+    
   };
 
   // Obtener una URL firmada v2 para el archivo

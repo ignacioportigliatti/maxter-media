@@ -9,6 +9,7 @@ import { Gallery, Item } from "react-photoswipe-gallery";
 import Image from "next/image";
 import { TbDoorExit, TbDownload, TbPhotoPlus } from "react-icons/tb";
 
+
 interface PhotoGridProps {
   selectedGroup: Group;
 }
@@ -118,44 +119,38 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
     setIsGalleryOpen((prev) => !prev);
-
+  
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-
+  
     if (cachedPhotos[folder]) {
       return;
     }
-
+  
     try {
-      const signedPhotos = await Promise.all(
-        foldersWithPhotos.map(async (folderWithPhotos) => {
-          if (folderWithPhotos.folder === folder) {
-            const signedPhotos = await Promise.all(
-              folderWithPhotos.photos.map(async (photo) => {
-                const signedPhoto = await getSignedUrl(
-                  bucketName as string,
-                  photo.name
-                );
-                return { ...photo, url: signedPhoto };
-              })
-            );
-            return { ...folderWithPhotos, photos: signedPhotos };
-          } else {
-            return folderWithPhotos;
-          }
-        })
+      const folderWithPhotos = foldersWithPhotos.find(
+        (folderWithPhotos) => folderWithPhotos.folder === folder
       );
-
-      setCachedPhotos((prevState) => ({
-        ...prevState,
-        [folder]:
-          signedPhotos.find(
-            (folderWithPhotos) => folderWithPhotos.folder === folder
-          )?.photos || [],
-      }));
+  
+      if (!folderWithPhotos) {
+        return;
+      }
+  
+      const signedPhotos: any[] = [];
+  
+      for (const photo of folderWithPhotos.photos) {
+        const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
+        signedPhotos.push({ ...photo, url: signedPhoto });
+        setCachedPhotos((prevState) => ({
+          ...prevState,
+          [folder]: signedPhotos,
+        }));
+      }
     } catch (error) {
       console.error("Error al obtener las URL firmadas de las fotos:", error);
     }
   };
+  
+  
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -264,6 +259,11 @@ export const PhotoGrid = (props: PhotoGridProps) => {
                             width={384}
                             height={180}
                             src={photo.url}
+                            className="fade-in-0 duration-1000"
+                            onLoad={(e) => {
+                              e.currentTarget.className += " fade-in-0 duration-1000 animate";
+                            }}
+                            
                             />
                             )}
                         </Item>

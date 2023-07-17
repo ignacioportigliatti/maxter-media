@@ -3,15 +3,14 @@
 import { VideoGrid } from "@/components/my-videos/VideoGrid";
 import { getGroups } from "@/utils";
 import { Group } from "@prisma/client";
-import { Sidebar } from "@/components/admin/Sidebar";
 import { useEffect, useState } from "react";
-import { AiOutlineHome, AiOutlinePhone, AiOutlineVideoCamera } from "react-icons/ai";
-import { TbPhotoAi } from "react-icons/tb";
 
 export default function MyVideosPage() {
   const [group, setGroup] = useState<Group>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const getGroupsList = async () => {
+    setIsLoading(true);
     const groups: Group[] = await getGroups();
     setGroup(groups[5]);
     console.log("groups", groups);
@@ -19,7 +18,7 @@ export default function MyVideosPage() {
   };
 
   useEffect(() => {
-    getGroupsList();
+    getGroupsList().finally(() => setIsLoading(false));
   }, []);
 
 

@@ -5,7 +5,7 @@ const nextConfig = {
         serverComponentsExternalPackages: ['@prisma/client', 'bcrypt', 'node-cache'],
     },
     images: {
-        domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com'],
+        domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com', 'via.placeholder.com'],
     },
 }
 

@@ -24,48 +24,38 @@ export const VideoCard = (props: VideoCardProps) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   const previousVideo = () => {
-    setCurrentVideoIndex((prevIndex) => prevIndex - 1);
+    setCurrentVideoIndex((prevIndex) => Math.max(prevIndex - 1, 0));
   };
 
   const nextVideo = () => {
-    setCurrentVideoIndex((prevIndex) => prevIndex + 1);
+    setCurrentVideoIndex((prevIndex) =>
+      Math.min(prevIndex + 1, videos.length - 1)
+    );
   };
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const getSelectedAgency = async () => {
+    const loadData = async () => {
       try {
+        setCurrentVideoIndex(0);
+        // Obtener la agencia seleccionada
         const response = await fetch("/api/agencies");
         const agencies: Agency[] = await response.json();
-        const agency = agencies.find(
-          (agency: Agency) => agency.name === agencyName
-        );
+        const agency = agencies.find((agency: Agency) => agency.name === agencyName);
         setSelectedAgency(agency || null);
+
+        // Obtener la URL del video
+        if (filePath) {
+          const video = await getSignedUrl("maxter-media", filePath);
+          setVideoSrc(video);
+        }
       } catch (error) {
-        console.error("Error al obtener el logo de la agencia:", error);
+        console.error("Error al obtener los datos:", error);
       }
     };
 
-    getSelectedAgency();
-  }, [agencyName]);
-
-  useEffect(() => {
-    const getVideoSrc = async () => {
-      try {
-        const video = await getSignedUrl("maxter-media", filePath as string);
-        setVideoSrc(video);
-      } catch (error) {
-        console.error("Error al obtener el video:", error);
-      }
-    };
-
-    if (filePath) {
-      getVideoSrc();
-    }
-  }, [filePath]);
-
-  useEffect(() => {
+    // Configurar el reproductor de video
     if (videoRef.current && videoSrc) {
       const player = videojs(videoRef.current, {
         sources: [
@@ -80,22 +70,11 @@ export const VideoCard = (props: VideoCardProps) => {
         player.dispose();
       };
     }
-  }, [videoSrc]);
 
-  useEffect(() => {
-    if (lightboxIsOpen) {
-      // Evitar scroll en la página de fondo
-      document.body.style.overflow = "hidden";
-    } else {
-      // Habilitar scroll en la página de fondo
-      document.body.style.overflow = "";
-    }
+    loadData();
+  }, [agencyName, filePath]);
 
-    // Restaurar el estado original cuando el componente se desmonte
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [lightboxIsOpen]);
+  
 
   const openLightbox = () => {
     setLightboxIsOpen(true);
@@ -104,6 +83,8 @@ export const VideoCard = (props: VideoCardProps) => {
   const closeLightbox = () => {
     setLightboxIsOpen(false);
   };
+
+
 
   return (
     <div>
@@ -145,7 +126,7 @@ export const VideoCard = (props: VideoCardProps) => {
       </div>
       {lightboxIsOpen && (
         <div className="fixed flex flex-col top-0 left-0 fade-in-0 animate-in duration-500 w-screen h-full bg-medium-gray  items-center justify-center">
-          <div className="flex flex-row items-center w-full bg-dark-gray min-h-[50px] justify-between px-10">
+          <div className="fixed top-0 z-[999] flex flex-row items-center w-full bg-dark-gray min-h-[50px] justify-between px-10">
             <div className="w-8">
               <Image
                 src={selectedAgency?.logoSrc as string}

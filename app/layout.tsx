@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import './globals.css'
+import "./globals.css";
 import { Providers } from "@/components/auth/Providers";
-import { ToastContainer } from 'react-toastify';
-
-
+import store from "@/redux/store";
+import { Provider } from "react-redux";
+import { ToastContainer } from "react-toastify";
 
 export const metadata = {
   title: "Maxter",
@@ -19,9 +19,9 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <body>
-        <Providers>
-          {children}
-        </Providers>
+        <Provider store={store}>
+          <Providers>{children}</Providers>
+        </Provider>
       </body>
     </html>
   );

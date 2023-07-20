@@ -9,6 +9,7 @@ interface VideoGridProps {
 
 export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
+  console.log("selectedGroup", selectedGroup);
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,42 +57,18 @@ export const VideoGrid = (props: VideoGridProps) => {
   };
 
   return (
-    <div>
-      <div className="flex">
-        <div className="flex flex-row items-start justify-between mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
-              {isLoading ? (
-                videos.map((video, index) => 
-                  <div className="min-w-[350px]">
-                <div className="w-full flex flex-col">
-                  <div className="w-full cursor-pointer">
-                    <div className="w-[350px] h-[180px] bg-gray-200 animate-pulse"></div>
-                  </div>
-                  <div className="flex flex-row mt-3 gap-2">
-                    <a href="#">
-                    <div className="w-[40px] h-[40px] bg-gray-200 rounded-full animate-pulse"></div>
-                    </a>
-                    <div className="flex flex-col gap-1">
-                    <div className="w-[250px] h-[10px] bg-gray-200 animate-pulse"></div>
-                    <div className="w-[150px] h-[10px] bg-gray-200 animate-pulse"></div>
-                    <div className="w-[50px] h-[10px] bg-gray-200 animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>            
-                                       
-             )) :
-              videos.map((video) => (
-                <VideoCard
-                  key={video.id} // Utilizar una propiedad única del video como clave
-                  title={video.name.split("/")[3].split(".")[0]}
-                  agencyName={selectedGroup.agencyName as string}
-                  uploadedAt={formatUploadedAt(video.timeCreated)}
-                  filePath={video.name}
-                />
-              ))}
-            </div>
-
+    <div className="flex animate-in fade-in-0 duration-500">
+      <div className="flex flex-row items-start justify-between mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
+          {videos.map((video) => (
+            <VideoCard
+              key={video.id} // Utilizar una propiedad única del video como clave
+              title={video.name.split("/")[3].split(".")[0]}
+              agencyName={selectedGroup.agencyName as string}
+              uploadedAt={formatUploadedAt(video.timeCreated)}
+              filePath={video.name}
+            />
+          ))}
         </div>
       </div>
     </div>

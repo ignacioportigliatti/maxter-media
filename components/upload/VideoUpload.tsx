@@ -91,8 +91,6 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     }
   };
   
-  
-  
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {

@@ -8,7 +8,7 @@ import "photoswipe/dist/photoswipe.css";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import Image from "next/image";
 import { TbDoorExit, TbDownload, TbPhotoPlus } from "react-icons/tb";
-
+import { useSelector } from "react-redux";
 
 interface PhotoGridProps {
   selectedGroup: Group;
@@ -22,123 +22,47 @@ interface FolderWithPhotos {
 
 export const PhotoGrid = (props: PhotoGridProps) => {
   const { selectedGroup } = props;
-  const [foldersWithPhotos, setFoldersWithPhotos] = useState<
-    FolderWithPhotos[]
-  >([]);
+
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [cachedPhotos, setCachedPhotos] = useState<Record<string, any[]>>({});
-  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
+  const selectedAgency: Agency = useSelector((state: any) => state.agency);
+  const foldersWithPhotos: FolderWithPhotos[] = useSelector((state: any) => state.photos);
 
-  useEffect(() => {
-    const getPhotosList = async () => {
-      try {
-        const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-        const folderPath = `media/${selectedGroup.name}/photos`;
-
-        const photos = await getGoogleStorageFiles(
-          bucketName as string,
-          folderPath
-        );
-
-        // Crear una estructura de carpetas y fotos
-        const foldersMap = new Map<string, any[]>();
-
-        photos.forEach((photo: any) => {
-          const folderPath = photo.name.split("/");
-          const folder = folderPath[folderPath.length - 2]; // Obtener la carpeta en lugar de la fecha
-          const folderPhotos = foldersMap.get(folder) || [];
-          folderPhotos.push(photo);
-          foldersMap.set(folder, folderPhotos);
-        });
-
-        // Convertir el Map a un array de objetos FolderWithPhotos
-        const foldersWithPhotosArray: FolderWithPhotos[] = Array.from(
-          foldersMap
-        ).map(([folder, photos]) => {
-          const thumbnail = photos.length > 0 ? photos[0].url : ""; // Obtener la URL de la primera foto como miniatura
-          return {
-            folder,
-            photos,
-            thumbnail,
-          };
-        });
-
-        const signedFoldersWithPhotosArray: FolderWithPhotos[] =
-          await Promise.all(
-            foldersWithPhotosArray.map(async (folderWithPhotos) => {
-              const firstPhoto = folderWithPhotos.photos[0];
-              const signedUrl = await getSignedUrl(
-                bucketName as string,
-                firstPhoto.name
-              );
-              const signedThumbnail = { ...firstPhoto, url: signedUrl };
-              const signedPhotos = [
-                signedThumbnail,
-                ...folderWithPhotos.photos.slice(1),
-              ];
-              return {
-                ...folderWithPhotos,
-                photos: signedPhotos,
-                thumbnail: signedThumbnail.url,
-              };
-            })
-          );
-
-        setFoldersWithPhotos(signedFoldersWithPhotosArray);
-        console.log("foldersWithPhotosArray", foldersWithPhotosArray);
-      } catch (error) {
-        console.error("Error al obtener la lista de fotos:", error);
-      }
-    };
-
-    getPhotosList();
-  }, [selectedGroup]);
+  
 
   const handleGalleryClose = () => {
     setIsGalleryOpen(false);
   };
 
-  useEffect(() => {
-    const getSelectedAgency = async () => {
-      try {
-        const response = await fetch("/api/agencies");
-        const agencies: Agency[] = await response.json();
-        const agency = agencies.find(
-          (agency: Agency) => agency.name === selectedGroup.agencyName
-        );
-        setSelectedAgency(agency || null);
-      } catch (error) {
-        console.error("Error al obtener el logo de la agencia:", error);
-      }
-    };
-
-    getSelectedAgency();
-  }, [selectedGroup.agencyName]);
+ 
 
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
     setIsGalleryOpen((prev) => !prev);
-  
+
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-  
+
     if (cachedPhotos[folder]) {
       return;
     }
-  
+
     try {
       const folderWithPhotos = foldersWithPhotos.find(
         (folderWithPhotos) => folderWithPhotos.folder === folder
       );
-  
+
       if (!folderWithPhotos) {
         return;
       }
-  
+
       const signedPhotos: any[] = [];
-  
+
       for (const photo of folderWithPhotos.photos) {
-        const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
+        const signedPhoto = await getSignedUrl(
+          bucketName as string,
+          photo.name
+        );
         signedPhotos.push({ ...photo, url: signedPhoto });
         setCachedPhotos((prevState) => ({
           ...prevState,
@@ -149,8 +73,6 @@ export const PhotoGrid = (props: PhotoGridProps) => {
       console.error("Error al obtener las URL firmadas de las fotos:", error);
     }
   };
-  
-  
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -223,56 +145,59 @@ export const PhotoGrid = (props: PhotoGridProps) => {
           {isGalleryOpen && selectedFolder === folderWithPhotos.folder ? (
             <div className="z-50 flex flex-col w-full h-full absolute top-0 left-0 bg-medium-gray ">
               <div className="flex flex-row items-center w-full bg-dark-gray min-h-[50px] justify-end">
-              <button
-                onClick={handleGalleryClose}
-                className="flex flex-row justify-center items-center button !border-0 duration-500"
-              >
-                <p className="!text-white text-sm font-semibold ">Volver</p><TbDoorExit />
-              </button>
-              <button
-                onClick={handleGalleryClose}
-                className="flex flex-row justify-center items-center button !border-0 duration-500"
-              >
-                <p className="!text-white text-sm font-semibold ">Descargar</p><TbDownload />
-              </button>
+                <button
+                  onClick={handleGalleryClose}
+                  className="flex flex-row justify-center items-center button !border-0 duration-500"
+                >
+                  <p className="!text-white text-sm font-semibold ">Volver</p>
+                  <TbDoorExit />
+                </button>
+                <button
+                  onClick={handleGalleryClose}
+                  className="flex flex-row justify-center items-center button !border-0 duration-500"
+                >
+                  <p className="!text-white text-sm font-semibold ">
+                    Descargar
+                  </p>
+                  <TbDownload />
+                </button>
               </div>
               <div>
-
-              <Gallery id={folderWithPhotos.folder} withDownloadButton>
-                <div className="grid grid-cols-4 p-9 gap-2 relative top-0 animate-in fade-in-0 duration-1000">
-                  {cachedPhotos[folderWithPhotos.folder]?.map(
-                    (photo, index) => (
-                      <div
-                      className="cursor-pointer opacity-75 hover:opacity-100 transition duration-500"
-                      key={photo.id}
-                      >
-                        <Item
-                          original={photo.url}
-                          thumbnail={photo.url}
-                          id={photo.id}
+                <Gallery id={folderWithPhotos.folder} withDownloadButton>
+                  <div className="grid grid-cols-4 p-9 gap-2 relative top-0 animate-in fade-in-0 duration-1000">
+                    {cachedPhotos[folderWithPhotos.folder]?.map(
+                      (photo, index) => (
+                        <div
+                          className="cursor-pointer opacity-75 hover:opacity-100 transition duration-500"
+                          key={photo.id}
+                        >
+                          <Item
+                            original={photo.url}
+                            thumbnail={photo.url}
+                            id={photo.id}
                           >
-                          {({ ref, open }) => (
-                            <Image
-                            alt={`${folderWithPhotos.folder} Foto ${index}`}
-                            ref={ref as any}
-                            onClick={open}
-                            width={384}
-                            height={180}
-                            src={photo.url}
-                            className="fade-in-0 duration-1000"
-                            onLoad={(e) => {
-                              e.currentTarget.className += " fade-in-0 duration-1000 animate";
-                            }}
-                            
-                            />
+                            {({ ref, open }) => (
+                              <Image
+                                alt={`${folderWithPhotos.folder} Foto ${index}`}
+                                ref={ref as any}
+                                onClick={open}
+                                width={384}
+                                height={180}
+                                src={photo.url}
+                                className="fade-in-0 duration-1000"
+                                onLoad={(e) => {
+                                  e.currentTarget.className +=
+                                    " fade-in-0 duration-1000 animate";
+                                }}
+                              />
                             )}
-                        </Item>
-                      </div>
-                    )
-                  )}
-                </div>
-              </Gallery>
-          </div>
+                          </Item>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </Gallery>
+              </div>
             </div>
           ) : null}
         </div>

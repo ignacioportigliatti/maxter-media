@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { VideoCard } from "./VideoCard";
 import { getGoogleStorageFiles } from "@/utils";
 import { Group } from "@prisma/client";
+import { useSelector } from "react-redux";
 
 interface VideoGridProps {
   selectedGroup: Group;
@@ -10,30 +11,7 @@ interface VideoGridProps {
 export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
   console.log("selectedGroup", selectedGroup);
-  const [videos, setVideos] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const getVideoList = async () => {
-      setIsLoading(true);
-      try {
-        const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-        const folderPath = `media/${selectedGroup.name}/videos`;
-
-        const videos = await getGoogleStorageFiles(
-          bucketName as string,
-          folderPath
-        );
-        console.log("videos", videos);
-
-        setVideos(videos);
-      } catch (error) {
-        console.error("Error al obtener la lista de videos:", error);
-      }
-    };
-
-    getVideoList().finally(() => setIsLoading(false));
-  }, [selectedGroup]);
+  const videos = useSelector((state: any) => state.videos);
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -60,7 +38,7 @@ export const VideoGrid = (props: VideoGridProps) => {
     <div className="flex animate-in fade-in-0 duration-500">
       <div className="flex flex-row items-start justify-between mx-auto">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
-          {videos.map((video) => (
+          {videos.map((video: any) => (
             <VideoCard
               key={video.id} // Utilizar una propiedad única del video como clave
               title={video.name.split("/")[3].split(".")[0]}

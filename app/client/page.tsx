@@ -5,23 +5,32 @@ import { useSelector } from "react-redux";
 import { Group } from "@prisma/client";
 
 export default function ClientHome() {
-
-
   const group: Group = useSelector((state: any) => state.group);
 
   return (
-    <div className="flex flex-col justify-start items-center mx-auto p-7">
-      <div className="text-center">
-        <h4 className="-mb-[5px]">PROMO 2023</h4>
-        <h1>Tu Viaje de Egresados</h1>
-        <p>Grupoputo{group.name}</p>
-        <p>Grupoputo{group.videoIds}</p>
-        <h2>Bienvenido/a al portal de recuerdos de tu viaje de egresados</h2>
-        <p className="mt-2">
-          Aquí podras ver y descargar las fotos y/o videos de tu viaje.
-        </p>
+    <div className="w-full">
+      <div className="dark:bg-dark-gray flex flex-row items-center justify-between themeTransition bg-gray-200 py-[20px] px-6 text-black dark:text-white drop-shadow-sm">
+        <div>
+          <h2>{`Inicio`}</h2>
+        </div>
+        {group && (
+          <div className="flex flex-col justify-end items-end">
+            <h4>{`Escuela ${group.school} `}</h4>
+            <h5 className="text-xs">{`${group.name} - ${group.agencyName}`}</h5>
+          </div>
+        )}
       </div>
-      <Steps />
+      <div className="flex flex-col justify-start items-center mx-auto p-7">
+        <div className="text-center">
+          <h4 className="-mb-[5px]">PROMO 2023</h4>
+          <h1>Tu Viaje de Egresados</h1>
+          <h2>Bienvenido/a al portal de recuerdos de tu viaje de egresados</h2>
+          <p className="mt-2">
+            Aquí podras ver y descargar las fotos y/o videos de tu viaje.
+          </p>
+        </div>
+        <Steps />
+      </div>
     </div>
   );
 }

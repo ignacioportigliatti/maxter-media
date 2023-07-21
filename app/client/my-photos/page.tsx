@@ -1,26 +1,11 @@
 "use client";
 
-
 import { PhotoGrid } from "@/components/my-photos/PhotoGrid";
-import { getGroups } from "@/utils";
 import { Group } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function MyPhotosPage() {
-  const [group, setGroup] = useState<Group>();
-
-  const getGroupsList = async () => {
-    const groups: Group[] = await getGroups();
-    setGroup(groups[5]);
-    console.log("groups", groups);
-    return groups;
-  };
-
-  useEffect(() => {
-    getGroupsList();
-  }, []);
-
-
+  const group: Group = useSelector((state: any) => state.group);
 
   return (
     <div className="w-full">
@@ -38,9 +23,7 @@ export default function MyPhotosPage() {
         </div>
       </div>
       <div className="p-14">
-        <div>
-        {group && <PhotoGrid selectedGroup={group as Group} />}
-        </div>
+        <div>{group && <PhotoGrid selectedGroup={group as Group} />}</div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const videoSlice = createSlice({
-  name: "video",
+  name: "videos",
   initialState: [],
   reducers: {
     setVideos: (state, action) => action.payload,

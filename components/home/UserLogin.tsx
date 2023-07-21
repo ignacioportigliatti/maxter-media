@@ -14,18 +14,13 @@ import {
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSelectGroup } from "@/redux/groupManager";
 
 export const UserLogin = () => {
   const router = useRouter();
-  const selectGroup = useSelectGroup();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    const groups = await fetch("/api/groups");
-    const groupsJson = await groups.json();
-    selectGroup(groupsJson[5]);
     e.preventDefault();
-    router.push("/client/my-videos");
+    router.push("/client/");
   };
 
   return (

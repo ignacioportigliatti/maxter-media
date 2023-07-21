@@ -2,14 +2,16 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import groupReducer from "./groupSlice";
-import videoReducer from "./videoSlice";
-import photoReducer from "./photoSlice";
+import videosReducer from "./videosSlice";
+import photosReducer from "./photosSlice";
+import agencyReducer from "./agencySlice";
 
 const store = configureStore({
   reducer: {
     group: groupReducer,
-    video: videoReducer,
-    photo: photoReducer,
+    agency: agencyReducer,
+    videos: videosReducer,
+    photos: photosReducer,
   },
 });
 

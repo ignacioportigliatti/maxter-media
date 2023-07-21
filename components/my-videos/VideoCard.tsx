@@ -6,6 +6,7 @@ import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import Image from "next/image";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
+import { useSelector } from "react-redux";
 
 interface VideoCardProps {
   title: string;
@@ -16,12 +17,12 @@ interface VideoCardProps {
 
 export const VideoCard = (props: VideoCardProps) => {
   const { title, agencyName, uploadedAt, filePath } = props;
-  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [videos, setVideos] = useState<string[]>([]); // Array de rutas de video
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const selectedAgency: Agency = useSelector((state: any) => state.agency);
 
   const previousVideo = () => {
     setCurrentVideoIndex((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -39,12 +40,6 @@ export const VideoCard = (props: VideoCardProps) => {
     const loadData = async () => {
       try {
         setCurrentVideoIndex(0);
-        // Obtener la agencia seleccionada
-        const response = await fetch("/api/agencies");
-        const agencies: Agency[] = await response.json();
-        const agency = agencies.find((agency: Agency) => agency.name === agencyName);
-        setSelectedAgency(agency || null);
-
         // Obtener la URL del video
         if (filePath) {
           const video = await getSignedUrl("maxter-media", filePath);
@@ -72,7 +67,7 @@ export const VideoCard = (props: VideoCardProps) => {
     }
 
     loadData();
-  }, [agencyName, filePath]);
+  }, [filePath]);
 
   
 

@@ -9,9 +9,10 @@ import { TbPhotoAi } from "react-icons/tb";
 import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { getGoogleStorageFiles, getGroups } from "@/utils";
-import { Group } from "@prisma/client";
+import { Agency, Group } from "@prisma/client";
 import { useSelectGroup } from "@/redux/groupManager";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
+import axios from "axios";
 
 export const metadata = {
   title: "Maxter",
@@ -59,7 +60,7 @@ export default function RootLayout({
       try {
         const group = await getGroup();
         const agencies = await fetch("/api/agencies").then((res) => res.json());
-        const selectedAgency = agencies.find(
+        const selectedAgency: Agency = agencies.find(
           (agency: any) => agency.name === group.agencyName
         );
         const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
@@ -68,7 +69,7 @@ export default function RootLayout({
           bucketName as string,
           folderPath
         );
-        
+
         const photos = await getGoogleStorageFiles(
           bucketName as string,
           `media/${group.name}/photos`
@@ -95,27 +96,23 @@ export default function RootLayout({
           };
         });
 
-        const signedPhotos: FolderWithPhotos[] =
-          await Promise.all(
-            foldersWithPhotosArray.map(async (folderWithPhotos) => {
-              const firstPhoto = folderWithPhotos.photos[0];
-              const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-              const signedUrl = await getSignedUrl(
-                bucketName as string,
-                firstPhoto.name
-              );
-              const signedThumbnail = { ...firstPhoto, url: signedUrl };
-              const signedPhotos = [
-                signedThumbnail,
-                ...folderWithPhotos.photos.slice(1),
-              ];
-              return {
-                ...folderWithPhotos,
-                photos: signedPhotos,
-                thumbnail: signedThumbnail.url,
-              };
-            })
-          );
+        const signedPhotos: FolderWithPhotos[] = await Promise.all(
+          foldersWithPhotosArray.map(async (folderWithPhotos) => {
+            const firstPhoto = folderWithPhotos.photos[0];
+            const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
+            const signedUrl = await axios.post('/api/sign-url', { bucketName, fileName: firstPhoto.name }).then(res => res.data);
+            const signedThumbnail = { ...firstPhoto, url: signedUrl };
+            const signedPhotos = [
+              signedThumbnail,
+              ...folderWithPhotos.photos.slice(1),
+            ];
+            return {
+              ...folderWithPhotos,
+              photos: signedPhotos,
+              thumbnail: signedThumbnail.url,
+            };
+          })
+        );
 
         selectGroup(group, videos, signedPhotos, selectedAgency);
       } catch (error) {
@@ -132,7 +129,11 @@ export default function RootLayout({
       <body>
         <Providers>
           {isLoading ? (
-            <p>Cargando</p>
+            <div className="flex justify-center items-center h-screen">
+            <div className="relative w-24 h-24 animate-spin rounded-full bg-gradient-to-r from-purple-400 via-blue-500 to-red-400 ">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full border-2 "></div>
+            </div>
+        </div>
           ) : (
             <div className="flex">
               <ToastContainer />

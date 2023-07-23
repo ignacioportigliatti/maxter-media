@@ -32,11 +32,6 @@ const navigationItems = [
     href: "/admin/upload",
   },
   {
-    label: "Generar Códigos",
-    icon: <TbQrcode className="sideBarIconSize" />,
-    href: "/admin/codes",
-  },
-  {
     label: "Usuarios",
     icon: <TbUserCheck className="sideBarIconSize" />,
     href: "/admin/users",

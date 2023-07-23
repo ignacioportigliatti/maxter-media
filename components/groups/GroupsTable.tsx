@@ -6,7 +6,11 @@ import { GroupModal } from "./";
 import { Group } from "@prisma/client";
 import {Pagination } from "@/components/ui/Pagination";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
-import { TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
+import { TbQrcode, TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
+import { TfiClose } from "react-icons/tfi";
+import GeneratedCodes from "../codes/GeneratedCodes";
+import CodesGenerator from "../codes/CodesGenerator";
+import CodesModal from "../codes/CodesModal";
 
 
 
@@ -21,6 +25,7 @@ export const GroupsTable = () => {
   ];
 
   const [showModal, setShowModal] = useState(false);
+  const [showCodesModal, setshowCodesModal] = useState(false);
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -89,6 +94,15 @@ export const GroupsTable = () => {
     setEditMode(false);
     setSelectedGroup(null);
     setShowModal(true);
+  };
+
+  const handleCodesButton = (group: any) => {
+    setSelectedGroup(group);
+    setshowCodesModal(true);
+  };
+
+  const handleCodesModal = () => {
+    setshowCodesModal((modal) => !modal);
   };
 
   const handlePageChange = (page: number) => {
@@ -262,6 +276,12 @@ export const GroupsTable = () => {
                             onClick={() => handleEditButton(group)}
                           />
                         </button>
+                        <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+                          <TbQrcode
+                            className="w-5 h-5"
+                            onClick={() => handleCodesButton(group)}
+                          />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -280,10 +300,17 @@ export const GroupsTable = () => {
           groupToEdit={editMode ? selectedGroup : undefined}
           toggleModal={handleToggleModal}
           refresh={getGroups}
-          
         />
-}
-      {showDeleteModal ? (
+      }
+
+    {showCodesModal && (
+        <CodesModal 
+          selectedGroup={selectedGroup as Group}
+          handleToggleModal={handleCodesModal}
+        />
+      )}
+
+      {showDeleteModal && (
         <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
           refresh={getGroups}
@@ -293,7 +320,7 @@ export const GroupsTable = () => {
           apiRoute="groups"
           toastMessage={`Grupo "${selectedGroup?.name}" eliminado con éxito`}
         />
-      ) : null}
+      )}
     </div>
   );
 };

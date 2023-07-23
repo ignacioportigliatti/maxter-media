@@ -1,4 +1,5 @@
 import { Group } from "@prisma/client";
+import axios from "axios";
 import React from "react";
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -12,7 +13,7 @@ enum CodeType {
   FULL = "full",
 }
 
-interface CodesGeneratorForm {
+export interface CodesGeneratorForm {
   type: CodeType;
   quantity: number;
   included: boolean;
@@ -23,7 +24,15 @@ interface CodesGeneratorForm {
 const CodesGenerator = (props: CodesGeneratorProps) => {
   const { selectedGroup } = props;
   const { register, handleSubmit, formState: { errors }, watch } = useForm<CodesGeneratorForm>();
-  const onSubmit: SubmitHandler<CodesGeneratorForm> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<CodesGeneratorForm> = async (data) => {
+    const response = await axios.post("/api/codes/add", {
+        formData: data,
+        groupId: selectedGroup.id,
+        }).then((res) => res.data);
+    if (response.success) {
+
+    }
+  };
 
   const isOptionalChecked = watch("optional");
 

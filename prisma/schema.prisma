@@ -41,7 +41,19 @@ model Group {
   agencyName  String? 
   photosIds   String[]
   videoIds    String[]
+
+  codes      Codes[]
+
   inQueue    Queue[]
+}
+
+model Codes {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  code        String
+  used        Boolean
+  type        String
+  groupId     String?  @db.ObjectId
+  group       Group?   @relation(fields: [groupId], references: [id])
 }
 
 model Account {

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 interface VideoCardProps {
   title: string;
@@ -40,10 +41,37 @@ export const VideoCard = (props: VideoCardProps) => {
     const loadData = async () => {
       try {
         setCurrentVideoIndex(0);
-        // Obtener la URL del video
+
+        // Check if the signed URL is cached in local storage
+        const cachedVideoUrl = localStorage.getItem(filePath as string);
+
+        if (cachedVideoUrl) {
+          // Parse the cached URL and check if it has expired (e.g., after one hour)
+          const { url, expiration } = JSON.parse(cachedVideoUrl);
+          const currentTime = Date.now();
+
+          if (expiration && currentTime < expiration) {
+            setVideoSrc(url); // Use the cached URL if it's still valid
+            return;
+          }
+        }
+
+        // If the URL is not cached or has expired, fetch a new signed URL from the server
         if (filePath) {
-          const video = await getSignedUrl("maxter-media", filePath);
-          setVideoSrc(video);
+          const video = await axios
+            .post('/api/sign-url', {
+              bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
+              fileName: filePath,
+            })
+            .then((res) => res.data);
+
+          // Set the new signed URL in state
+          setVideoSrc(video.url);
+
+          // Cache the signed URL in local storage for one hour
+          const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
+          const cachedUrlData = JSON.stringify({ url: video.url, expiration });
+          localStorage.setItem(filePath, cachedUrlData);
         }
       } catch (error) {
         console.error("Error al obtener los datos:", error);

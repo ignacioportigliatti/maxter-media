@@ -1,5 +1,5 @@
 import { UserLogin } from "@/components/home/UserLogin";
-import store from "@/redux/store";
+import store from "@/redux/clientStore";
 import { Provider } from "react-redux";
 
 export default function Home() {

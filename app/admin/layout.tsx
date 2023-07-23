@@ -1,12 +1,14 @@
-'use client'
+"use client";
 
-import '../globals.css'
+import "../globals.css";
 import { Providers } from "@/components/auth/Providers";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Sidebar } from '@/components/admin/Sidebar';
-import { TbFileUpload, TbQrcode, TbUserCheck, TbUsers } from 'react-icons/tb';
-import { AiOutlineGroup } from 'react-icons/ai';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Sidebar } from "@/components/admin/Sidebar";
+import { TbFileUpload, TbQrcode, TbUserCheck, TbUsers } from "react-icons/tb";
+import { AiOutlineGroup } from "react-icons/ai";
+import { Provider } from "react-redux";
+import adminStore from "@/redux/admin/adminStore";
 
 export const metadata = {
   title: "Maxter",
@@ -32,7 +34,7 @@ const navigationItems = [
   {
     label: "Generar Códigos",
     icon: <TbQrcode className="sideBarIconSize" />,
-    href: "/admin/upload",
+    href: "/admin/codes",
   },
   {
     label: "Usuarios",
@@ -50,13 +52,13 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <body>
         <Providers>
-        <div className="flex">
-          <ToastContainer />
-          <div className="hidden lg:flex">
-            <Sidebar navigationItems={navigationItems}/>
+          <div className="flex">
+            <ToastContainer />
+            <div className="hidden lg:flex">
+              <Sidebar navigationItems={navigationItems} />
+            </div>
+            <div className="lg:h-full flex mx-auto w-full">{children}</div>
           </div>
-          <div className="lg:h-full flex mx-auto w-full">{children}</div>
-        </div>
         </Providers>
       </body>
     </html>

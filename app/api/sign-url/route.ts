@@ -1,8 +1,9 @@
 import { Storage } from "@google-cloud/storage";
+import { NextResponse } from "next/server";
 
 // Creates a client
 const storage = new Storage({
-  keyFilename: process.env.NEXT_PUBLIC_BUCKET_KEYFILE!,
+  keyFilename: process.env.NEXT_PUBLIC_BUCKET_KEYFILE,
 });
 
 // Interface para el objeto de caché de URLs firmadas
@@ -14,21 +15,21 @@ interface SignedUrlCache {
 }
 
 interface RequestBody {
-    bucketName: string;
-    fileName: string;
+  bucketName: string;
+  fileName: string;
 }
 
 // Objeto para almacenar el caché de URLs firmadas
 const signedUrlCache: SignedUrlCache = {};
 
 export async function POST(request: Request) {
-    console.log(`request: ${JSON.stringify(request)}`);
-    const body: RequestBody = await request.json();
-    const { bucketName, fileName } = body;
+  const body: RequestBody = await request.json();
+  const { bucketName, fileName } = body;
 
   const cacheKey = `${bucketName}/${fileName}`;
 
-  // Verificar si la URL firmada está en caché y aún es válida
+  try {
+    // Verificar si la URL firmada está en caché y aún es válida
   if (
     signedUrlCache[cacheKey] &&
     signedUrlCache[cacheKey].expires > Date.now()
@@ -41,7 +42,6 @@ export async function POST(request: Request) {
     version: "v2" as const,
     action: "read" as const,
     expires: Date.now() + 1000 * 60 * 60, // una hora
-    
   };
 
   // Obtener una URL firmada v2 para el archivo
@@ -56,5 +56,8 @@ export async function POST(request: Request) {
     expires: options.expires,
   };
 
-  return url;
+  return NextResponse.json({success: 'URL firmada exitosamente', url: url});
+  } catch (error) {
+    return NextResponse.json({error: 'Error al firmar la URL'});
+  }
 }

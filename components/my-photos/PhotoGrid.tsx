@@ -9,6 +9,7 @@ import { Gallery, Item } from "react-photoswipe-gallery";
 import Image from "next/image";
 import { TbDoorExit, TbDownload, TbPhotoPlus } from "react-icons/tb";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 interface PhotoGridProps {
   selectedGroup: Group;
@@ -40,39 +41,72 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
     setIsGalleryOpen((prev) => !prev);
-
+  
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-
+  
     if (cachedPhotos[folder]) {
       return;
     }
-
+  
     try {
       const folderWithPhotos = foldersWithPhotos.find(
         (folderWithPhotos) => folderWithPhotos.folder === folder
       );
-
+  
       if (!folderWithPhotos) {
         return;
       }
-
-      const signedPhotos: any[] = [];
-
-      for (const photo of folderWithPhotos.photos) {
-        const signedPhoto = await getSignedUrl(
-          bucketName as string,
-          photo.name
-        );
-        signedPhotos.push({ ...photo, url: signedPhoto });
-        setCachedPhotos((prevState) => ({
-          ...prevState,
-          [folder]: signedPhotos,
-        }));
-      }
+  
+      const signedPhotosPromises: Promise<any>[] = folderWithPhotos.photos.map(
+        async (photo) => {
+          const cachedPhoto = localStorage.getItem(photo.name);
+  
+          if (cachedPhoto) {
+            // Parse the cached photo data and check if it has expired
+            const { url, expiration } = JSON.parse(cachedPhoto);
+  
+            const currentTime = Date.now();
+            if (expiration && currentTime < expiration) {
+              // Use the cached URL if it's still valid
+              return { ...photo, url };
+            } else {
+              // If the cached URL has expired, fetch a new signed URL from the server
+              const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
+  
+              // Cache the new signed URL in local storage for one hour
+              const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
+              const cachedPhotoData = JSON.stringify({ url: signedPhoto, expiration });
+              localStorage.setItem(photo.name, cachedPhotoData);
+  
+              return { ...photo, url: signedPhoto };
+            }
+          } else {
+            // If the photo URL is not cached, fetch a new signed URL from the server
+            const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
+  
+            // Cache the signed URL in local storage for one hour
+            const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
+            const cachedPhotoData = JSON.stringify({ url: signedPhoto, expiration });
+            localStorage.setItem(photo.name, cachedPhotoData);
+  
+            return { ...photo, url: signedPhoto };
+          }
+        }
+      );
+  
+      // Wait for all the promises to resolve using Promise.all
+      const signedPhotos = await Promise.all(signedPhotosPromises);
+  
+      // Update the cachedPhotos state with the new signed photo URLs
+      setCachedPhotos((prevState) => ({
+        ...prevState,
+        [folder]: signedPhotos,
+      }));
     } catch (error) {
       console.error("Error al obtener las URL firmadas de las fotos:", error);
     }
   };
+  
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();

@@ -6,7 +6,8 @@ import videosReducer from "./videosSlice";
 import photosReducer from "./photosSlice";
 import agencyReducer from "./agencySlice";
 
-const store = configureStore({
+
+const clientStore = configureStore({
   reducer: {
     group: groupReducer,
     agency: agencyReducer,
@@ -15,4 +16,4 @@ const store = configureStore({
   },
 });
 
-export default store;
+export default clientStore;

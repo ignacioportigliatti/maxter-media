@@ -10,9 +10,11 @@ import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { getGoogleStorageFiles, getGroups } from "@/utils";
 import { Agency, Group } from "@prisma/client";
-import { useSelectGroup } from "@/redux/groupManager";
-import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
+import { useSelectGroup } from "@/redux/client/groupManager";
 import axios from "axios";
+import { Provider } from "react-redux";
+import clientStore from "@/redux/client/clientStore";
+import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 
 export const metadata = {
   title: "Maxter",
@@ -100,7 +102,7 @@ export default function RootLayout({
           foldersWithPhotosArray.map(async (folderWithPhotos) => {
             const firstPhoto = folderWithPhotos.photos[0];
             const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-            const signedUrl = await axios.post('/api/sign-url', { bucketName, fileName: firstPhoto.name }).then(res => res.data);
+            const signedUrl = await getSignedUrl(bucketName as string, firstPhoto.name)
             const signedThumbnail = { ...firstPhoto, url: signedUrl };
             const signedPhotos = [
               signedThumbnail,
@@ -130,10 +132,10 @@ export default function RootLayout({
         <Providers>
           {isLoading ? (
             <div className="flex justify-center items-center h-screen">
-            <div className="relative w-24 h-24 animate-spin rounded-full bg-gradient-to-r from-purple-400 via-blue-500 to-red-400 ">
+              <div className="relative w-24 h-24 animate-spin rounded-full bg-gradient-to-r from-purple-400 via-blue-500 to-red-400 ">
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full border-2 "></div>
+              </div>
             </div>
-        </div>
           ) : (
             <div className="flex">
               <ToastContainer />

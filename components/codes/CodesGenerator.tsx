@@ -2,6 +2,7 @@ import { Group } from "@prisma/client";
 import axios from "axios";
 import React from "react";
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { toast } from "react-toastify";
 
 interface CodesGeneratorProps {
   selectedGroup: Group;
@@ -30,7 +31,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
         groupId: selectedGroup.id,
         }).then((res) => res.data);
     if (response.success) {
-
+      toast.success("Códigos generados exitosamente.");
     }
   };
 
@@ -47,7 +48,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
             <label className="" htmlFor="">
               Tipo
             </label>
-            <select className="text-sm p-1" {...register('type', { required: true })} aria-invalid={errors.type ? "true" : "false"}>
+            <select className="text-xs p-1" {...register('type', { required: true })} aria-invalid={errors.type ? "true" : "false"}>
               <option value="photo">Foto</option>
               <option value="video">Video</option>
               <option value="full">Foto + Video</option>
@@ -55,7 +56,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="">Cantidad</label>
-            <input {...register('quantity', { required: true })} aria-invalid={errors.quantity ? "true" : "false"} className="input text-sm p-1" />
+            <input {...register('quantity', { required: true })} aria-invalid={errors.quantity ? "true" : "false"} className="input text-xs p-1" />
             {errors.quantity?.type === "required" && (
         <p className="text-xs !text-red-600" role="alert">Debes ingresar una cantidad.</p>
       )}
@@ -76,8 +77,8 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
         </div>
 
         <div className="flex justify-start mt-2">
-          <button type="submit" className="button w-full">
-            Generar
+          <button type="submit" className="button !text-xs w-full !border-white">
+            Generar código/s
           </button>
         </div>
       </form>

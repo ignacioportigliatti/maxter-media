@@ -54,6 +54,8 @@ model Codes {
   included    Boolean
   optional    Boolean
   type        String
+  expires     DateTime
+  qrCode      String
   
   groupId     String?  @db.ObjectId
   group       Group?   @relation(fields: [groupId], references: [id])

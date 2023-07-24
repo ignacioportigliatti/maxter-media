@@ -2,6 +2,8 @@ import { CodesGeneratorForm } from "@/components/codes/CodesGenerator";
 import prisma from "@/libs/prismadb";
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import QRCode from "qrcode";
+
 
 interface RequestBody {
     formData: CodesGeneratorForm;
@@ -22,7 +24,13 @@ export async function POST(request: Request) {
         }
 
         const formattedCode = `${selectedGroup.agencyName}-${selectedGroup.name.slice(1,5)}-${randomBytes(2).toString('hex').toUpperCase()}`.toUpperCase();
-
+        const qrCode = await QRCode.toString(
+            `https://localhost:3000/client/${formattedCode}`,
+            { type: 'svg', errorCorrectionLevel: 'H'}
+          );
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 30);
+            
         const createdCode = await prisma.codes.create({
             data: {
                 code: formattedCode,
@@ -31,6 +39,8 @@ export async function POST(request: Request) {
                 type: formData.type,
                 used: false,
                 groupId: groupId,
+                qrCode: qrCode,
+                expires: expires
             },
             include: {
                 group: true

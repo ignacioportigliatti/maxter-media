@@ -28,10 +28,10 @@ export const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 py-4 dark:bg-[#161616]">
+    <div className="flex items-center justify-center gap-2 py-4">
       {/* Botón de página anterior */}
       <button
-        className={`buttonWithIcon ${
+        className={`buttonWithIcon !text-xs ${
           currentPage === 1 ? "cursor-not-allowed" : ""
         }`}
         onClick={handlePrevPage}
@@ -46,7 +46,7 @@ export const Pagination = ({
         {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i + 1}
-            className={`px-2 py-2 text-sm ${
+            className={`px-2 py-2 text-xs ${
               currentPage === i + 1
                 ? "text-white bg-orange-500/60"
                 : "text-gray-500 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100"
@@ -60,7 +60,7 @@ export const Pagination = ({
       
       {/* Botón de página siguiente */}
       <button
-        className={`buttonWithIcon ${
+        className={`buttonWithIcon !text-xs ${
           currentPage === totalPages ? "cursor-not-allowed" : ""
         }`}
         onClick={handleNextPage}

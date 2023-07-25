@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
         const formattedCode = `${selectedGroup.agencyName}-${selectedGroup.name.slice(1,5)}-${randomBytes(2).toString('hex').toUpperCase()}`.toUpperCase();
         const qrCode = await QRCode.toString(
-            `https://localhost:3000/client/${formattedCode}`,
+            `https://localhost:3000/client?code=${formattedCode}`,
             { type: 'svg', errorCorrectionLevel: 'H'}
           );
         const expires = new Date();

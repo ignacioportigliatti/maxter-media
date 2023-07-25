@@ -13,15 +13,15 @@ type CodesModalProps = {
 const CodesModal = (props: CodesModalProps) => {
   const { selectedGroup, handleToggleModal } = props;
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-80">
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90">
       <div className="dark:bg-medium-gray w-full max-w-2xl mx-4 rounded-lg shadow-lg">
-        <div className="py-4 bg-dark-gray  text-white text-center rounded-t-lg">
-          <h2 className="text-xl font-semibold">{`Gestión de códigos - ${selectedGroup?.name} - ${selectedGroup?.agencyName}`}</h2>
+        <div className="py-4 bg-dark-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
+          <h2 className="text-lg uppercase font-light">{`Gestión de códigos - ${selectedGroup?.name} - ${selectedGroup?.agencyName}`}</h2>
           <button
             onClick={handleToggleModal}
-            className="absolute top-3 right-4"
+            
           >
-            <TfiClose className="w-5 h-5" />
+            <TfiClose className="w-4 h-4" />
           </button>
         </div>
         <div className="flex w-full">

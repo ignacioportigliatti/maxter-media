@@ -15,13 +15,42 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
 
 export const UserLogin = () => {
+  const [codeInput, setCodeInput] = React.useState("");
+  
   const router = useRouter();
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCodeInput(e.target.value);
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.push("/client/");
+
+    // Get the value of the input field
+    const formElement = e.currentTarget as HTMLFormElement;
+    const codeInput =
+      formElement.querySelector<HTMLInputElement>("#name")?.value;
+    console.log("codeinput", codeInput);
+    if (!codeInput) {
+      console.log("Code input is empty");
+      return;
+    }
+
+    try {
+      // Make a POST request to the verifyCode API endpoint
+      const response = await axios.post("/api/codes/verify", {
+        code: codeInput,
+      }).then((res) => res.data);
+      if (response.success) {
+        router.push(`/client?code=${response.code.code}`);
+      }
+    } catch (error) {
+      console.error("Error verifying code:", error);
+      // Handle errors, such as network issues or server errors
+    }
   };
 
   return (
@@ -65,20 +94,20 @@ export const UserLogin = () => {
                     id="name"
                     placeholder="Ingresa tu codigo"
                     className="dark:bg-white text-center text-2xl text-black py-6"
+                    onChange={handleOnChange}
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex gap-2 justify-center">
-              <Link href="/client/">
-                <Button
-                  type="submit"
-                  className="border border-white dark:text-white text-medium-gray"
-                  variant={"ghost"}
-                >
-                  Ver mi Material
-                </Button>
-              </Link>
+              <Button
+                disabled={!codeInput}
+                type="submit"
+                className="border border-white dark:text-white text-medium-gray"
+                variant={"ghost"}
+              >
+                Ver mi Material
+              </Button>
             </CardFooter>
           </form>
         </Card>

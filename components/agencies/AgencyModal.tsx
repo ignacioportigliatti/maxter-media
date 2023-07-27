@@ -4,10 +4,12 @@ import { TfiClose } from "react-icons/tfi";
 import axios from "axios";
 import { FileUpload, Input } from "@/components/ui/form";
 import { uploadGoogleStorageFile } from "@/utils";
+import { Agency } from "@prisma/client";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 
 interface AgencyModalProps {
   toggleModal: () => void;
-  handleEditAgency?: () => Promise<string>;
+  handleEditAgency?: () => Promise<Agency>;
   refresh?: () => void;
   buttonText: string;
 }
@@ -27,16 +29,22 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     logoSrc: "",
   });
 
+  const [primaryColor, setPrimaryColor] = useState<string>('#000000');
+  const [secondaryColor, setSecondaryColor] = useState<string>('#000000');
+  const [accentColor, setAccentColor] = useState<string>('#000000');
+
   const [formData, setFormData] = useState({
     name: "",
     location: "",
     phone: "",
     email: "",
     logoSrc: "",
+    primaryColor: "",
+    secondaryColor: "",
+    accentColor: "",
   });
 
   const [editMode, setEditMode] = useState(false);
-    
 
   const checkEditMode = async () => {
     if (!handleEditAgency) {
@@ -47,26 +55,32 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         phone: "",
         email: "",
         logoSrc: "",
+        primaryColor: "",
+        secondaryColor: "",
+        accentColor: "",
       });
       return;
     }
 
     setEditMode(true);
-    const agencyId = await handleEditAgency();
 
-    if (agencyId) {
-      const agencies = await axios.get("api/agencies/");
+    const agency: Agency = await handleEditAgency();
 
-      const agency = agencies.data.find((group: any) => group.id === agencyId);
-
+    if (agency) {
       try {
         setFormData({
           name: agency.name,
           location: agency.location,
           phone: agency.phone,
           email: agency.email,
-          logoSrc: agency.logoSrc,
+          logoSrc: agency.logoSrc as string,
+          primaryColor: agency.primaryColor as string,
+          secondaryColor: agency.secondaryColor as string,
+          accentColor: agency.accentColor as string,
         });
+        setPrimaryColor(agency.primaryColor as string);
+        setSecondaryColor(agency.secondaryColor as string);
+        setAccentColor(agency.accentColor as string);
       } catch (error) {
         console.error("Error al obtener el grupo:", error);
         toast.error("Error al obtener el grupo");
@@ -104,7 +118,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         formData.location.trim() === ""
           ? "El campo Provincia es requerido."
           : "",
-      logoSrc: (!editMode && !selectedFile) ? "El campo Logo es requerido." : "",
+      logoSrc: !editMode && !selectedFile ? "El campo Logo es requerido." : "",
     };
 
     setFormErrors(errors);
@@ -118,15 +132,15 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
 
     const checkName = () => {
       if (agencies.some((agency: any) => agency.name === formData.name)) {
-      toast.error("Ya existe una agencia con ese nombre", {
-        position: "top-right",
-        theme: "dark",
-        containerId: "toast-container",
-        autoClose: 3000,
-      });
-      return;
-    }
-  }
+        toast.error("Ya existe una agencia con ese nombre", {
+          position: "top-right",
+          theme: "dark",
+          containerId: "toast-container",
+          autoClose: 3000,
+        });
+        return;
+      }
+    };
 
     try {
       const fileUpload = async () => {
@@ -146,20 +160,23 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
       const filePath = await fileUpload();
 
       const getAPI = async () => {
-        const updatedFormData = { ...formData, logoSrc: filePath };
+        const updatedFormData = { ...formData, logoSrc: filePath, primaryColor, secondaryColor, accentColor };
         if (editMode) {
-        const response = await axios.post("/api/edit-agency", updatedFormData);
-        return response;
-      } else {
-        await checkName();
-        const response = await axios.post("/api/new-agency", updatedFormData);
-        
-        return response;
-      }
-    }
+          const response = await axios.post(
+            "/api/edit-agency",
+            updatedFormData
+          );
+          return response;
+        } else {
+          await checkName();
+          const response = await axios.post("/api/new-agency", updatedFormData);
 
-    const response = await getAPI();
-    
+          return response;
+        }
+      };
+
+      const response = await getAPI();
+
       console.log(response.data);
       const message = editMode ? `editada` : "agregada";
       if (response.data.success) {
@@ -193,7 +210,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   const maxWidth = 128;
   const maxHeight = 128;
 
-  const requiredFile = editMode ? true : false; 
+  const requiredFile = editMode ? true : false;
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -253,10 +270,13 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   const fileName = selectedFile?.name || "";
 
   const handleFileUpload = async (file: File) => {
-    
     try {
-
-      const filePath = await uploadGoogleStorageFile(file, 'agency-logos', 'maxter-app', true);
+      const filePath = await uploadGoogleStorageFile(
+        file,
+        "agency-logos",
+        "maxter-app",
+        true
+      );
 
       return filePath;
     } catch (error) {
@@ -277,7 +297,9 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">{editMode ? 'Editar empresa' : 'Agregar nueva empresa'}</h2>
+            <h2 className="text-white">
+              {editMode ? "Editar empresa" : "Agregar nueva empresa"}
+            </h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">
               <TfiClose className="w-5 h-5 text-white" />
             </button>
@@ -343,6 +365,24 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                   error={formErrors.logoSrc}
                   required={requiredFile}
                 />
+                <div className="grid grid-cols-3">
+                  <div className="flex flex-col justify-center items-center">
+                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color primario</label>
+                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={primaryColor} onChange={setPrimaryColor}/>
+                  <HexColorInput className="w-[150px] text-center" color={primaryColor} onChange={setPrimaryColor}/>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color secundario</label>
+                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={secondaryColor} onChange={setSecondaryColor}/>
+                  <HexColorInput className="w-[150px] text-center" color={secondaryColor} onChange={setSecondaryColor}/>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color de acento</label>
+                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={accentColor} onChange={setAccentColor}/>
+                  <HexColorInput className="w-[150px] text-center" color={accentColor} onChange={setAccentColor}/>
+                  </div>
+                  
+                </div>
 
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">
                   <button
@@ -368,5 +408,3 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     </div>
   );
 };
-
-

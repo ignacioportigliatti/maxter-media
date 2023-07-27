@@ -24,10 +24,15 @@ export async function POST(request: Request) {
         }
 
         const formattedCode = `${selectedGroup.agencyName}-${selectedGroup.name.slice(1,5)}-${randomBytes(2).toString('hex').toUpperCase()}`.toUpperCase();
-        const qrCode = await QRCode.toString(
-            `https://localhost:3000/client?code=${formattedCode}`,
-            { type: 'svg', errorCorrectionLevel: 'H'}
-          );
+        const generateQrCode = async (text: string) => {
+            try {
+                return await QRCode.toDataURL(text);
+            } catch (error) {
+                return error;
+            }
+        }
+        const qrCode = await generateQrCode(`https://localhost:3000/client?code=${formattedCode}`);
+       
         const expires = new Date();
         expires.setDate(expires.getDate() + 30);
             
@@ -39,7 +44,7 @@ export async function POST(request: Request) {
                 type: formData.type,
                 used: false,
                 groupId: groupId,
-                qrCode: qrCode,
+                qrCode: qrCode as string,
                 expires: expires
             },
             include: {

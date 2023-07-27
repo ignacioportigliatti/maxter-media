@@ -106,14 +106,13 @@ export const GroupModal: React.FC<GroupModalProps> = ({
     checkEditMode();
   }, []);
 
-
   const checkName = async () => {
     const groups = await getGroups();
     return groups.some(
-      (group: any) => group.name === formData.name && group.name !== groupToEdit?.name
+      (group: any) =>
+        group.name === formData.name && group.name !== groupToEdit?.name
     );
   };
-  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -149,13 +148,12 @@ export const GroupModal: React.FC<GroupModalProps> = ({
     }
 
     try {
-
       const nameExists = await checkName();
 
-    if (nameExists && formData.name !== groupToEdit?.name) {
-      toast.error("Ya existe un grupo con ese nombre");
-      return;
-    }
+      if (nameExists && formData.name !== groupToEdit?.name) {
+        toast.error("Ya existe un grupo con ese nombre");
+        return;
+      }
 
       const updatedFormData = {
         ...formData,
@@ -165,10 +163,11 @@ export const GroupModal: React.FC<GroupModalProps> = ({
 
       const getResponseFromAPI = async () => {
         if (editMode) {
-
-              const response = await axios.post("/api/groups/edit", updatedFormData);
-              return response;
-           
+          const response = await axios.post(
+            "/api/groups/edit",
+            updatedFormData
+          );
+          return response;
         } else {
           await checkName();
           const response = await axios.post("/api/groups/add", updatedFormData);
@@ -213,9 +212,9 @@ export const GroupModal: React.FC<GroupModalProps> = ({
       <ToastContainer />
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
-          <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">
-              {editMode ? "Editar Grupo" : "Añadir Grupo"}
+          <div className="py-4 bg-medi-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
+            <h2 className="text-lg uppercase font-light">
+              {`${editMode ? `Editar ${formData?.name} - ${groupToEdit?.agencyName ? selectedAgency.name : ''}` : "Agregar Grupo"}`}
             </h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">
               <TfiClose className="w-5 h-5 text-white" />
@@ -250,13 +249,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                 <div>
                   <Select
                     options={agencies.map((agency) => ({
-                      name: agency.name,
-                      id: agency.id,
-                      phone: agency.phone,
-                      email: agency.email,
-                      location: agency.location,
-                      logoSrc: agency.logoSrc,
-                      groupIds: agency.groupIds,
+                      ...agency,
                     }))}
                     label="Empresa"
                     id="empresa"
@@ -267,19 +260,13 @@ export const GroupModal: React.FC<GroupModalProps> = ({
 
                       if (selectedAgency) {
                         setSelectedAgency({
+                          ...selectedAgency,
                           id: selectedOption.target.value,
-                          name: selectedAgency.name,
-                          location: selectedAgency.location,
-                          phone: selectedAgency.phone,
-                          email: selectedAgency.email,
-                          logoSrc: selectedAgency.logoSrc,
-                          groupIds: selectedAgency.groupIds,
                         });
                       }
                     }}
                     value={selectedAgency.id}
                     error={formErrors.agency}
-                    
                   />
                 </div>
                 <div>

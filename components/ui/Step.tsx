@@ -1,4 +1,6 @@
+import { Agency } from "@prisma/client";
 import { AiOutlineAccountBook } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 interface StepProps {
   title: string;
@@ -6,6 +8,7 @@ interface StepProps {
   stepNumber: number;
   icon?: React.ReactNode;
   ribbonColor?: string;
+
 }
 
 export const Step = (props: StepProps) => {
@@ -13,9 +16,12 @@ export const Step = (props: StepProps) => {
     title,
     description,
     stepNumber,
+
     icon = <AiOutlineAccountBook className="w-8 h-8" />,
-    ribbonColor = "bg-orange-500",
   } = props;
+
+  const agency: Agency = useSelector((state: any) => state.agency);
+
   return (
     <div className="content-center lg:flex lg:justify-center lg:items-center">
       <div className="flex justify-center pt-10 m-auto lg:mx-6">
@@ -31,11 +37,11 @@ export const Step = (props: StepProps) => {
               <p className="pt-1 text-sm text-gray-600">{description}</p>
             </div>
           </div>
-          <div className="absolute flex justify-center items-center z-20 w-12 h-12 mt-6 ml-6 bg-white text-orange-500 rounded-full">
+          <div className={`absolute flex justify-center items-center z-20 w-12 h-12 mt-6 ml-6 bg-white rounded-full`} style={{color: agency.primaryColor as string}}>
             {icon}
           </div>
           <div
-            className={`absolute top-0 left-0 z-10 w-24 h-40 py-20 text-5xl font-bold text-center text-white ${ribbonColor} rounded-lg`}
+            className={`absolute top-0 left-0 z-10 w-24 h-40 py-20 text-5xl font-bold text-center text-white bg-primary rounded-lg`} style={{backgroundColor: agency.primaryColor as string}}
           >
             {stepNumber < 10 ? `0${stepNumber}` : stepNumber}
           </div>

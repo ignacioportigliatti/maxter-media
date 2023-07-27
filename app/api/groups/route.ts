@@ -49,6 +49,12 @@ export async function DELETE(request: Request) {
       },
     });
 
+    await prisma.codes.deleteMany({
+      where: {
+        groupId: String(id),
+      },
+    });
+
     console.log(`Group ${id} deleted`);
 
     return NextResponse.json({ success: true }); // Agrega la propiedad "success" a la respuesta

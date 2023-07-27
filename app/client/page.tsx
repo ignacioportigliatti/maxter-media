@@ -2,16 +2,17 @@
 
 import { Steps } from "@/components/home/Steps";
 import { useSelector } from "react-redux";
-import { Group } from "@prisma/client";
+import { Agency, Group } from "@prisma/client";
 
 export default function ClientHome() {
   const group: Group = useSelector((state: any) => state.group);
+  const agency: Agency = useSelector((state: any) => state.agency);
 
   return (
     <div className="w-full">
-      <div className="dark:bg-dark-gray flex flex-row items-center justify-between themeTransition bg-gray-200 py-[20px] px-6 text-black dark:text-white drop-shadow-sm">
+      <div style={{background: agency.primaryColor as string}} className=" flex flex-row items-center justify-between themeTransition py-[20px] px-6 text-black dark:text-white drop-shadow-sm">
         <div>
-          <h2>{`Inicio`}</h2>
+          <h2 className="font-light">{`Inicio`}</h2>
         </div>
         {group && (
           <div className="flex flex-col justify-end items-end">

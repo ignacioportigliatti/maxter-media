@@ -26,7 +26,7 @@ interface SidebarProps {
 export const Sidebar = (props: SidebarProps) => {
   const { navigationItems } = props;
   const { theme, setTheme } = useTheme();
-
+  
   const handleThemeChange = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };

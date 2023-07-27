@@ -1,9 +1,13 @@
 'use client'
 
 import { Step } from "@/components/ui";
+import { Agency } from "@prisma/client";
 import { AiOutlineCloudDownload, AiOutlinePlayCircle, AiOutlineSearch } from "react-icons/ai"
+import { useSelector } from "react-redux";
+
 
 export const Steps = () => {
+  
   return (
     <div className="flex flex-row flex-wrap">
       <Step

@@ -4,7 +4,7 @@ import "../globals.css";
 import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Sidebar } from "@/components/admin/Sidebar";
+import { ClientSidebar } from "@/components/client/ClientSidebar";
 import { TbPhotoAi } from "react-icons/tb";
 import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { useEffect, useState } from "react";
@@ -13,7 +13,7 @@ import { Agency, Codes, Group } from "@prisma/client";
 import { useSelectGroup } from "@/redux/client/groupManager";
 import axios from "axios";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export const metadata = {
   title: "Maxter",
@@ -26,23 +26,7 @@ interface FolderWithPhotos {
   thumbnail: string;
 }
 
-const navigationItems = [
-  {
-    label: "Inicio",
-    icon: <AiOutlineHome />,
-    href: "/client/",
-  },
-  {
-    label: "Mis Videos",
-    icon: <AiOutlineVideoCamera />,
-    href: "/client/my-videos",
-  },
-  {
-    label: "Mis Fotos",
-    icon: <TbPhotoAi />,
-    href: "/client/my-photos",
-  },
-];
+
 export default function RootLayout({
   children,
 }: {
@@ -54,6 +38,24 @@ export default function RootLayout({
   const [code, setCode] = useState({} as Codes);
 
   const searchParams = useSearchParams();
+
+  const navigationItems = [
+    {
+      label: "Inicio",
+      icon: <AiOutlineHome className="w-5 h-5"/>,
+      href: `/client?code=${code.code}`,
+    },
+    {
+      label: "Mis Videos",
+      icon: <AiOutlineVideoCamera className="w-5 h-5"/>,
+      href: `/client/my-videos?code=${code.code}`,
+    },
+    {
+      label: "Mis Fotos",
+      icon: <TbPhotoAi className="w-5 h-5"/>,
+      href: `/client/my-photos?code=${code.code}`,
+    },
+  ];
 
   const setGroup = async (group: Group) => {
     try {
@@ -138,19 +140,21 @@ export default function RootLayout({
             })
             .then((res) => res.data);
           if (response.success) {
-            setGroup(response.selectedGroup);
             setIsVerified(true);
             setCode(response.code);
+            setGroup(response.selectedGroup).finally(() => {
+              setIsLoading(false);
+            });
             return true;
           }
         } catch (error) {
+          setIsVerified(false)
+          setIsLoading(false);
           console.error("Error verificando el código", error);
         }
       };
 
-      verifyCode().finally(() => {
-        setIsLoading(false);
-      });
+      verifyCode()
     } catch (error) {
       console.error("Error al obtener el grupo", error);
     }
@@ -168,7 +172,7 @@ export default function RootLayout({
         <div className="flex">
           <ToastContainer />
           <div className="hidden lg:flex">
-            <Sidebar navigationItems={navigationItems} />
+            <ClientSidebar navigationItems={navigationItems} />
           </div>
           <div className="lg:h-full flex mx-auto w-full">{children}</div>
         </div>

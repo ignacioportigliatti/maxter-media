@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   //Getting body
   const body = await request.json();
   //Extracting body
-  const { name, location, phone, email, logoSrc } = body;
+  const { name, location, phone, email, logoSrc, primaryColor, secondaryColor, accentColor } = body;
   //Creating group
   try {
     // Crea un nuevo grupo con los datos del formulario
@@ -21,6 +21,9 @@ export async function POST(request: Request) {
             phone: phone,
             email: email,
             logoSrc: logoSrc,
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor,
+            accentColor: accentColor,
           },
         });
 

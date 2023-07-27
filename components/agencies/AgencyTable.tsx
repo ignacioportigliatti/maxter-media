@@ -52,16 +52,15 @@ export const AgencyTable = () => {
     handleEditAgency(selectedAgency);
   };
 
-  const handleEditAgency = async (selectedGroup: Agency | null) => {
+  const handleEditAgency = async (selectedAgency: Agency | null) => {
     setShowModal(true);
-    const agencies = await axios.get("/api/agencies");
-
-    const agencyObj = await agencies.data.find(
-      (group: Agency) => group.id === selectedGroup?.id
+    const agencies = await axios.get("/api/agencies").then((res) => res.data);
+    console.log(agencies.data);
+    const agencyObj = await agencies.find(
+      (agency: Agency) => agency.id === selectedAgency?.id
     );
 
-    const agencyToEdit: string = agencyObj.id;
-    return agencyToEdit;
+    return agencyObj; 
   };
 
   const handleAddGroup = () => {

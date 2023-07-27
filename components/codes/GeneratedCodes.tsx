@@ -1,10 +1,19 @@
 "use client";
 
-import { Codes, Group } from "@prisma/client";
+import { Agency, Codes, Group } from "@prisma/client";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { AiOutlineDelete, AiOutlineExport, AiOutlineFileImage, AiOutlineFilePdf, AiOutlineWhatsApp } from "react-icons/ai";
+import React, { useEffect, useState } from "react";
+import {
+  AiOutlineDelete,
+  AiOutlineFileImage,
+  AiOutlineFilePdf,
+  AiOutlineLoading,
+  AiOutlineWhatsApp,
+} from "react-icons/ai";
 import { Pagination } from "../ui";
+
+import { CodePdfTemplate } from "./CodePdfTemplate";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 type GeneratedCodesProps = {
   selectedGroup: Group;
@@ -13,6 +22,7 @@ type GeneratedCodesProps = {
 const GeneratedCodes = (props: GeneratedCodesProps) => {
   const { selectedGroup } = props;
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [selectedAgency, setSelectedAgency] = React.useState<Agency>();
   const [groupCodes, setGroupCodes] = useState<Codes[]>([]);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -39,7 +49,20 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     }
   };
 
+  const getSelectedAgency = async (group: Group) => {
+    const agencies: Agency[] = await axios
+      .get("/api/agencies")
+      .then((res) => res.data);
+    const selectedAgency = agencies.find(
+      (agency: any) => agency.name === group.agencyName
+    );
+    setSelectedAgency(selectedAgency);
+    return selectedAgency;
+  };
+
+
   const getGroupCodes = async () => {
+    await getSelectedAgency(selectedGroup);
     try {
       const res = await axios
         .post("/api/codes/get", {
@@ -63,6 +86,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
 
   useEffect(() => {
     getGroupCodes();
+   
   }, [sortConfig]);
 
   const sortCodes = (
@@ -107,6 +131,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       console.error(error);
     }
   };
+
 
   return (
     <div className="w-full">
@@ -194,9 +219,15 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                   {code.included === true ? "Si" : "No"}
                 </td>
                 <td align="center" id="rowDelete">
-                  <button>
-                    <AiOutlineFilePdf className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
-                  </button>
+                <div className="flex flex-row justify-center items-center">
+                <PDFDownloadLink
+                    document={<CodePdfTemplate code={code} selectedGroup={selectedGroup} selectedAgency={selectedAgency as Agency} />}
+                    fileName={code.code}
+                  >
+                    {({ blob, url, loading, error }) =>
+                      loading ? <AiOutlineLoading /> : <AiOutlineFilePdf className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                    }
+                  </PDFDownloadLink>
                   <button>
                     <AiOutlineFileImage className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
                   </button>
@@ -206,6 +237,8 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                   <button onClick={() => handleDelete(code.id)}>
                     <AiOutlineDelete className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
                   </button>
+                </div>
+
                 </td>
               </tr>
             ))}
@@ -214,10 +247,11 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       <div className="scale-95">
         {groupCodes.length > itemsPerPage && (
           <Pagination
-          totalItems={groupCodes.length}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={handlePageChange}
-        />)}
+            totalItems={groupCodes.length}
+            itemsPerPage={itemsPerPage}
+            handlePageChange={handlePageChange}
+          />
+        )}
       </div>
     </div>
   );

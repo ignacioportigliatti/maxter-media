@@ -10,17 +10,6 @@ export default function ClientHome() {
 
   return (
     <div className="w-full">
-      <div style={{background: agency.primaryColor as string}} className=" flex flex-row items-center justify-between themeTransition py-[20px] px-6 text-black dark:text-white drop-shadow-sm">
-        <div>
-          <h2 className="font-light">{`Inicio`}</h2>
-        </div>
-        {group && (
-          <div className="flex flex-col justify-end items-end">
-            <h4>{`Escuela ${group.school} `}</h4>
-            <h5 className="text-xs">{`${group.name} - ${group.agencyName}`}</h5>
-          </div>
-        )}
-      </div>
       <div className="flex flex-col justify-start items-center mx-auto p-7">
         <div className="text-center">
           <h4 className="-mb-[5px]">PROMO 2023</h4>

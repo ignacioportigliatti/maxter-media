@@ -14,6 +14,7 @@ import { useSelectGroup } from "@/redux/client/groupManager";
 import axios from "axios";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import { useSearchParams } from "next/navigation";
+import ClientHeader from "@/components/client/ClientHeader";
 
 export const metadata = {
   title: "Maxter",
@@ -26,7 +27,6 @@ interface FolderWithPhotos {
   thumbnail: string;
 }
 
-
 export default function RootLayout({
   children,
 }: {
@@ -36,23 +36,26 @@ export default function RootLayout({
   const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [code, setCode] = useState({} as Codes);
+  const [selectedGroup, setSelectedGroup] = useState({} as Group);
+  const [agency, setAgency] = useState({} as Agency);
+  const [selectedNavItemLabel, setSelectedNavItemLabel] = useState("");
 
   const searchParams = useSearchParams();
 
   const navigationItems = [
     {
       label: "Inicio",
-      icon: <AiOutlineHome className="w-5 h-5"/>,
+      icon: <AiOutlineHome className="w-5 h-5" />,
       href: `/client?code=${code.code}`,
     },
     {
       label: "Mis Videos",
-      icon: <AiOutlineVideoCamera className="w-5 h-5"/>,
+      icon: <AiOutlineVideoCamera className="w-5 h-5" />,
       href: `/client/my-videos?code=${code.code}`,
     },
     {
       label: "Mis Fotos",
-      icon: <TbPhotoAi className="w-5 h-5"/>,
+      icon: <TbPhotoAi className="w-5 h-5" />,
       href: `/client/my-photos?code=${code.code}`,
     },
   ];
@@ -118,6 +121,8 @@ export default function RootLayout({
           };
         })
       );
+      setSelectedGroup(group);
+      setAgency(selectedAgency);
 
       selectGroup(group, videos, signedPhotos, selectedAgency);
     } catch (error) {
@@ -148,13 +153,13 @@ export default function RootLayout({
             return true;
           }
         } catch (error) {
-          setIsVerified(false)
+          setIsVerified(false);
           setIsLoading(false);
           console.error("Error verificando el código", error);
         }
       };
 
-      verifyCode()
+      verifyCode();
     } catch (error) {
       console.error("Error al obtener el grupo", error);
     }
@@ -169,15 +174,24 @@ export default function RootLayout({
           </div>
         </div>
       ) : isVerified ? (
-        <div className="flex">
+        <div className="flex w-screen h-screen">
           <ToastContainer />
-          <div className="hidden lg:flex">
-            <ClientSidebar navigationItems={navigationItems} />
+          <div className="flex w-full">
+            <div className="min-h-screen">
+              <ClientSidebar
+                navigationItems={navigationItems}
+                agency={agency}
+                setSelectedNavItemLabel={setSelectedNavItemLabel}
+              />
+            </div>
+            <div className="lg:h-full flex flex-col mx-auto w-full">
+              <ClientHeader agency={agency} selectedGroup={selectedGroup} selectedNavItemLabel={selectedNavItemLabel}/>
+              <div className="h-full">{children}</div>
+            </div>
           </div>
-          <div className="lg:h-full flex mx-auto w-full">{children}</div>
         </div>
       ) : (
-        <div>
+        <div className="flex w-screen h-screen justify-center items-center">
           <h1>El código no es válido</h1>
         </div>
       )}

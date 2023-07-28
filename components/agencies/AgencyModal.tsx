@@ -29,9 +29,9 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     logoSrc: "",
   });
 
-  const [primaryColor, setPrimaryColor] = useState<string>('#000000');
-  const [secondaryColor, setSecondaryColor] = useState<string>('#000000');
-  const [accentColor, setAccentColor] = useState<string>('#000000');
+  const [primaryColor, setPrimaryColor] = useState<string>("#000000");
+  const [secondaryColor, setSecondaryColor] = useState<string>("#000000");
+  const [accentColor, setAccentColor] = useState<string>("#000000");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -160,7 +160,13 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
       const filePath = await fileUpload();
 
       const getAPI = async () => {
-        const updatedFormData = { ...formData, logoSrc: filePath, primaryColor, secondaryColor, accentColor };
+        const updatedFormData = {
+          ...formData,
+          logoSrc: filePath,
+          primaryColor,
+          secondaryColor,
+          accentColor,
+        };
         if (editMode) {
           const response = await axios.post(
             "/api/edit-agency",
@@ -367,21 +373,59 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                 />
                 <div className="grid grid-cols-3">
                   <div className="flex flex-col justify-center items-center">
-                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color primario</label>
-                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={primaryColor} onChange={setPrimaryColor}/>
-                  <HexColorInput className="w-[150px] text-center" color={primaryColor} onChange={setPrimaryColor}/>
+                    <label
+                      className="text-left text-sm w-full pl-4 pb-1"
+                      key="primary-color"
+                    >
+                      Color primario
+                    </label>
+                    <HexColorPicker
+                      className="!max-w-[150px] !rounded-b-none max-h-32"
+                      color={primaryColor}
+                      onChange={setPrimaryColor}
+                    />
+                    <HexColorInput
+                      className="w-[150px] text-center"
+                      color={primaryColor}
+                      onChange={setPrimaryColor}
+                    />
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color secundario</label>
-                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={secondaryColor} onChange={setSecondaryColor}/>
-                  <HexColorInput className="w-[150px] text-center" color={secondaryColor} onChange={setSecondaryColor}/>
+                    <label
+                      className="text-left text-sm w-full pl-4 pb-1"
+                      key="primary-color"
+                    >
+                      Color secundario
+                    </label>
+                    <HexColorPicker
+                      className="!max-w-[150px] !rounded-b-none max-h-32"
+                      color={secondaryColor}
+                      onChange={setSecondaryColor}
+                    />
+                    <HexColorInput
+                      className="w-[150px] text-center"
+                      color={secondaryColor}
+                      onChange={setSecondaryColor}
+                    />
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                  <label className="text-left text-sm w-full pl-4 pb-1" key='primary-color'>Color de acento</label>
-                  <HexColorPicker  className="!max-w-[150px] !rounded-b-none max-h-32" color={accentColor} onChange={setAccentColor}/>
-                  <HexColorInput className="w-[150px] text-center" color={accentColor} onChange={setAccentColor}/>
+                    <label
+                      className="text-left text-sm w-full pl-4 pb-1"
+                      key="primary-color"
+                    >
+                      Color de acento
+                    </label>
+                    <HexColorPicker
+                      className="!max-w-[150px] !rounded-b-none max-h-32"
+                      color={accentColor}
+                      onChange={setAccentColor}
+                    />
+                    <HexColorInput
+                      className="w-[150px] text-center"
+                      color={accentColor}
+                      onChange={setAccentColor}
+                    />
                   </div>
-                  
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">

@@ -3,6 +3,7 @@ import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
 import { UploadGroupsTable } from "./";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import UploadQueue from "./UploadQueue";
+import Uppy from "@uppy/core";
 
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
@@ -16,6 +17,8 @@ export const UploadTabs = () => {
   const showUploadQueue = () => {
     setShowModal((prev) => !prev);
   };
+
+  const videoUppy = new Uppy();
 
   return (
     <div className="w-full mx-auto justify-center items-start border dark:border-gray-500 border-gray-200">
@@ -61,23 +64,13 @@ export const UploadTabs = () => {
           <AiOutlineCloudUpload className="text-white w-5 h-5" />
         </button>
       </div>
-      <div className="">
-        {activeTab === "photos" && showModal && (
-          <UploadQueue
-            toggleModal={showUploadQueue}
-            activeTab={activeTab}
-          />
-        )}
-        {activeTab === "videos" && showModal && (
-          <UploadQueue
-            toggleModal={showUploadQueue}
-            activeTab={activeTab}
-          />
-        )}
+        {showModal && (
+      <div className="fixed top-0 left-0 min-w-full px-56 py-24 h-screen z-50 bg-black/90">
+          <UploadQueue toggleModal={showUploadQueue} activeTab={activeTab} />
       </div>
+        )}
       <div className="mx-auto">
-        {activeTab === "photos" && <UploadGroupsTable activeTab={activeTab} />}
-        {activeTab === "videos" && <UploadGroupsTable activeTab={activeTab} />}
+        <UploadGroupsTable activeTab={activeTab} />
       </div>
     </div>
   );

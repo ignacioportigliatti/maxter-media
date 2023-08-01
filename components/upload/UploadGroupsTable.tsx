@@ -9,6 +9,8 @@ import { Pagination } from "@/components/ui/";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
 import { TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
 import { getGroups } from "@/utils";
+import { useSelector } from "react-redux";
+import Uppy from "@uppy/core";
 
 interface UploadGroupsTableProps {
   activeTab: string;
@@ -28,7 +30,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [groups, setGroups] = useState<Group[]>([]);
+  const groups: Group[] = useSelector((state: any) => state.groups);
   const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
     undefined
   );
@@ -47,18 +49,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
     ascending: true,
   });
 
-  useEffect(() => {
-    fetchGroups();
-  }, []);
 
-  const fetchGroups = async () => {
-    try {
-      const groups: Group[] = await getGroups()
-      setGroups(groups);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const handleToggleModal = () => {
     setShowAutoModal((modal) => !modal);
@@ -66,10 +57,6 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
 
   const handleDeleteModal = () => {
     setShowDeleteModal((modal) => !modal);
-  };
-
-  const confirmDeleteModal = async () => {
-    await setShowDeleteModal(true);
   };
 
   const handleDragEnter = (
@@ -334,6 +321,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
           filesToUpload={filesToUpload}
           selectedGroup={selectedGroup}
           isDragging={isDragging}
+
         />
       )}
 

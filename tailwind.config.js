@@ -2,7 +2,7 @@
 module.exports = {
   darkMode: ["class"],
   safelist: [
-    {pattern: /bg-([])/,},
+    {pattern: /bg-./,},
   ],
   content: [
     './pages/**/*.{ts,tsx}',

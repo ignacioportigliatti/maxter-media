@@ -1,356 +1,187 @@
-import React, { useContext, useEffect, useState } from "react";
-import { VideoUploadContext } from "./VideoUploadContext";
-import { toast } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
+import { Dashboard, ProgressBar } from "@uppy/react";
+import AwsS3 from "@uppy/aws-s3";
+import Uppy, { UppyFile } from "@uppy/core";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import {
+  UploadData,
+  VideoUploadContext,
+  useVideoUploadContext,
+} from "./VideoUploadContext";
 import { PhotoUploadContext } from "./PhotoUploadContext";
-import { uploadGoogleStorageFile } from "@/utils/googleStorage/";
-import { generateVideoThumbnail } from "@/utils/generateVideoThumbnail";
-import JSZip from "jszip";
-import FastQ from "fastq";
+import Spanish from "@uppy/locales/lib/es_ES";
+import { toast } from "react-toastify";
 
 interface UploadQueueProps {
   toggleModal: () => void;
   activeTab: string;
 }
 
-interface UploadTask {
-  file: File;
-  uploadData: any;
-}
+const UploadQueue: React.FC<UploadQueueProps> = ({
+  toggleModal,
+  activeTab,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [uppy, setUppy] = useState<Uppy>();
 
-const UploadQueue = (props: UploadQueueProps) => {
-  const { toggleModal, activeTab } = props;
+  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } =
+    useVideoUploadContext();
+  const [uploadFinished, setUploadFinished] = useState(false);
 
-  const uploadQueueContext =
-    props.activeTab === "videos"
-      ? useContext(VideoUploadContext)
-      : useContext(PhotoUploadContext);
-  const { uploadQueue, deleteFromUploadQueue } = uploadQueueContext;
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadQueueState, setUploadQueueState] =
-    useState<[File, any][]>(uploadQueue);
-  const [uploadingProgress, setUploadingProgress] = useState<number[]>([]);
-  const [photoProgress, setPhotoProgress] = useState<{
-    [filename: string]: number;
-  }>({});
+  const getUppy = async () => {
+    if (activeTab === "videos") {
+      const videoUppy = new Uppy().use(AwsS3, {
+        limit: 1,
+        shouldUseMultipart: false, // use multipart upload for files larger than 100 MB
+        async getUploadParameters(file: UppyFile) {
+          const response = await axios.post("/api/sign-url", {
+            bucketName: "maxter-media",
+            fileName: `media/${file.meta.groupName}/videos/${file.name}`,
+            isUpload: true,
+            contentType: file.type,
+          });
+          return response.data;
+        },
+      });
 
-  useEffect(() => {
-    console.log("uploadQueue", uploadQueue);
-    setUploadQueueState(uploadQueue);
-  }, [uploadQueue]);
-
-  const uploadFiles = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      if (isSubmitting) {
-        return;
-      }
-
-      if (uploadQueue.length === 0) {
-        toast.info("Cola Vacia, no hay archivos para subir");
-        toggleModal();
-        return;
-      }
-
-      setIsSubmitting(true);
-
-      const uploadQueueTasks: UploadTask[] = uploadQueue.map(
-        ([file, uploadData]) => ({
-          file,
-          uploadData,
-        })
-      );
-
-      const uploadingQueue = FastQ(async (task: UploadTask, cb) => {
-        try {
-          const bucketName = "maxter-media";
-          const filePath = `media/${task.uploadData.groupName}/${activeTab}`;
-
-          if (activeTab === "videos") {
-            console.log("Generating thumbnail");
-            const thumbnail = await generateVideoThumbnail(task.file);
-            console.log("thumbnail", thumbnail);
-            const thumbnailPath = `media/${task.uploadData.groupName}/videos/thumbs`;
-            const thumbnailFile = await uploadGoogleStorageFile(
-              thumbnail as File,
-              thumbnailPath,
-              bucketName
-            );
-            console.log("thumbnailFile uploaded", thumbnailFile);
-            toast.update("uploading", {
-              render: "Subiendo video",
-              type: "info",
-              autoClose: false,
-            });
-            const uploadedFile = await uploadGoogleStorageFile(
-              task.file,
-              filePath,
-              bucketName
-            );
-            const fileId = uploadedFile.id;
-
-            const formData = new FormData();
-            formData.append("fileId", fileId);
-            formData.append("groupId", task.uploadData.groupId as string);
-
-            const response = await fetch(`/api/upload/${activeTab}`, {
-              method: "POST",
-              body: formData,
-            });
-
-            if (response.ok) {
-              console.log("response", response.json());
-
-              toast.success("Video subido correctamente");
-            } else {
-              throw new Error("Error al subir el video");
-            }
-          } else if (activeTab === "photos") {
-            const unzipFile = async (file: File) => {
-              return new Promise<File[]>((resolve, reject) => {
-                const unzip = new JSZip();
-                unzip.loadAsync(file).then((zip) => {
-                  const fileEntries = Object.entries(zip.files);
-                  const filteredEntries = fileEntries.filter(
-                    ([fileName, file]) => {
-                      return !file.dir;
-                    }
-                  );
-                  const groups = [];
-                  const groupSize = 10; // Número de archivos a subir simultáneamente
-
-                  for (let i = 0; i < filteredEntries.length; i += groupSize) {
-                    groups.push(filteredEntries.slice(i, i + groupSize));
-                  }
-
-                  const promises = groups.map((group) => {
-                    const groupPromises = group.map(([fileName, file]) => {
-                      return file.async("blob").then((blob) => {
-                        const fileType = "image/jpg";
-                        const convertedFile = new File([blob], fileName, {
-                          type: fileType,
-                        });
-                        return convertedFile;
-                      });
-                    });
-                    return Promise.all(groupPromises);
-                  });
-
-                  Promise.all(promises)
-                    .then((groupedFiles) => {
-                      const files = groupedFiles.flat();
-                      resolve(files);
-                    })
-                    .catch((error) => {
-                      reject(error);
-                    });
-                });
-              });
-            };
-
-            const files: any = await unzipFile(task.file);
-            console.log("blobs", files);
-            const totalFiles = files.length;
-            let processedFiles = 0;
-
-            const updatePhotoProgress = (fileName: string, progress: number) => {
-              setPhotoProgress((prevProgress) => ({
-                ...prevProgress,
-                [fileName]: progress,
-              }));
-            };
-
-           
-
-            const toastId = toast("Subiendo fotos", {
-              type: "info",
-              autoClose: false,
-            });
-            toast.update(toastId, {
-              render: `Subiendo fotos del grupo ${task.uploadData.groupName}`,
-              type: "info",
-              autoClose: false,
-            });
-            
-            const uploadPromises = files.map((file: File, i: number) => {
-              return new Promise((resolve, reject) => {
-                const progressInterval = setInterval(() => {
-                  const progress = (i + 1) / files.length;
-                  updatePhotoProgress(file.name, Math.round(progress * 100));
-                }, 100); // Actualiza el progreso cada 100 ms
-        
-                uploadGoogleStorageFile(file, filePath, bucketName)
-                  .then((uploadedFile) => {
-                    clearInterval(progressInterval); // Detiene la actualización del progreso
-                    resolve(uploadedFile);
-                  })
-                  .catch((error) => {
-                    clearInterval(progressInterval); // Detiene la actualización del progreso
-                    reject(error);
-                  });
-              });
-            });
-        
-
-            const uploadedFiles = await Promise.all(
-              uploadPromises.map((uploadPromise: any, i: any) => {
-                return new Promise((resolve, reject) => {
-                  uploadPromise
-                    .then((uploadedFile: any) => {
-                      const progress = (i + 1) / uploadPromises.length;
-                      setUploadingProgress((prevProgress) => {
-                        const updatedProgress = [...prevProgress];
-                        updatedProgress[i] = progress;
-                        return updatedProgress;
-                      });
-                      resolve(uploadedFile);
-                    })
-                    .catch((error: Error) => {
-                      reject(error);
-                    });
-                });
-              })
-            );
-
-            console.log("uploadedFiles", uploadedFiles);
-            const fileIds = uploadedFiles.map((file) => file.id);
-            const formData = new FormData();
-            formData.append("fileIds", JSON.stringify(fileIds));
-            formData.append("groupId", task.uploadData.groupId as string);
-
-            const response = await fetch(`/api/upload/${activeTab}`, {
-              method: "POST",
-              body: formData,
-            });
-
-            if (response.ok) {
-              console.log("response", response.json());
-
-              toast.success(`Archivo ${task.file.name} subido correctamente`);
-            } else {
-              throw new Error(`Error al subir el archivo ${task.file.name}`);
-            }
-          } else {
-            toast.error(`Error al subir el archivo ${task.file.name}`);
-            throw new Error(`Error al subir el archivo ${task.file.name}`);
-          }
-
-          // Llama a `cb` para notificar que el trabajo ha finalizado correctamente
-          cb(null);
-        } catch (error) {
-          console.error(error);
-          toast.error(`Error al subir el archivo ${task.file.name}`);
-
-          // Llama a `cb` con el error para notificar que el trabajo ha fallado
-          cb(error as Error);
-        }
-      }, 1); // Establece la concurrencia en 1
-
-      uploadingQueue.drain();
-
-      uploadQueueTasks.forEach((task) => {
-        uploadingQueue.push(task, (err: any) => {
-          if (err) {
-            console.error(err);
-            toast.error(
-              "Error al subir los archivos, por favor intenta de nuevo"
-            );
-          }
+      uploadQueue.map(([file, data]: [file: UppyFile, data: any]) => {
+        videoUppy.addFile({
+          name: file.name,
+          type: file.type,
+          data: file.data,
+          meta: {
+            groupId: data.groupId,
+            groupName: data.groupName,
+            agencyName: data.agencyName,
+            fileName: data.fileName,
+          },
         });
       });
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al subir los archivos, por favor intenta de nuevo");
-      setIsSubmitting(false);
+
+      setUppy(videoUppy);
+    } else if (activeTab === "photos") {
+      const photoUppy = new Uppy({ locale: Spanish }).use(AwsS3, {
+        limit: 1,
+        shouldUseMultipart: (file: UppyFile) => file.size > 100 * 2 ** 20, // use multipart upload for files larger than 100 MB
+        async getUploadParameters(file: UppyFile) {
+          const response = await axios.post("/api/sign-url", {
+            bucketName: "maxter-media",
+            fileName: `media/photos/${file.name}`,
+            isUpload: true,
+            contentType: file.type,
+          });
+          return response.data;
+        },
+      });
+      setUppy(photoUppy);
     }
   };
 
-  const handleDelete = async (file: File, uploadData: any) => {
-    try {
-      const newQueue = await deleteFromUploadQueue(file, uploadData);
-      setUploadQueueState(newQueue as any);
-      console.log("newQueue", newQueue);
-      toast.success("Archivo eliminado de la cola de subida");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al eliminar el archivo de la cola de subida");
+  const uploadFiles = async () => {
+    if (uppy) {
+      uppy
+        .on("upload", (data) => {
+          toast.info(`Subiendo ${data.fileIDs.length} archivo(s)`);
+        })
+        .on("file-removed", (file) => {
+          deleteFromUploadQueue(file, file.meta as UploadData);
+        })
+        .on("complete", (result) => {
+          console.log(
+            "Upload complete! We’ve uploaded these files:",
+            result.successful
+          );
+
+         
+          result.successful.map((file) => {
+            uppy.removeFile(file.id);
+            const data: UploadData = {
+              groupId: file.meta.groupId as string,
+              groupName: file.meta.groupName as string,
+              agencyName: file.meta.agencyName as string,
+              fileName: file.meta.fileName as string,
+            };
+            deleteFromUploadQueue(file, data);
+          });
+        });
+      uppy.upload();
     }
   };
-  
+
+  useEffect(() => {
+    setIsLoading(true);
+    const setUppyInstance = async () => {
+      await getUppy();
+    };
+    setUppyInstance().then(() => {
+      setIsLoading(false);
+    });
+  }, []);
 
   return (
-    <div>
-      <div className="animate-in animate-out z-50 duration-500 fade-in flex justify-center items-center h-full min-h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
-        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[60%]">
-          <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">Cola de Subida</h2>
-            <button onClick={toggleModal} className="absolute top-3 right-4">
-              <TfiClose className="w-5 h-5 text-white" />
-            </button>
-          </div>
-          <div className="w-full px-7 flex flex-col justify-center">
+    <div className="h-full">
+      <div className="py-4 bg-dark-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
+        <h2 className="text-lg uppercase font-light">
+          {`${
+            activeTab === "photos" ? "Fotos" : "Videos"
+          } - Subida de Archivos`}
+        </h2>
+        <button onClick={toggleModal}>
+          <TfiClose />
+        </button>
+      </div>
+      <div className="flex  bg-medium-gray flex-col w-full h-5/6 justify-center rounded-b-lg items-center">
+        {isLoading ? (
+          <p>Cargando</p>
+        ) : uppy ? ( // Aquí se verifica si uppy tiene un valor definido
+          // <Dashboard
+          // className="fixed max-w-2xl"
+          //   uppy={uppy}
+          //   plugins={["AwsS3"]}
+          //   showProgressDetails={true}
+          //   proudlyDisplayPoweredByUppy={false}
+          //   metaFields={[
+          //     { id: "groupId", name: "groupId", placeholder: "Id del grupo" },
+          //     {
+          //       id: "groupName",
+          //       name: "groupName",
+          //       placeholder: "Nombre del grupo",
+          //     },
+          //     {
+          //       id: "agencyName",
+          //       name: "agencyName",
+          //       placeholder: "Nombre de la agencia",
+          //     },
+          //     {
+          //       id: "fileName",
+          //       name: "fileName",
+          //       placeholder: "Nombre del archivo",
+          //     },
+          //   ]}
+          // />
+          <div>
             <table>
-              <thead className="dark:bg-medium-gray bg-gray-200">
+              <thead>
                 <tr>
-                  <th>
-                    <p className="text-sm font-semibold p-4">Grupo</p>
-                  </th>
-                  <th>
-                    <p className="text-sm font-semibold p-4">Empresa</p>
-                  </th>
-                  <th>
-                    <p className="text-sm font-semibold p-4">Archivo</p>
-                  </th>
-                  <th>
-                    <p className="text-sm font-semibold p-4">Progreso</p>
-                  </th>
-                  <th>
-                    <p className="text-sm font-semibold p-4">Acciones</p>
-                  </th>
+                  <th>Nombre</th>
+                  <th>Grupo</th>
+                  <th>Agencia</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody className="bg-light-gray text-left">
-                {uploadQueueState.map(([file, uploadData], index) => (
-                  <tr key={file.name}>
-                    <td>
-                      <p className="text-sm font-semibold p-4">
-                        {uploadData.groupName}
-                      </p>
-                    </td>
-                    <td>
-                      <p className="text-sm font-semibold p-4">
-                        {uploadData.agencyName}
-                      </p>
-                    </td>
-                    <td>
-                      <p className="text-sm font-semibold p-4">{file.name}</p>
-                    </td>
-                    <td>
-                      <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                        <div
-                          className="bg-orange-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                          style={{
-                            width: `${
-                              activeTab === "photos" &&
-                              file.name in photoProgress
-                                ? photoProgress[file.name]
-                                : uploadingProgress[index] !== undefined
-                                ? uploadingProgress[index] * 100
-                                : 0
-                            }%`,
-                          }}
-                        >
-                          {uploadingProgress[index]
-                            ? Math.round(uploadingProgress[index] * 100)
-                            : 0}
-                          %
-                        </div>
-                      </div>
-                    </td>
+              <tbody>
+                {uploadQueue.map(([file, data], index) => (
+                  <tr key={file.id}>
+                    <td>{file.name}</td>
+                    <td>{data.groupName}</td>
+                    <td>{data.agencyName}</td>
                     <td>
                       <button
-                        onClick={() => handleDelete(file, uploadData)}
-                        className="text-sm font-semibold p-4"
+                        onClick={() => {
+                          uppy.removeFile(file.id);
+                          deleteFromUploadQueue(file, data);
+                        }}
                       >
                         Eliminar
                       </button>
@@ -359,10 +190,23 @@ const UploadQueue = (props: UploadQueueProps) => {
                 ))}
               </tbody>
             </table>
+            <ProgressBar id={`progressBar-${activeTab}`} uppy={uppy} />
           </div>
-          <form onSubmit={uploadFiles}>
-            <button type="submit">Subir</button>
-          </form>
+        ) : null}
+        <div className="flex flex-row justify-center items-center w-full h-1/6 bg-dark-gray rounded-b-lg">
+          <button
+            onClick={uploadFiles}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+          >
+            Subir
+          </button>
+
+          <button
+            onClick={toggleModal}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg ml-4"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
     </div>

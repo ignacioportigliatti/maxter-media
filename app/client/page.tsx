@@ -1,13 +1,8 @@
 "use client";
 
 import { Steps } from "@/components/home/Steps";
-import { useSelector } from "react-redux";
-import { Agency, Group } from "@prisma/client";
 
 export default function ClientHome() {
-  const group: Group = useSelector((state: any) => state.group);
-  const agency: Agency = useSelector((state: any) => state.agency);
-
   return (
     <div className="w-full">
       <div className="flex flex-col justify-start items-center mx-auto p-7">

@@ -5,15 +5,15 @@ import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { formatBytes, getGoogleStorageFiles, uploadGoogleStorageFile, deleteGoogleStorageFile } from "@/utils";
 import { Group } from "@prisma/client";
-
-
 import { PhotoUploadContext } from "./PhotoUploadContext";
+import { UppyFile } from "@uppy/core";
+import { Dashboard } from "@uppy/react";
 
 
 interface PhotoUploadProps {
   dataToUpload: {
     group: Group;
-    files: File[];
+    files: UppyFile[];
   };
   isDragging?: boolean;
   toggleModal: any;
@@ -34,7 +34,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const [uploadedFiles, setUploadedFiles] = useState<fileData[]>([
     { name: "", size: 0 },
   ]);
-  const [filesToUpload, setFilesToUpload] = useState<File[]>(dataToUpload.files);
+  const [filesToUpload, setFilesToUpload] = useState<UppyFile[]>(dataToUpload.files);
   const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } = useContext(PhotoUploadContext);
 
   const checkFiles = async () => {
@@ -78,7 +78,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           if (fileNameExists) {
             toast.error(`El archivo "${file.name}" ya está en la lista.`);
           } else {
-            setFilesToUpload((prevFiles) => [...prevFiles, file]);
+            setFilesToUpload((prevFiles: UppyFile[]) => [...prevFiles, file] as UppyFile[]);
           }
         });
   
@@ -108,7 +108,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
       setIsSubmitting(true); // Marcar la solicitud en progreso
       console.log("uploadQueue", uploadQueue);
   
-      const updatedTransferQueue = filesToUpload.map((file: File) => {
+      const updatedTransferQueue = filesToUpload.map((file: UppyFile) => {
         uploadQueue.push([
           file,
           {
@@ -240,32 +240,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           <div className="w-1/2 p-1 flex flex-col justify-start items-start">
             <div>
               <h4 className="text-sm">Archivos a Subir:</h4>
-              {filesToUpload.length === 0 ? (
-                <p className="text-xs">Agregá el archivo .zip de las fotos para subir</p>
-              ) : (
-                filesToUpload.map((file: File) => (
-                  <div key={file.name} className="flex items-center w-full">
-                    <div className="flex flex-row items-center gap-3">
-                      <p className="text-xs font-semibold">{file.name}</p>
-                      <p className="text-[10px] text-gray-500">
-                        {formatBytes(file.size)}
-                      </p>
-                    </div>
-                    <div>
-                      <button
-                        className="text-light-gray hover:text-orange-500 ml-1 mt-[6px] themeTransition font-semibold text-sm"
-                        onClick={() =>
-                          setFilesToUpload((prevFiles) =>
-                            prevFiles.filter((f: File) => f.name !== file.name)
-                          )
-                        }
-                      >
-                        <AiOutlineDelete />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
+             {/* <Dashboard uppy={} /> */}
             </div>
           </div>
         </div>
@@ -286,7 +261,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         </div>
       </form>
     </div>
-    </ PhotoUploadContext.Provider>
+    </PhotoUploadContext.Provider>
   );
 };
 

@@ -3,8 +3,7 @@
 import { Provider } from "react-redux";
 import "./globals.css";
 import { Providers } from "@/components/auth/Providers";
-import clientStore from "@/redux/client/clientStore";
-import adminStore from "@/redux/admin/adminStore";
+import store from "@/redux/store";
 
 export const metadata = {
   title: "Maxter",
@@ -19,10 +18,8 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <body>
-        <Provider store={adminStore}>
-          <Provider store={clientStore}>
-            <Providers>{children}</Providers>
-          </Provider>
+        <Provider store={store}>
+          <Providers>{children}</Providers>
         </Provider>
       </body>
     </html>

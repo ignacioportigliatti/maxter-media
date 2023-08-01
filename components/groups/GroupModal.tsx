@@ -185,12 +185,10 @@ export const GroupModal: React.FC<GroupModalProps> = ({
           toast.success(`${updatedFormData.name} agregado con éxito!`);
         }
 
-        setTimeout(async () => {
+        if (refresh) {
+          refresh();
           toggleModal();
-          if (refresh) {
-            await refresh();
-          }
-        }, 3000);
+        }
       } else if (response.data.error) {
         toast.error(response.data.error);
       }
@@ -214,7 +212,13 @@ export const GroupModal: React.FC<GroupModalProps> = ({
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
           <div className="py-4 bg-medi-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
             <h2 className="text-lg uppercase font-light">
-              {`${editMode ? `Editar ${formData?.name} - ${groupToEdit?.agencyName ? selectedAgency.name : ''}` : "Agregar Grupo"}`}
+              {`${
+                editMode
+                  ? `Editar ${formData?.name} - ${
+                      groupToEdit?.agencyName ? selectedAgency.name : ""
+                    }`
+                  : "Agregar Grupo"
+              }`}
             </h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">
               <TfiClose className="w-5 h-5 text-white" />

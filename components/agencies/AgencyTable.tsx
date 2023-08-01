@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
-import axios from "axios";
 import { AgencyModal } from "./";
 import { Pagination } from "@/components/ui/Pagination";
 import { Agency } from "@prisma/client";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
 import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
+import { setAgencies } from "@/redux/agenciesSlice";
+import { getAgencies } from "@/utils";
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -14,21 +16,9 @@ export const AgencyTable = () => {
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [editMode, setEditMode] = useState(false);
+  const dispatch = useDispatch();
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
-  const [agencies, setAgencies] = useState<Agency[]>([]);
-
-  useEffect(() => {
-    getAgencies();
-  }, []);
-
-  const getAgencies = async () => {
-    try {
-      const response = await axios.get("/api/agencies");
-      setAgencies(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const agencies: Agency[] = useSelector((state: any) => state.agencies);
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
@@ -54,13 +44,13 @@ export const AgencyTable = () => {
 
   const handleEditAgency = async (selectedAgency: Agency | null) => {
     setShowModal(true);
-    const agencies = await axios.get("/api/agencies").then((res) => res.data);
+    const agencies = await getAgencies();
     console.log(agencies.data);
     const agencyObj = await agencies.find(
       (agency: Agency) => agency.id === selectedAgency?.id
     );
 
-    return agencyObj; 
+    return agencyObj;
   };
 
   const handleAddGroup = () => {
@@ -177,26 +167,28 @@ export const AgencyTable = () => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-      {showModal && editMode ? (
+      {showModal && (
         <AgencyModal
-          handleEditAgency={() => handleEditAgency(selectedAgency)}
+          handleEditAgency={
+            editMode ? () => handleEditAgency(selectedAgency) : undefined
+          }
           toggleModal={handleToggleModal}
-          refresh={getAgencies}
-          buttonText="Editar Empresa"
+          buttonText="Agregar Empresa"
+          refresh={() =>
+            getAgencies().then((agencies) => dispatch(setAgencies(agencies as Agency[])))
+          }
         />
-      ) : (
-        showModal && (
-          <AgencyModal
-            toggleModal={handleToggleModal}
-            refresh={getAgencies}
-            buttonText="Agregar Empresa"
-          />
-        )
       )}
       {showDeleteModal ? (
         <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
-          refresh={getAgencies}
+          refresh={() =>
+            dispatch(
+              setAgencies(
+                agencies.filter((agency: Agency) => agency.id !== selectedAgency?.id)
+              )
+            )
+          }
           selectedItem={selectedAgency}
           title="Eliminar Empresa"
           message={`¿Estás seguro que deseas eliminar "${selectedAgency?.name}"? Recuerda que se perderan los grupos.`}
@@ -207,4 +199,3 @@ export const AgencyTable = () => {
     </div>
   );
 };
-

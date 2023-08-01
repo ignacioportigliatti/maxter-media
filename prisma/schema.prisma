@@ -27,7 +27,6 @@ model Agency {
   // Remueve la relación `groups` existente
 
   groups    Group[] 
-  inQueue Queue[]
 }
 
 model Group {
@@ -47,7 +46,7 @@ model Group {
 
   codes      Codes[]
 
-  inQueue    Queue[]
+  inQueue    UploadQueue[]
 }
 
 model Codes {
@@ -64,24 +63,7 @@ model Codes {
   group       Group?   @relation(fields: [groupId], references: [id])
 }
 
-model Account {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String  @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.String
-  access_token       String?  @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.String
-  session_state      String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
 
 model Session {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -106,7 +88,7 @@ model User {
 
   role          UserRole  @default(USER)
 
-  accounts      Account[]
+  uploads       UploadQueue[]
   sessions      Session[]
 }
 
@@ -119,13 +101,26 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Queue {
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model UploadQueue {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  filename    String
-  status      String
+  filePath    String
+  fileName    String
+  fileType    String
+  fileSize    Int
+  status      UploadStatus @default(PENDING)
   createdAt   DateTime @default(now())
+
+  userId      String?  @db.ObjectId
+  user        User?    @relation(fields: [userId], references: [id])
+
   groupId     String?  @db.ObjectId
   group       Group?   @relation(fields: [groupId], references: [id])
-  agencyId    String?  @db.ObjectId
-  agency      Agency?  @relation(fields: [agencyId], references: [id])
+
 }

@@ -2,7 +2,7 @@
 
 import { useDispatch } from "react-redux";
 import { setGroup } from "./groupSlice";
-import { setVideos } from "./videosSlice";
+import { setVideos } from "./videoQueueSlice";
 import { setPhotos } from "./photosSlice";
 import { setAgency } from "./agencySlice";
 import { Agency, Group } from "@prisma/client";

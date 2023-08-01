@@ -26,6 +26,7 @@ import {
   // Create styles
   
   
+  
   // Create Document Component
   export const CodePdfTemplate = (props: CodePdfTemplateProps) => {
     const { code, selectedGroup, selectedAgency } = props;
@@ -63,13 +64,13 @@ import {
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 8,
-        color: "#333",
+        color: selectedAgency.accentColor as string || "#fff",
       },
       h2: {
         fontSize: 14,
         fontWeight: "bold",
         marginBottom: 5,
-        color: selectedAgency.primaryColor as string || "#cc6600",
+        color: selectedAgency.accentColor as string || "#fff",
       },
       p: {
         fontSize: 10,
@@ -78,14 +79,14 @@ import {
       },
       link: {
         fontSize: 10,
-        color: selectedAgency.primaryColor as string || "#cc6600",
+        color: selectedAgency.accentColor as string || "#fff",
         textDecoration: "underline",
       },
       details: {
           fontSize: 10,
           fontWeight: "bold",
           marginBottom: 5,
-          color: "#d6d6d6",
+          color: selectedAgency.accentColor as string || "#fff",
       }
     });
 

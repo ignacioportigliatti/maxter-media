@@ -1,7 +1,6 @@
 "use client";
 
 import "../globals.css";
-import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
@@ -10,7 +9,7 @@ import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { getGoogleStorageFiles, getGroups } from "@/utils";
 import { Agency, Codes, Group } from "@prisma/client";
-import { useSelectGroup } from "@/redux/client/groupManager";
+import { useSelectGroup } from "@/redux/groupManager";
 import axios from "axios";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import { useSearchParams } from "next/navigation";
@@ -166,7 +165,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <Providers>
+    <div>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
           <div className="relative w-24 h-24 animate-spin rounded-full bg-gradient-to-r from-purple-400 via-blue-500 to-red-400 ">
@@ -195,6 +194,6 @@ export default function RootLayout({
           <h1>El código no es válido</h1>
         </div>
       )}
-    </Providers>
+    </div>
   );
 }

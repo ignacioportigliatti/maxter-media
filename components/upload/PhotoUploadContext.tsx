@@ -1,6 +1,7 @@
+import { UppyFile } from "@uppy/core";
 import React, { createContext, useState, useEffect, useRef } from "react";
 
-type UploadData = {
+export type UploadData = {
   groupId?: string;
   groupName?: string;
   agencyName?: string;
@@ -8,9 +9,9 @@ type UploadData = {
 };
 
 type PhotoUploadContextProps = {
-  uploadQueue: [File, UploadData][];
-  addToUploadQueue: (item: File, uploadData?: UploadData) => void;
-  deleteFromUploadQueue: (item: File, data: UploadData) => [File, UploadData][];
+  uploadQueue: [UppyFile, UploadData][];
+  addToUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
+  deleteFromUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
 };
 
 export const PhotoUploadContext = createContext<PhotoUploadContextProps>({
@@ -26,16 +27,16 @@ type UploadProviderProps = {
 export const PhotoUploadProvider: React.FC<UploadProviderProps> = ({
   children,
 }) => {
-  const [uploadQueue, setUploadQueue] = useState<[File, UploadData][]>([]);
+  const [uploadQueue, setUploadQueue] = useState<[UppyFile, UploadData][]>([]);
   const isInitialRender = useRef(true); // Ref to track initial render
 
-  const addToUploadQueue = (item: File, uploadData?: UploadData) => {
-    const newQueue: [File, UploadData][] = uploadQueue.concat([[item, uploadData || {}]]);
+  const addToUploadQueue = (item: UppyFile, uploadData?: UploadData) => {
+    const newQueue: [UppyFile, UploadData][] = uploadQueue.concat([[item, uploadData || {}]]);
     setUploadQueue(newQueue);
   };
 
-  const deleteFromUploadQueue = (item: File, data: UploadData) => {
-    const newQueue: [File, UploadData][] = uploadQueue.filter(([file, uploadData]) => file.name !== item.name && uploadData.groupName !== data.groupName);
+  const deleteFromUploadQueue = (item: UppyFile, data: UploadData) => {
+    const newQueue: [UppyFile, UploadData][] = uploadQueue.filter(([file, uploadData]) => file.name !== item.name && uploadData.groupName !== data.groupName);
     setUploadQueue(newQueue);
     return newQueue;
   };

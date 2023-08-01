@@ -7,8 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { TbFileUpload, TbQrcode, TbUserCheck, TbUsers } from "react-icons/tb";
 import { AiOutlineGroup } from "react-icons/ai";
-import { Provider } from "react-redux";
-import adminStore from "@/redux/admin/adminStore";
+import { useEffect } from "react";
+import { getGroups } from "@/utils";
+import { Agency, Group } from "@prisma/client";
+import { setGroups } from "@/redux/groupsSlice";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+import { setAgencies } from "@/redux/agenciesSlice";
 
 export const metadata = {
   title: "Maxter",
@@ -43,6 +48,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const dispatch = useDispatch();
+  const getAndSetData = async () => {
+    const groupsFromApi: Group[] = await axios
+      .get("/api/groups")
+      .then((res) => res.data);
+    const agenciesFromApi: Agency[] = await axios
+      .get("/api/agencies")
+      .then((res) => res.data);
+    dispatch(setGroups(groupsFromApi));
+    dispatch(setAgencies(agenciesFromApi));
+  };
+
+  useEffect(() => {
+    getAndSetData();
+  }, []);
   return (
     <html suppressHydrationWarning lang="en">
       <body>

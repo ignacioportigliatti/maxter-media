@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect, useRef } from "react";
+import { UppyFile } from "@uppy/core";
+import React, { createContext, useState, useEffect, useRef, useContext } from "react";
 
-type UploadData = {
+export type UploadData = {
   groupId?: string;
   groupName?: string;
   agencyName?: string;
@@ -8,9 +9,9 @@ type UploadData = {
 };
 
 type VideoUploadContextProps = {
-  uploadQueue: [File, UploadData][];
-  addToUploadQueue: (item: File, uploadData: UploadData) => void;
-  deleteFromUploadQueue: (item: File, uploadData: UploadData) => void;
+  uploadQueue: [UppyFile, UploadData][];
+  addToUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
+  deleteFromUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
 };
 
 
@@ -24,21 +25,24 @@ type UploadProviderProps = {
   children: React.ReactNode;
 };
 
+export const useVideoUploadContext = () => useContext(VideoUploadContext);
+
 export const VideoUploadProvider: React.FC<UploadProviderProps> = ({
   children,
 }) => {
-  const [uploadQueue, setUploadQueue] = useState<[File, UploadData][]>([]);
+  const [uploadQueue, setUploadQueue] = useState<[UppyFile, UploadData][]>([]);
   const isInitialRender = useRef(true); // Ref to track initial render
 
-  const addToUploadQueue = (item: File, uploadData: UploadData) => {
+  const addToUploadQueue = (item: UppyFile, uploadData: UploadData) => {
     setUploadQueue((prevQueue) => [...prevQueue, [item, uploadData || {}]]);
   };
 
-  const deleteFromUploadQueue = (item: File, uploadData: UploadData) => {
+  const deleteFromUploadQueue = (item: UppyFile, uploadData: UploadData) => {
     setUploadQueue((prevQueue) =>
-      prevQueue.filter(([file, data]) => file !== item || data.groupName !== uploadData?.groupName)
+      prevQueue.filter(([file, data]) => file !== item || data.groupName !== uploadData.groupName)
     );
   };
+  
   
 
   return (

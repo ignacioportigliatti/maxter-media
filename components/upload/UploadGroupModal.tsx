@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import { TfiClose } from "react-icons/tfi";
 import { PhotoUpload, VideoUpload} from "./";
 import { Group } from "@prisma/client";
+import Uppy from "@uppy/core";
 
 interface UploadGroupModalProps {
   toggleModal: () => void;
@@ -12,6 +13,7 @@ interface UploadGroupModalProps {
   activeTab: string;
   filesToUpload?: Blob[];
   isDragging?: boolean;
+
 }
 
 export const UploadGroupModal = (props: UploadGroupModalProps) => {
@@ -28,6 +30,7 @@ export const UploadGroupModal = (props: UploadGroupModalProps) => {
           toggleModal={toggleModal}
           dataToUpload={dataToUpload as any}
           isDragging={isDragging}
+
         />
       );
     } else if (activeTab === "photos") {
@@ -43,7 +46,7 @@ export const UploadGroupModal = (props: UploadGroupModalProps) => {
     <div>
       <ToastContainer />
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-full min-h-screen w-full absolute top-0 left-0 bg-black bg-opacity-70">
-        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[60%]">
+        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[80%]">
           <div className="py-2 bg-orange-500 w-full text-center relative">
             <h2 className="text-white">Añadir material</h2>
             <button onClick={toggleModal} className="absolute top-3 right-4">

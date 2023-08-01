@@ -1,18 +1,22 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+// GroupsTable.tsx
+
+import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { GroupModal } from "./";
 import { Group } from "@prisma/client";
-import {Pagination } from "@/components/ui/Pagination";
+import { Pagination } from "@/components/ui/Pagination";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
-import { TbQrcode, TbSortAZ, TbSortAscending, TbSortDescending } from "react-icons/tb";
-import { TfiClose } from "react-icons/tfi";
-import GeneratedCodes from "../codes/GeneratedCodes";
-import CodesGenerator from "../codes/CodesGenerator";
+import {
+  TbQrcode,
+  TbSortAZ,
+  TbSortAscending,
+  TbSortDescending,
+} from "react-icons/tb";
 import CodesModal from "../codes/CodesModal";
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { setGroups } from "@/redux/groupsSlice";
+import { getGroups } from "@/utils";
 
 export const GroupsTable = () => {
   const columnHeaders = [
@@ -29,10 +33,10 @@ export const GroupsTable = () => {
   const itemsPerPage = 8; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [filter, setFilter] = useState<Record<string, string>>({});
+  const groups: Group[] = useSelector((state: any) => state.groups);
 
   const [sortOrder, setSortOrder] = useState<{
     column: string | null;
@@ -41,19 +45,6 @@ export const GroupsTable = () => {
     column: null,
     ascending: true,
   });
-
-  useEffect(() => {
-    getGroups();
-  }, []);
-
-  const getGroups = async () => {
-    try {
-      const response = await axios.get("/api/groups");
-      setGroups(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
@@ -80,15 +71,15 @@ export const GroupsTable = () => {
 
   const handleEditGroup = async (selectedGroup: Group | null) => {
     setShowModal(true);
-    const groups = await axios.get("/api/groups");
 
-    const groupObj = await groups.data.find(
+    const groupObj = await groups.find(
       (group: Group) => group.id === selectedGroup?.id
     );
 
-    const groupToEdit: Group = groupObj;
-    return groupToEdit;
+    return groupObj;
   };
+
+  const dispatch = useDispatch();
 
   const handleAddGroup = () => {
     setEditMode(false);
@@ -229,11 +220,7 @@ export const GroupsTable = () => {
                   currentPage * itemsPerPage
                 )
                 .map((group) => (
-                  <tr
-                    key={group.id}
-                    draggable
-                  
-                  >
+                  <tr key={group.id} draggable>
                     <td className="px-4 text-sm font-medium text-gray-700 whitespace-nowrap pointer-events-none">
                       <div className="inline-flex gap-x-3 pointer-events-none">
                         <div className="flex gap-x-2 pointer-events-none">
@@ -295,16 +282,18 @@ export const GroupsTable = () => {
         itemsPerPage={itemsPerPage}
         handlePageChange={handlePageChange}
       />
-      {showModal && 
+      {showModal && (
         <GroupModal
           groupToEdit={editMode ? selectedGroup : undefined}
           toggleModal={handleToggleModal}
-          refresh={getGroups}
+          refresh={() =>
+            getGroups().then((groups) => dispatch(setGroups(groups)))
+          }
         />
-      }
+      )}
 
-    {showCodesModal && (
-        <CodesModal 
+      {showCodesModal && (
+        <CodesModal
           selectedGroup={selectedGroup as Group}
           handleToggleModal={handleCodesModal}
         />
@@ -313,7 +302,13 @@ export const GroupsTable = () => {
       {showDeleteModal && (
         <ConfirmDeleteModal
           toggleModal={handleDeleteModal}
-          refresh={getGroups}
+          refresh={() =>
+            dispatch(
+              setGroups(
+                groups.filter((group: Group) => group.id !== selectedGroup?.id)
+              )
+            )
+          }
           selectedItem={selectedGroup}
           title="Eliminar Grupo"
           message={`¿Estás seguro que deseas eliminar "${selectedGroup?.name}"? Recuerda que se perderan todos los datos y archivos.`}

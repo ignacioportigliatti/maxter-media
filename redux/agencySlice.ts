@@ -11,6 +11,9 @@ const initialState: Agency = {
     email: "",
     logoSrc: "",
     groupIds: [],
+    primaryColor: "",
+    secondaryColor: "",
+    accentColor: "",
 }
 
 const agencySlice = createSlice({

@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { Agency } from "@prisma/client";
-import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import Image from "next/image";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
 import { useSelector } from "react-redux";
 import axios from "axios";
+
 
 interface VideoCardProps {
   title: string;
@@ -37,16 +37,19 @@ export const VideoCard = (props: VideoCardProps) => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
+
   useEffect(() => {
     const loadData = async () => {
       try {
         setCurrentVideoIndex(0);
 
+       
         // Check if the signed URL is cached in local storage
         const cachedVideoUrl = localStorage.getItem(filePath as string);
 
         if (cachedVideoUrl) {
           // Parse the cached URL and check if it has expired (e.g., after one hour)
+          
           const { url, expiration } = JSON.parse(cachedVideoUrl);
           const currentTime = Date.now();
 
@@ -78,8 +81,10 @@ export const VideoCard = (props: VideoCardProps) => {
       }
     };
 
+
     // Configurar el reproductor de video
     if (videoRef.current && videoSrc) {
+      
       const player = videojs(videoRef.current, {
         sources: [
           {

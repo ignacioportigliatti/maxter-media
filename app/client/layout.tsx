@@ -1,6 +1,5 @@
 "use client";
 
-import "../globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
@@ -14,6 +13,7 @@ import axios from "axios";
 import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import { useSearchParams } from "next/navigation";
 import ClientHeader from "@/components/client/ClientHeader";
+import useSignedVideoUrl from "@/components/my-videos/hooks/useSignedVideoUrl";
 
 export const metadata = {
   title: "Maxter",
@@ -67,26 +67,30 @@ export default function RootLayout({
       );
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
       const folderPath = `media/${group.name}/videos`;
-      const videos = await getGoogleStorageFiles(
-        bucketName as string,
-        folderPath
-      );
-
-      const photos = await getGoogleStorageFiles(
-        bucketName as string,
-        `media/${group.name}/photos`
-      );
+      const videos = await axios.post("/api/videos/", {
+        bucketName,
+        folderPath,
+      }).then(res => {
+        if (res.data.success) {
+          return res.data.videos;
+        }
+      });
+      const photos = await axios.post('/api/photos/', {
+        bucketName: bucketName,
+        folderPath: `media/${group.name}/photos`
+      }).then(res => res.data.photos)
       const foldersMap = new Map<string, any[]>();
 
       if (photos !== undefined) {
         photos.forEach((photo: any) => {
-          const folderPath = photo.name.split("/");
+          const folderPath = photo.key.split("/");
           const folder = folderPath[folderPath.length - 2]; // Obtener la carpeta en lugar de la fecha
           const folderPhotos = foldersMap.get(folder) || [];
           folderPhotos.push(photo);
           foldersMap.set(folder, folderPhotos);
         });
       }
+
 
       // Convertir el Map a un array de objetos FolderWithPhotos
       const foldersWithPhotosArray: FolderWithPhotos[] = Array.from(
@@ -100,15 +104,19 @@ export default function RootLayout({
         };
       });
 
+
+
       const signedPhotos: FolderWithPhotos[] = await Promise.all(
         foldersWithPhotosArray.map(async (folderWithPhotos) => {
           const firstPhoto = folderWithPhotos.photos[0];
           const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-          const signedUrl = await getSignedUrl(
-            bucketName as string,
-            firstPhoto.name
-          );
-          const signedThumbnail = { ...firstPhoto, url: signedUrl };
+          console.log('firstPhoto', firstPhoto)
+          const firstPhotoSignedUrl = await axios.post('/api/sign-url/', {
+            bucketName: bucketName,
+            fileName: firstPhoto.key
+          }).then(res => res.data.url)
+          console.log('firstPhotoSignedUrl', firstPhotoSignedUrl)
+          const signedThumbnail = { ...firstPhoto, url: firstPhotoSignedUrl };
           const signedPhotos = [
             signedThumbnail,
             ...folderWithPhotos.photos.slice(1),
@@ -185,7 +193,7 @@ export default function RootLayout({
             </div>
             <div className="lg:h-full flex flex-col mx-auto w-full">
               <ClientHeader agency={agency} selectedGroup={selectedGroup} selectedNavItemLabel={selectedNavItemLabel}/>
-              <div className="h-full">{children}</div>
+              <div className="h-full pt-16 pl-14">{children}</div>
             </div>
           </div>
         </div>

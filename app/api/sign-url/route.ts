@@ -1,10 +1,6 @@
-import { Storage } from "@google-cloud/storage";
 import { NextResponse } from "next/server";
+import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 
-// Creates a client
-const storage = new Storage({
-  keyFilename: process.env.NEXT_PUBLIC_BUCKET_KEYFILE,
-});
 
 // Interface para el objeto de caché de URLs firmadas
 interface SignedUrlCache {
@@ -31,56 +27,31 @@ export async function POST(request: Request) {
   const cacheKey = `${bucketName}/${fileName}`;
 
   try {
-    // Verificar si la URL firmada está en caché y aún es válida
-    if (
-      signedUrlCache[cacheKey] &&
-      signedUrlCache[cacheKey].expires > Date.now()
-    ) {
-      return signedUrlCache[cacheKey].url;
-    }
 
-    // Las opciones permitirán acceso de lectura temporal al archivo
+
+// Obtén la fecha y hora actual más 1 hora en milisegundos
+
+
+    // Generar una nueva URL firmada
+    const params = {
+      Bucket: bucketName,
+      Key: fileName,
+      ContentType: contentType,
+      Expires: 60 * 60,
+    };
+
+    let url;
 
     if (isUpload === true) {
-      const options = {
-        version: "v2" as const,
-        action: "write" as const,
-        contentType: contentType,
-        expires: Date.now() + 12000 * 60 * 60, // 12 horas
-      };
-      const signedUrl = await storage
-        .bucket(bucketName)
-        .file(fileName)
-        .getSignedUrl(options);
-
-      return NextResponse.json({
-        method: "PUT",
-        url: signedUrl[0],
-      });
+      // Generar una URL firmada para cargar el archivo (PUT)
+      url = await wasabiClient.getSignedUrl("putObject", params);
     } else {
-      const options = {
-        version: "v2" as const,
-        action: "read" as const,
-        expires: Date.now() + 1000 * 60 * 60, // una hora
-      };
-      const [url] = await storage
-        .bucket(bucketName)
-        .file(fileName)
-        .getSignedUrl(options);
-
-      // Almacenar la URL firmada en caché
-      signedUrlCache[cacheKey] = {
-        url,
-        expires: options.expires,
-      };
-
-      return NextResponse.json({
-        success: "URL firmada exitosamente",
-        url: url,
-      });
+      // Generar una URL firmada para descargar el archivo (GET)
+      url = await wasabiClient.getSignedUrl("getObject", params);
     }
 
-    // Obtener una URL firmada v2 para el archivo
+
+    return NextResponse.json({ method: isUpload === true ? 'PUT' : 'GET', url: url });
   } catch (error) {
     return NextResponse.json({ error: "Error al firmar la URL" });
   }

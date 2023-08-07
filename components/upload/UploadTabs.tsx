@@ -3,7 +3,7 @@ import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
 import { UploadGroupsTable } from "./";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import UploadQueue from "./UploadQueue";
-import Uppy from "@uppy/core";
+
 
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
@@ -17,8 +17,6 @@ export const UploadTabs = () => {
   const showUploadQueue = () => {
     setShowModal((prev) => !prev);
   };
-
-  const videoUppy = new Uppy();
 
   return (
     <div className="w-full mx-auto justify-center items-start border dark:border-gray-500 border-gray-200">

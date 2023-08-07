@@ -7,6 +7,7 @@ import photosReducer from "./photosSlice";
 import agencyReducer from "./agencySlice";
 import groupsReducer from "./groupsSlice";
 import agenciesReducer from "./agenciesSlice";
+import videosReducer from "./videosSlice";
 
 
 const clientStore = configureStore({
@@ -17,6 +18,7 @@ const clientStore = configureStore({
     agency: agencyReducer,
     videoQueue: videoQueueReducer,
     photos: photosReducer,
+    videos: videosReducer,
   },
 });
 

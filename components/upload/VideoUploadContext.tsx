@@ -1,5 +1,11 @@
 import { UppyFile } from "@uppy/core";
-import React, { createContext, useState, useEffect, useRef, useContext } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+} from "react";
 
 export type UploadData = {
   groupId?: string;
@@ -13,7 +19,6 @@ type VideoUploadContextProps = {
   addToUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
   deleteFromUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
 };
-
 
 export const VideoUploadContext = createContext<VideoUploadContextProps>({
   uploadQueue: [],
@@ -39,11 +44,12 @@ export const VideoUploadProvider: React.FC<UploadProviderProps> = ({
 
   const deleteFromUploadQueue = (item: UppyFile, uploadData: UploadData) => {
     setUploadQueue((prevQueue) =>
-      prevQueue.filter(([file, data]) => file !== item || data.groupName !== uploadData.groupName)
+      prevQueue.filter(
+        ([file, data]) =>
+          file.id !== item.id || data.groupName !== uploadData.groupName
+      )
     );
   };
-  
-  
 
   return (
     <VideoUploadContext.Provider

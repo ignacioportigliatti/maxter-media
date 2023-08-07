@@ -32,7 +32,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
     return <></>;
   } else {
     return (
-      <div className="h-screen">
+      <div className="fixed z-50 min-h-screen h-full">
         <aside
           style={{
             backgroundColor: agency.primaryColor as string,
@@ -98,10 +98,23 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
 
           <div className="mt-auto h-16 flex items-center w-full">
             <button
+            
+              onMouseEnter={() =>
+                setHoveredItems((prevState) => ({
+                  ...prevState,
+                  [4]: true,
+                }))
+              }
+              onMouseLeave={() =>
+                setHoveredItems((prevState) => ({
+                  ...prevState,
+                  [4]: false,
+                }))
+              }
               className="h-16 w-full mx-auto flex justify-center items-center
 				focus:text-orange-500 hover:bg-red-200 focus:outline-none"
             >
-              <TbDoorExit className="w-5 h-5 " />
+              <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:opacity-100" />
             </button>
           </div>
         </aside>

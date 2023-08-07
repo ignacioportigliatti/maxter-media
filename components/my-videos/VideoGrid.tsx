@@ -8,8 +8,9 @@ interface VideoGridProps {
 
 export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
-  console.log("selectedGroup", selectedGroup);
+
   const videos = useSelector((state: any) => state.videos);
+  console.log(videos);
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -36,13 +37,14 @@ export const VideoGrid = (props: VideoGridProps) => {
     <div className="flex animate-in fade-in-0 duration-500">
       <div className="flex flex-row items-start justify-between mx-auto">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
-          {videos.map((video: any) => (
+          {videos.map((video: any, index: number) => (
             <VideoCard
-              key={video.id} // Utilizar una propiedad única del video como clave
-              title={video.name.split("/")[3].split(".")[0]}
+              key={video.key} // Utilizar una propiedad única del video como clave
+              title={video.key.split("/")[3].split(".")[0]}
               agencyName={selectedGroup.agencyName as string}
-              uploadedAt={formatUploadedAt(video.timeCreated)}
-              filePath={video.name}
+              uploadedAt={formatUploadedAt(video.lastModified)}
+              filePath={video.key}
+              videoIndex={index}
             />
           ))}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import "../globals.css";
+
 import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

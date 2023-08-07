@@ -103,7 +103,7 @@ p {
 
 .sideBarButton {
   @apply relative flex flex-row items-center h-10 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 
-  border-l-4 border-transparent hover:border-orange-500 pr-6 transition duration-200
+  border-l-4 border-transparent hover:border-orange-600 pr-6 transition duration-200
 }
 
 .sideBarCategories {
@@ -128,17 +128,17 @@ p {
 
 .tabButton {
   @apply cursor-pointer inline-flex p-4 border-b-2 border-transparent 
-  hover:border-orange-500 dark:hover:text-gray-300 transition duration-500
+  hover:border-orange-600 dark:hover:text-gray-300 transition duration-500
 }
 
 .buttonWithIcon {
   @apply flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-transparent 
-  border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-500 hover:text-white
+  border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-600 hover:text-white
 }
 
 .button {
   @apply px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-transparent 
-  border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-500 hover:text-white
+  border gap-x-2  dark:text-gray-200 dark:border-gray-700 hover:bg-orange-600 hover:text-white
 }
 
 .react-colorful__last-control {
@@ -203,4 +203,29 @@ p {
   justify-content: center !important;
   align-items: center !important;
   height: 100% !important;
+}
+
+.uppy-StatusBar.is-uploading {
+  background: #3e3e3e !important;
+  color: white !important;
+}
+
+.uppy-StatusBar-statusPrimary {
+  color: white !important;
+}
+
+.uppy-StatusBar-statusSecondary {
+  color: rgb(212, 212, 212) !important;
+}
+
+.uppy-StatusBar-spinner > path {
+  @apply fill-orange-600
+}
+
+.uppy-StatusBar-progress {
+  @apply !bg-orange-600
+}
+
+.pswp__img {
+  object-fit: contain;
 }

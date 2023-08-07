@@ -1,25 +1,24 @@
 "use client";
 
-import React, { useState, useContext, useEffect } from "react";
-import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai";
-import { toast } from "react-toastify";
 import {
+  deleteGoogleStorageFile,
   formatBytes,
   getGoogleStorageFiles,
-  uploadGoogleStorageFile,
-  deleteGoogleStorageFile,
 } from "@/utils";
 import { Group } from "@prisma/client";
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
+import React, { useEffect, useState } from "react";
+import { AiOutlineDelete } from "react-icons/ai";
+import { toast } from "react-toastify";
 
+import Uppy, { UppyFile } from "@uppy/core";
+import Spanish from "@uppy/locales/lib/es_ES";
+import { Dashboard } from "@uppy/react";
 import {
   VideoUploadContext,
   useVideoUploadContext,
 } from "./VideoUploadContext";
-import Uppy, { UppyFile } from "@uppy/core";
-import { Dashboard } from "@uppy/react";
-import Spanish from "@uppy/locales/lib/es_ES";
 
 interface VideoUploadProps {
   dataToUpload: {
@@ -65,7 +64,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   });
 
   useEffect(() => {
-    checkFiles().then(() => setIsLoading(false));
+    checkFiles().finally(() => setIsLoading(false));
 
     if (isDragging === true) {
       for (const file of dataToUpload.files) {
@@ -176,7 +175,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
                             {formatBytes(file.size)}
                           </p>
                           <button
-                            className="text-light-gray hover:text-orange-500 ml-1 themeTransition font-semibold text-sm"
+                            className="text-light-gray hover:text-orange-600 ml-1 themeTransition font-semibold text-sm"
                             onClick={() =>
                               handleDelete(
                                 file.name.replace(

@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getGoogleStorageFiles } from "@/utils";
+import { useState } from "react";
 import { Agency, Group } from "@prisma/client";
-import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import "photoswipe/dist/photoswipe.css";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import Image from "next/image";
-import { TbDoorExit, TbDownload, TbPhotoPlus } from "react-icons/tb";
+import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
@@ -28,75 +26,90 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [cachedPhotos, setCachedPhotos] = useState<Record<string, any[]>>({});
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
-  const foldersWithPhotos: FolderWithPhotos[] = useSelector((state: any) => state.photos);
-
-  
+  const foldersWithPhotos: FolderWithPhotos[] = useSelector(
+    (state: any) => state.photos
+  );
+  console.log("foldersWithPhotos", foldersWithPhotos);
 
   const handleGalleryClose = () => {
     setIsGalleryOpen(false);
   };
 
- 
-
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
     setIsGalleryOpen((prev) => !prev);
-  
+
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-  
+
     if (cachedPhotos[folder]) {
       return;
     }
-  
+
     try {
       const folderWithPhotos = foldersWithPhotos.find(
         (folderWithPhotos) => folderWithPhotos.folder === folder
       );
-  
+
       if (!folderWithPhotos) {
         return;
       }
-  
+
       const signedPhotosPromises: Promise<any>[] = folderWithPhotos.photos.map(
         async (photo) => {
-          const cachedPhoto = localStorage.getItem(photo.name);
-  
+          const cachedPhoto = localStorage.getItem(photo.key);
+
           if (cachedPhoto) {
             // Parse the cached photo data and check if it has expired
             const { url, expiration } = JSON.parse(cachedPhoto);
-  
+
             const currentTime = Date.now();
             if (expiration && currentTime < expiration) {
               // Use the cached URL if it's still valid
               return { ...photo, url };
             } else {
               // If the cached URL has expired, fetch a new signed URL from the server
-              const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
-  
+              const signedPhoto = await axios
+                .post("/api/sign-url/", {
+                  bucketName: bucketName,
+                  fileName: photo.key,
+                })
+                .then((res) => res.data.url);
+
               // Cache the new signed URL in local storage for one hour
               const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
-              const cachedPhotoData = JSON.stringify({ url: signedPhoto, expiration });
-              localStorage.setItem(photo.name, cachedPhotoData);
-  
+              const cachedPhotoData = JSON.stringify({
+                url: signedPhoto,
+                expiration,
+              });
+              localStorage.setItem(photo.key, cachedPhotoData);
+
               return { ...photo, url: signedPhoto };
             }
           } else {
             // If the photo URL is not cached, fetch a new signed URL from the server
-            const signedPhoto = await getSignedUrl(bucketName as string, photo.name);
-  
+            const signedPhoto = await axios
+              .post("/api/sign-url/", {
+                bucketName: bucketName,
+                fileName: photo.key,
+              })
+              .then((res) => res.data.url);
+
             // Cache the signed URL in local storage for one hour
             const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
-            const cachedPhotoData = JSON.stringify({ url: signedPhoto, expiration });
-            localStorage.setItem(photo.name, cachedPhotoData);
-  
+            const cachedPhotoData = JSON.stringify({
+              url: signedPhoto,
+              expiration,
+            });
+            localStorage.setItem(photo.key, cachedPhotoData);
+
             return { ...photo, url: signedPhoto };
           }
         }
       );
-  
+
       // Wait for all the promises to resolve using Promise.all
       const signedPhotos = await Promise.all(signedPhotosPromises);
-  
+
       // Update the cachedPhotos state with the new signed photo URLs
       setCachedPhotos((prevState) => ({
         ...prevState,
@@ -106,7 +119,6 @@ export const PhotoGrid = (props: PhotoGridProps) => {
       console.error("Error al obtener las URL firmadas de las fotos:", error);
     }
   };
-  
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -178,7 +190,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
           {isGalleryOpen && selectedFolder === folderWithPhotos.folder ? (
             <div className="z-50 flex flex-col w-full h-full absolute top-0 left-0 bg-medium-gray ">
-              <div className="flex flex-row items-center w-full bg-dark-gray min-h-[50px] justify-end">
+              <div className="fixed flex flex-row items-center w-full bg-dark-gray z-30 h-[50px] justify-end">
                 <button
                   onClick={handleGalleryClose}
                   className="flex flex-row justify-center items-center button !border-0 duration-500"
@@ -196,19 +208,19 @@ export const PhotoGrid = (props: PhotoGridProps) => {
                   <TbDownload />
                 </button>
               </div>
-              <div>
+              <div className="bg-medium-gray pt-[50px]">
                 <Gallery id={folderWithPhotos.folder} withDownloadButton>
                   <div className="grid grid-cols-4 p-9 gap-2 relative top-0 animate-in fade-in-0 duration-1000">
                     {cachedPhotos[folderWithPhotos.folder]?.map(
                       (photo, index) => (
                         <div
                           className="cursor-pointer opacity-75 hover:opacity-100 transition duration-500"
-                          key={photo.id}
+                          key={photo.key}
                         >
                           <Item
                             original={photo.url}
                             thumbnail={photo.url}
-                            id={photo.id}
+                            id={photo.key}
                           >
                             {({ ref, open }) => (
                               <Image

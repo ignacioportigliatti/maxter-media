@@ -1,0 +1,28 @@
+{
+  "uploading": "Subiendo...",
+  "complete": "Subida completada",
+  "uploadFailed": "Subida fallida",
+  "paused": "Pausado",
+  "retry": "Reintentar",
+  "cancel": "Cancelar",
+  "pause": "Pausar",
+  "resume": "Resumir",
+  "done": "Listo",
+  "filesUploadedOfTotal": {
+    "0": "%{complete} de %{smart_count} archivo subido",
+    "1": "%{complete} de %{smart_count} archivos subidos"
+  },
+  "dataUploadedOfTotal": "%{complete} de %{total}",
+  "xTimeLeft": "%{time} restante",
+  "uploadXFiles": {
+    "0": "Subir %{smart_count} archivo",
+    "1": "Subir %{smart_count} archivos"
+  },
+  "upload": "Subir",
+  "retryUpload": "Reintentar subida",
+  "xMoreFilesAdded": {
+    "0": "%{smart_count} archivo más agregado",
+    "1": "%{smart_count} archivos más agregados"
+  },
+  "showErrorDetails": "Mostrar detalles del error"
+}

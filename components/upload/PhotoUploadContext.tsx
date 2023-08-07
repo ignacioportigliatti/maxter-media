@@ -1,5 +1,5 @@
 import { UppyFile } from "@uppy/core";
-import React, { createContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useState, useEffect, useRef, useContext } from "react";
 
 export type UploadData = {
   groupId?: string;
@@ -13,6 +13,8 @@ type PhotoUploadContextProps = {
   addToUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
   deleteFromUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
 };
+
+export const usePhotoUploadContext = () => useContext(PhotoUploadContext);
 
 export const PhotoUploadContext = createContext<PhotoUploadContextProps>({
   uploadQueue: [],
@@ -31,8 +33,10 @@ export const PhotoUploadProvider: React.FC<UploadProviderProps> = ({
   const isInitialRender = useRef(true); // Ref to track initial render
 
   const addToUploadQueue = (item: UppyFile, uploadData?: UploadData) => {
-    const newQueue: [UppyFile, UploadData][] = uploadQueue.concat([[item, uploadData || {}]]);
-    setUploadQueue(newQueue);
+    setUploadQueue((prevQueue) => {
+      const newQueue: [UppyFile, UploadData][] = [...prevQueue, [item, uploadData || {}]];
+      return newQueue;
+    });
   };
 
   const deleteFromUploadQueue = (item: UppyFile, data: UploadData) => {

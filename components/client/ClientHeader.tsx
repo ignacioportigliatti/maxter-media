@@ -21,11 +21,11 @@ const ClientHeader = (props: ClientHeaderProps) => {
   return (
     <div
       style={{ backgroundColor: agency.primaryColor as string }}
-      className="flex flex-row items-center justify-between themeTransition py-3 px-6 text-black dark:text-white"
+      className="fixed flex w-full min-w-screen z-20 flex-row items-center justify-between themeTransition py-3 px-6 text-black dark:text-white"
     >
       <div>
         {/* Utilizamos currentNavItemLabel en lugar de selectedNavItemLabel */}
-        <h2 className="font-light text-3xl pl-4 animate-in transition fade-in-40">
+        <h2 className="font-light text-3xl pl-16 animate-in transition fade-in-40">
           {currentNavItemLabel}
         </h2>
       </div>

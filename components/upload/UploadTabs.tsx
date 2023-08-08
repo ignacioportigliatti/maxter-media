@@ -4,7 +4,6 @@ import { UploadGroupsTable } from "./";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import UploadQueue from "./UploadQueue";
 
-
 export const UploadTabs = () => {
   const [activeTab, setActiveTab] = useState("photos");
 
@@ -61,13 +60,18 @@ export const UploadTabs = () => {
         >
           <AiOutlineCloudUpload className="text-white w-5 h-5" />
         </button>
+        <UploadQueue
+          toggleModal={showUploadQueue}
+          activeTab={activeTab}
+          showModal={showModal}
+        />
       </div>
-        {showModal && (
-      <div className="fixed top-0 left-0 min-w-full px-56 py-24 h-screen z-50 bg-black/90">
-          <UploadQueue toggleModal={showUploadQueue} activeTab={activeTab} />
-      </div>
-        )}
-      <div className="mx-auto">
+      <div
+        style={{
+          position: showModal ? "relative" : "inherit",
+          zIndex: showModal ? -100 : 0,
+        }}
+      >
         <UploadGroupsTable activeTab={activeTab} />
       </div>
     </div>

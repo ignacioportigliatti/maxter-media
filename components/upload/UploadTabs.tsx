@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TfiCamera, TfiVideoCamera } from "react-icons/tfi";
 import { UploadGroupsTable } from "./";
 import { AiOutlineCloudUpload } from "react-icons/ai";
@@ -16,6 +16,20 @@ export const UploadTabs = () => {
   const showUploadQueue = () => {
     setShowModal((prev) => !prev);
   };
+
+  useEffect(() => {
+    const disableScroll = () => {
+      document.body.style.overflow = "hidden";
+    };
+    const enableScroll = () => {
+      document.body.style.overflow = "auto";
+    };
+    if (showModal === true) {
+      disableScroll();
+    } else if (showModal === false) {
+      enableScroll();
+    }
+  }, [showModal]);
 
   return (
     <div className="w-full mx-auto justify-center items-start border dark:border-gray-500 border-gray-200">

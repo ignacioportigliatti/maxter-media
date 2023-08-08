@@ -11,7 +11,6 @@ import "@uppy/dashboard/dist/style.min.css";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-
 import Uppy, { UppyFile } from "@uppy/core";
 import Spanish from "@uppy/locales/lib/es_ES";
 import { Dashboard } from "@uppy/react";
@@ -19,6 +18,7 @@ import {
   VideoUploadContext,
   useVideoUploadContext,
 } from "./VideoUploadContext";
+import axios from "axios";
 
 interface VideoUploadProps {
   dataToUpload: {
@@ -30,8 +30,9 @@ interface VideoUploadProps {
 }
 
 type fileData = {
-  name: string;
+  key: string;
   size: number;
+  
 };
 
 export const VideoUpload: React.FC<VideoUploadProps> = ({
@@ -42,21 +43,32 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const selectedGroup = dataToUpload.group;
   const [uploadedFiles, setUploadedFiles] = useState<fileData[]>([
-    { name: "", size: 0 },
+   
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } =
     useVideoUploadContext();
 
   const checkFiles = async () => {
-    const files = await getGoogleStorageFiles(
-      "maxter-media",
-      `media/${dataToUpload.group.name}/videos`
-    );
-    if (files !== undefined && files.length > 0) {
-      setUploadedFiles(files);
+    try {
+      const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
+    const folderPath = `media/${selectedGroup.name}/videos`;
+    const videos = await axios.post("/api/videos/", {
+      bucketName,
+      folderPath,
+    }).then(res => {
+      if (res.data.success) {
+        return res.data.videos;
+      }
+    });
+    if (videos !== undefined && videos.length > 0) {
+      setUploadedFiles(videos);
     }
-    return files;
+    console.log('videos', videos);
+    return videos;
+    } catch (error) {
+      console.error('Error al obtener los videos', error);
+    }
   };
 
   const uppy = new Uppy({
@@ -131,7 +143,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
       if (response.ok) {
         const updatedFiles = await checkFiles();
         if (!updatedFiles) {
-          setUploadedFiles([{ name: "", size: 0 }]);
+          setUploadedFiles([{ key: "", size: 0 }]);
         } else {
           setIsLoading(true);
           setUploadedFiles(updatedFiles);
@@ -145,7 +157,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
 
   return (
     <VideoUploadContext.Provider
-      value={{ uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
+      value={{ uppy, uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
     >
       <div className="flex flex-col w-full">
         <form onSubmit={handleSubmit}>
@@ -155,15 +167,15 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
                 <h4 className="text-sm">Archivos Subidos:</h4>
                 {isLoading ? (
                   <p className="text-xs">Cargando...</p>
-                ) : uploadedFiles[0].name === "" ? (
+                ) : uploadedFiles.length === 0 ? (
                   <p className="text-xs">No hay videos subidos en el grupo</p>
                 ) : (
                   uploadedFiles.map((file: any) => {
                     return (
-                      <div key={file.name} className="flex items-center w-full">
+                      <div key={file.key} className="flex items-center w-full">
                         <div className="flex flex-row items-center gap-2">
                           <p className="text-xs font-semibold">
-                            {file.name.replace(
+                            {file.key.replace(
                               `media/${selectedGroup.name}/videos/`,
                               ""
                             )}
@@ -178,11 +190,11 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
                             className="text-light-gray hover:text-orange-600 ml-1 themeTransition font-semibold text-sm"
                             onClick={() =>
                               handleDelete(
-                                file.name.replace(
+                                file.key.replace(
                                   `media/${selectedGroup.name}/videos/`,
                                   ""
                                 ),
-                                file.id
+                                file.key
                               )
                             }
                             type="button"
@@ -210,7 +222,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
             <button
               className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
               type="submit"
-              disabled={isSubmitting} // Deshabilitar el botón mientras la solicitud está en progreso
+              disabled={false} // Deshabilitar el botón mientras la solicitud está en progreso
             >
               {isSubmitting ? "Agregando..." : "Añadir material"}
             </button>

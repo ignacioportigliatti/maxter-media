@@ -49,7 +49,13 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
     ascending: true,
   });
 
-
+ useEffect(() => {
+  if (showAutoModal === true) {
+    document.body.style.overflow = "hidden";
+  } else if (showAutoModal === false) {
+    document.body.style.overflow = "auto";
+  }
+ }, [showAutoModal]);
 
   const handleToggleModal = () => {
     setShowAutoModal((modal) => !modal);

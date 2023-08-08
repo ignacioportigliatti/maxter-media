@@ -1,9 +1,10 @@
 import Uppy from "@uppy/core";
 import { UppyFile } from "@uppy/core";
 import { AiOutlineDelete } from "react-icons/ai";
+import { UploadData } from "../PhotoUploadContext";
 
 export const renderGroupedFiles = (
-    uploadQueue: [UppyFile, any][],
+    uploadQueue: [UppyFile, UploadData][],
     uppy: Uppy,
     fileUploadProgress: Record<string, number>,
     deleteFromUploadQueue: (file: UppyFile, data: any) => void,

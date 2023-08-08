@@ -149,7 +149,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   return (
     <PhotoUploadContext.Provider
-      value={{ uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
+      value={{ uppy, uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
     >
       <div className="flex flex-col w-full">
         <form onSubmit={handleSubmit}>

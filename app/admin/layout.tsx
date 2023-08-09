@@ -59,7 +59,7 @@ export default function RootLayout({
 
   useEffect(() => {
     getAndSetData();
-  }, []);
+  });
   return (
     <html suppressHydrationWarning lang="en">
       <body>

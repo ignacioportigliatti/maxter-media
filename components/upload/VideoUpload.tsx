@@ -14,11 +14,8 @@ import { toast } from "react-toastify";
 import Uppy, { UppyFile } from "@uppy/core";
 import Spanish from "@uppy/locales/lib/es_ES";
 import { Dashboard } from "@uppy/react";
-import {
-  VideoUploadContext,
-  useVideoUploadContext,
-} from "./VideoUploadContext";
 import axios from "axios";
+import { UploadContext, useUploadContext } from "./UploadContext";
 
 interface VideoUploadProps {
   dataToUpload: {
@@ -46,8 +43,8 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
    
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } =
-    useVideoUploadContext();
+  const { photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } =
+    useUploadContext();
 
   const checkFiles = async () => {
     try {
@@ -71,7 +68,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     }
   };
 
-  const uppy = new Uppy({
+  const uploadUppy = new Uppy({
     locale: Spanish
   });
 
@@ -80,7 +77,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
 
     if (isDragging === true) {
       for (const file of dataToUpload.files) {
-        uppy.addFile({
+        uploadUppy.addFile({
           name: file.name,
           type: file.type,
           data: file,
@@ -97,7 +94,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
       }
       setIsSubmitting(true);
 
-      const uppyFiles: UppyFile[] = await uppy.getFiles();
+      const uppyFiles: UppyFile[] = await uploadUppy.getFiles();
 
       if (uppyFiles.length === 0) {
         toast.error("Selecciona al menos un archivo de video");
@@ -106,12 +103,18 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
       }
 
       const uploadPromises = uppyFiles.map((file) =>
-        addToUploadQueue(file, {
-          groupId: selectedGroup.id,
-          groupName: selectedGroup.name,
-          agencyName: selectedGroup.agencyName as string,
-          fileName: file.name,
-        })
+        {
+          try {
+            addToVideoUploadQueue(file, {
+              groupId: selectedGroup.id,
+              groupName: selectedGroup.name,
+              agencyName: selectedGroup.agencyName as string,
+              fileName: file.name,
+            })
+          } catch (error) {
+            console.error(error);
+          }
+        }
       );
 
       await Promise.all(uploadPromises).then(() => {
@@ -156,8 +159,8 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   };
 
   return (
-    <VideoUploadContext.Provider
-      value={{ uppy, uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
+    <UploadContext.Provider
+      value={{ photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue }}
     >
       <div className="flex flex-col w-full">
         <form onSubmit={handleSubmit}>
@@ -211,7 +214,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
             <div className="w-1/2 p-1 flex flex-col justify-start items-start">
               <Dashboard
                 className="w-full bg-black"
-                uppy={uppy}
+                uppy={uploadUppy}
                 showProgressDetails={false}
                 proudlyDisplayPoweredByUppy={false}
                 hideUploadButton={true}
@@ -235,6 +238,6 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
           </div>
         </form>
       </div>
-    </VideoUploadContext.Provider>
+    </UploadContext.Provider>
   );
 };

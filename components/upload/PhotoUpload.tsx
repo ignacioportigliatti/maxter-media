@@ -15,10 +15,7 @@ import { toast } from "react-toastify";
 import Uppy, { UppyFile } from "@uppy/core";
 import Spanish from "@uppy/locales/lib/es_ES";
 import { Dashboard } from "@uppy/react";
-import {
-  PhotoUploadContext,
-  usePhotoUploadContext,
-} from "./PhotoUploadContext";
+import { UploadContext, useUploadContext } from "./UploadContext";
 
 interface PhotoUploadProps {
   dataToUpload: {
@@ -45,8 +42,8 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
     { name: "", size: 0 },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { uploadQueue, addToUploadQueue, deleteFromUploadQueue } =
-    usePhotoUploadContext();
+  const { photoUploadQueue, addToPhotoUploadQueue, photoUppy, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } =
+    useUploadContext();
 
   const checkFiles = async () => {
     const files = await getGoogleStorageFiles(
@@ -95,7 +92,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
       const uploadPromises = uppyFiles.map((file) => {
         try {
-          addToUploadQueue(file, {
+          addToPhotoUploadQueue(file, {
             groupId: selectedGroup.id,
             groupName: selectedGroup.name,
             agencyName: selectedGroup.agencyName as string,
@@ -148,8 +145,8 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   };
 
   return (
-    <PhotoUploadContext.Provider
-      value={{ uppy, uploadQueue, addToUploadQueue, deleteFromUploadQueue }}
+    <UploadContext.Provider
+      value={{ photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue }}
     >
       <div className="flex flex-col w-full">
         <form onSubmit={handleSubmit}>
@@ -227,6 +224,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           </div>
         </form>
       </div>
-    </PhotoUploadContext.Provider>
+    </UploadContext.Provider>
   );
 };

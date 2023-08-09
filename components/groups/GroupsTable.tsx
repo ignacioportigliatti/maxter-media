@@ -180,7 +180,7 @@ export const GroupsTable = () => {
 
   return (
     <div>
-      <ToastContainer />
+  
       <div className="flex flex-col">
         <div className="md:overflow-hidden border border-gray-200 dark:border-medium-gray">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

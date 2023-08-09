@@ -4,14 +4,13 @@ import { StatusBar } from "@uppy/react";
 import AwsS3 from "@uppy/aws-s3";
 import Uppy, { UppyFile } from "@uppy/core";
 import axios from "axios";
-import { useVideoUploadContext } from "./VideoUploadContext";
-import { UploadData, usePhotoUploadContext } from "./PhotoUploadContext";
 import Spanish from "@uppy/locales/lib/es_ES";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
 import * as uppyLocale from "./locale/uploadQueue_es.json";
 import JSZip from "jszip";
 import { renderGroupedFiles } from "./utils/renderGroupedFiles";
+import { UploadData, useUploadContext } from "./UploadContext";
 
 interface UploadQueueProps {
   toggleModal: () => void;
@@ -30,8 +29,12 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
   const [fileUploadProgress, setFileUploadProgress] = useState<
     Record<string, number>
   >({});
-  const { uppy, uploadQueue, addToUploadQueue, deleteFromUploadQueue } =
-    activeTab === "videos" ? useVideoUploadContext() : usePhotoUploadContext();
+  const { photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } = useUploadContext();
+  const uppy = activeTab === "photos" ? photoUppy : videoUppy;
+  const uploadQueue = activeTab === "photos" ? photoUploadQueue : videoUploadQueue;
+
+// Now you can use the `uploadContext` object throughout your component
+  console.log('uploadQueue', uploadQueue);
 
   const groupFilesByGroupName = (files: [UppyFile, any][]) => {
     const groupedFiles: Record<string, [UppyFile, any][]> = {};
@@ -66,6 +69,7 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
             }));
           })
           .on("upload-success", (file, data) => {
+            toast.success(`Archivo ${file?.name} subido correctamente`);
             setCompletedFiles((prevFiles) => [...prevFiles, file as UppyFile]);
           })
           .on("upload-error", (file, error) => {

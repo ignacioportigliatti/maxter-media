@@ -128,9 +128,6 @@ dependencies:
   next-themes:
     specifier: ^0.2.1
     version: 0.2.1(next@13.4.7)(react-dom@18.2.0)(react@18.2.0)
-  node-cache:
-    specifier: ^5.1.2
-    version: 5.1.2
   photoswipe:
     specifier: ^5.3.8
     version: 5.3.8
@@ -4113,13 +4110,6 @@ packages:
 
   /node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
-    dev: false
-
-  /node-cache@5.1.2:
-    resolution: {integrity: sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==}
-    engines: {node: '>= 8.0.0'}
-    dependencies:
-      clone: 2.1.2
     dev: false
 
   /node-fetch@2.6.12(encoding@0.1.13):

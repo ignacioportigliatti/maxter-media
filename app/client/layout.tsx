@@ -6,14 +6,12 @@ import { ClientSidebar } from "@/components/client/ClientSidebar";
 import { TbPhotoAi } from "react-icons/tb";
 import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { useEffect, useState } from "react";
-import { getGoogleStorageFiles, getGroups } from "@/utils";
 import { Agency, Codes, Group } from "@prisma/client";
 import { useSelectGroup } from "@/redux/groupManager";
 import axios from "axios";
-import { getSignedUrl } from "@/utils/googleStorage/getSignedUrl";
 import { useSearchParams } from "next/navigation";
 import ClientHeader from "@/components/client/ClientHeader";
-import useSignedVideoUrl from "@/components/my-videos/hooks/useSignedVideoUrl";
+
 
 interface FolderWithPhotos {
   folder: string;

@@ -1,7 +1,7 @@
 import Uppy from "@uppy/core";
 import { UppyFile } from "@uppy/core";
 import { AiOutlineDelete } from "react-icons/ai";
-import { UploadData } from "../PhotoUploadContext";
+import { UploadData } from "../UploadContext";
 
 export const renderGroupedFiles = (
     uploadQueue: [UppyFile, UploadData][],
@@ -69,7 +69,6 @@ export const renderGroupedFiles = (
                     <td align="right" className="px-4 py-2">
                       <button
                         onClick={() => {
-                          uppy?.removeFile(file.id);
                           deleteFromUploadQueue(file, data);
                         }}
                         className=""

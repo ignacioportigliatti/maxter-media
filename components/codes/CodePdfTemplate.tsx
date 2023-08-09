@@ -95,7 +95,7 @@ import {
         <Page size={{ width: 288, height: 512 }} style={styles.page}>
           <View style={styles.section}>
             <Image
-              style={styles.agencyLogo}
+              style={styles.agencyLogo} 
               src={selectedAgency.logoSrc as string}
             />
             <Text style={styles.h1}>Mi Viaje de Egresados 2023</Text>

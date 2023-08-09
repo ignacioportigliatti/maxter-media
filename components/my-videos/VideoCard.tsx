@@ -7,6 +7,7 @@ import { Agency, Group } from "@prisma/client";
 import VideoLightbox from "./VideoLightBox";
 import VideoThumbnail from "react-video-thumbnail"; // use npm published version
 import axios from "axios";
+import Image from "next/image";
 
 interface VideoCardProps {
   title: string;
@@ -78,9 +79,11 @@ export const VideoCard = (props: VideoCardProps) => {
 
         <div className="flex flex-row mt-3 gap-2">
           <a href="#">
-            <img
+            <Image
               src={selectedAgency?.logoSrc as string}
               alt="Agency Logo"
+              width={40}
+              height={40}
               className="rounded-full max-h-10 max-w-10 mr-2"
             />
           </a>

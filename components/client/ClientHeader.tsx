@@ -25,7 +25,7 @@ const ClientHeader = (props: ClientHeaderProps) => {
     >
       <div>
         {/* Utilizamos currentNavItemLabel en lugar de selectedNavItemLabel */}
-        <h2 className="font-light text-3xl md:pl-16 animate-in transition fade-in-40">
+        <h2 className="font-light text-2xl md:text-3xl md:pl-16 animate-in transition fade-in-40">
           {currentNavItemLabel}
         </h2>
       </div>

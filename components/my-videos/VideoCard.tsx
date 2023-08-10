@@ -33,10 +33,10 @@ export const VideoCard = (props: VideoCardProps) => {
   };
 
   return (
-    <div>
-      <div className="w-[350px] flex flex-col">
+    <>
+      <div className="flex flex-col gap-6">
         <div
-          className="w-full h-[196px] cursor-pointer"
+          className="cursor-pointer"
           onClick={openLightbox}
         >
           <HoverVideoPlayer
@@ -48,7 +48,7 @@ export const VideoCard = (props: VideoCardProps) => {
             disableRemotePlayback
             disablePictureInPicture
             loadingOverlay={
-              <div className="h-[196px] min-w-[350px] flex items-center justify-center">
+              <div className="flex items-center justify-center">
                 <svg
                   aria-hidden="true"
                   className="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -67,7 +67,7 @@ export const VideoCard = (props: VideoCardProps) => {
                 </svg>
               </div>
             }
-            pausedOverlayWrapperClassName="h-[196px] min-w-[350px]"
+            pausedOverlayWrapperClassName=""
             pausedOverlay={
               <VideoThumbnail
                 videoUrl={videoSrc as string}
@@ -77,7 +77,7 @@ export const VideoCard = (props: VideoCardProps) => {
           />
         </div>
 
-        <div className="flex flex-row mt-3 gap-2">
+        <div className="flex flex-row">
           <a href="#">
             <Image
               src={selectedAgency?.logoSrc as string}
@@ -113,6 +113,6 @@ export const VideoCard = (props: VideoCardProps) => {
           />
         )}
       </div>
-    </div>
+    </>
   );
 };

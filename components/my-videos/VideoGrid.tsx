@@ -36,13 +36,13 @@ export const VideoGrid = (props: VideoGridProps) => {
   return (
     <div className="flex animate-in fade-in-0 duration-500">
       <div className="flex flex-row items-start justify-between mx-auto">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-2 max-w-6xl">
           {videos.map((video: any, index: number) => (
             <VideoCard
               key={video.Key} // Utilizar una propiedad única del video como clave
               title={video.Key.split("/")[3].split(".")[0]}
               agencyName={selectedGroup.agencyName as string}
-              uploadedAt={formatUploadedAt(video.lastModified)}
+              uploadedAt={formatUploadedAt(video.LastModified)}
               filePath={video.Key}
               videoIndex={index}
             />

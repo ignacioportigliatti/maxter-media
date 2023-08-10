@@ -8,7 +8,7 @@ export default function MyVideosPage() {
   const group: Group = useSelector((state: any) => state.group);
 
   return (
-    <div className="w-full p-14">
+    <div className="w-full p-9 pb-16 md:p-14">
       {group && <VideoGrid selectedGroup={group as Group} />}
     </div>
   );

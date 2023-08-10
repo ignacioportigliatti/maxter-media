@@ -11,7 +11,7 @@ import { useSelectGroup } from "@/redux/groupManager";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import ClientHeader from "@/components/client/ClientHeader";
-
+import { ClientMobileNavbar } from "@/components/client/ClientMobileNavbar";
 
 interface FolderWithPhotos {
   folder: string;
@@ -60,18 +60,22 @@ export default function RootLayout({
       );
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
       const folderPath = `media/${group.name}/videos`;
-      const videos = await axios.post("/api/videos/", {
-        bucketName,
-        folderPath,
-      }).then(res => {
-        if (res.data.success) {
-          return res.data.videos;
-        }
-      });
-      const photos = await axios.post('/api/photos/', {
-        bucketName: bucketName,
-        folderPath: `media/${group.name}/photos`
-      }).then(res => res.data.photos)
+      const videos = await axios
+        .post("/api/videos/", {
+          bucketName,
+          folderPath,
+        })
+        .then((res) => {
+          if (res.data.success) {
+            return res.data.videos;
+          }
+        });
+      const photos = await axios
+        .post("/api/photos/", {
+          bucketName: bucketName,
+          folderPath: `media/${group.name}/photos`,
+        })
+        .then((res) => res.data.photos);
       const foldersMap = new Map<string, any[]>();
 
       if (photos !== undefined) {
@@ -83,7 +87,6 @@ export default function RootLayout({
           foldersMap.set(folder, folderPhotos);
         });
       }
-
 
       // Convertir el Map a un array de objetos FolderWithPhotos
       const foldersWithPhotosArray: FolderWithPhotos[] = Array.from(
@@ -97,18 +100,18 @@ export default function RootLayout({
         };
       });
 
-
-
       const signedPhotos: FolderWithPhotos[] = await Promise.all(
         foldersWithPhotosArray.map(async (folderWithPhotos) => {
           const firstPhoto = folderWithPhotos.photos[0];
           const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-          console.log('firstPhoto', firstPhoto)
-          const firstPhotoSignedUrl = await axios.post('/api/sign-url/', {
-            bucketName: bucketName,
-            fileName: firstPhoto.Key
-          }).then(res => res.data.url)
-          console.log('firstPhotoSignedUrl', firstPhotoSignedUrl)
+          console.log("firstPhoto", firstPhoto);
+          const firstPhotoSignedUrl = await axios
+            .post("/api/sign-url/", {
+              bucketName: bucketName,
+              fileName: firstPhoto.Key,
+            })
+            .then((res) => res.data.url);
+          console.log("firstPhotoSignedUrl", firstPhotoSignedUrl);
           const signedThumbnail = { ...firstPhoto, url: firstPhotoSignedUrl };
           const signedPhotos = [
             signedThumbnail,
@@ -177,16 +180,27 @@ export default function RootLayout({
         <div className="flex w-screen h-screen">
           <ToastContainer />
           <div className="flex w-full">
-            <div className="min-h-screen">
+            <div className="hidden md:flex min-h-screen">
               <ClientSidebar
                 navigationItems={navigationItems}
                 agency={agency}
                 setSelectedNavItemLabel={setSelectedNavItemLabel}
               />
             </div>
+            <div className="flex md:hidden">
+              <ClientMobileNavbar
+                navigationItems={navigationItems}
+                agency={agency}
+                setSelectedNavItemLabel={setSelectedNavItemLabel}
+              />
+            </div>
             <div className="lg:h-full flex flex-col mx-auto w-full">
-              <ClientHeader agency={agency} selectedGroup={selectedGroup} selectedNavItemLabel={selectedNavItemLabel}/>
-              <div className="h-full pt-16 pl-14">{children}</div>
+              <ClientHeader
+                agency={agency}
+                selectedGroup={selectedGroup}
+                selectedNavItemLabel={selectedNavItemLabel}
+              />
+              <div className="h-full pt-16 md:pl-14">{children}</div>
             </div>
           </div>
         </div>

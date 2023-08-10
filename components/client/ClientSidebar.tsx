@@ -40,7 +40,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
           className="flex-col items-center text-gray-700 shadow h-full"
         >
           <div className="h-16 flex items-center w-full">
-            <Link className="h-6 w-6 mx-auto" href="http://svelte.dev/">
+            <Link className="h-6 w-6 mx-auto" href={navigationItems[0].href}>
               <Image
                 className="h-6 w-6 mx-auto"
                 src={agency.logoSrc as string}
@@ -87,7 +87,11 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                       textDecoration: "none", // Opcional: quitar el subrayado del enlace
                     }}
                     className="h-16 px-6 flex justify-center items-center w-full"
-                    onClick={setSelectedNavItemLabel ? () => setSelectedNavItemLabel(item.label) : () => {}}
+                    onClick={
+                      setSelectedNavItemLabel
+                        ? () => setSelectedNavItemLabel(item.label)
+                        : () => {}
+                    }
                   >
                     {item.icon}
                   </Link>
@@ -97,25 +101,26 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
           </ul>
 
           <div className="mt-auto h-16 flex items-center w-full">
-            <button
-            
-              onMouseEnter={() =>
-                setHoveredItems((prevState) => ({
-                  ...prevState,
-                  [4]: true,
-                }))
-              }
-              onMouseLeave={() =>
-                setHoveredItems((prevState) => ({
-                  ...prevState,
-                  [4]: false,
-                }))
-              }
-              className="h-16 w-full mx-auto flex justify-center items-center
-				focus:text-orange-500 hover:bg-red-200 focus:outline-none"
-            >
-              <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:opacity-100" />
-            </button>
+            <Link className="w-full mx-auto flex justify-center items-center" href='/'>
+              <button
+                onMouseEnter={() =>
+                  setHoveredItems((prevState) => ({
+                    ...prevState,
+                    [4]: true,
+                  }))
+                }
+                onMouseLeave={() =>
+                  setHoveredItems((prevState) => ({
+                    ...prevState,
+                    [4]: false,
+                  }))
+                }
+                className="h-16 
+				focus:text-orange-500  focus:outline-none"
+              >
+                <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:text-red-800 hover:opacity-100 duration-500" />
+              </button>
+            </Link>
           </div>
         </aside>
       </div>

@@ -37,7 +37,7 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
         className="fixed flex flex-row z-50 bottom-0 items-center justify-between text-gray-700 shadow w-full pl-8"
       >
        
-          <Link className="h-6 w-6" href="http://svelte.dev/">
+          <Link className="h-6 w-6" href={navigationItems[0].href}>
             <Image
               className="h-6 w-6 mx-auto"
               src={agency.logoSrc as string}

@@ -33,7 +33,7 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
   const ThumbnailImage = () => {
     return (
       <div className="react-thumbnail-generator">
-        <img src={snapshot as string} alt="my video thumbnail" />
+        <img src={snapshot as string} className="h-full" alt="my video thumbnail" />
       </div>
     );
   };

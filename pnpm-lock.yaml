@@ -50,6 +50,9 @@ dependencies:
   '@uppy/aws-s3':
     specifier: ^3.2.1
     version: 3.2.1(@uppy/core@3.3.1)
+  '@uppy/aws-s3-multipart':
+    specifier: ^3.5.2
+    version: 3.5.2(@uppy/core@3.3.1)
   '@uppy/core':
     specifier: ^3.3.1
     version: 3.3.1

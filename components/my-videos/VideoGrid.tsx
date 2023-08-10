@@ -39,11 +39,11 @@ export const VideoGrid = (props: VideoGridProps) => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 gap-y-4 max-w-6xl">
           {videos.map((video: any, index: number) => (
             <VideoCard
-              key={video.key} // Utilizar una propiedad única del video como clave
-              title={video.key.split("/")[3].split(".")[0]}
+              key={video.Key} // Utilizar una propiedad única del video como clave
+              title={video.Key.split("/")[3].split(".")[0]}
               agencyName={selectedGroup.agencyName as string}
               uploadedAt={formatUploadedAt(video.lastModified)}
-              filePath={video.key}
+              filePath={video.Key}
               videoIndex={index}
             />
           ))}

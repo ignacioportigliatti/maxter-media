@@ -56,7 +56,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
       const signedPhotosPromises: Promise<any>[] = folderWithPhotos.photos.map(
         async (photo) => {
-          const cachedPhoto = localStorage.getItem(photo.key);
+          const cachedPhoto = localStorage.getItem(photo.Key);
 
           if (cachedPhoto) {
             // Parse the cached photo data and check if it has expired
@@ -71,7 +71,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
               const signedPhoto = await axios
                 .post("/api/sign-url/", {
                   bucketName: bucketName,
-                  fileName: photo.key,
+                  fileName: photo.Key,
                 })
                 .then((res) => res.data.url);
 
@@ -81,7 +81,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
                 url: signedPhoto,
                 expiration,
               });
-              localStorage.setItem(photo.key, cachedPhotoData);
+              localStorage.setItem(photo.Key, cachedPhotoData);
 
               return { ...photo, url: signedPhoto };
             }
@@ -90,7 +90,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
             const signedPhoto = await axios
               .post("/api/sign-url/", {
                 bucketName: bucketName,
-                fileName: photo.key,
+                fileName: photo.Key,
               })
               .then((res) => res.data.url);
 
@@ -100,7 +100,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
               url: signedPhoto,
               expiration,
             });
-            localStorage.setItem(photo.key, cachedPhotoData);
+            localStorage.setItem(photo.Key, cachedPhotoData);
 
             return { ...photo, url: signedPhoto };
           }
@@ -215,12 +215,12 @@ export const PhotoGrid = (props: PhotoGridProps) => {
                       (photo, index) => (
                         <div
                           className="cursor-pointer opacity-75 hover:opacity-100 transition duration-500"
-                          key={photo.key}
+                          key={photo.Key}
                         >
                           <Item
                             original={photo.url}
                             thumbnail={photo.url}
-                            id={photo.key}
+                            id={photo.Key}
                           >
                             {({ ref, open }) => (
                               <Image

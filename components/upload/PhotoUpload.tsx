@@ -16,6 +16,7 @@ import Uppy, { UppyFile } from "@uppy/core";
 import Spanish from "@uppy/locales/lib/es_ES";
 import { Dashboard } from "@uppy/react";
 import { UploadContext, useUploadContext } from "./UploadContext";
+import axios from "axios";
 
 interface PhotoUploadProps {
   dataToUpload: {
@@ -46,14 +47,14 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
     useUploadContext();
 
   const checkFiles = async () => {
-    const files = await getGoogleStorageFiles(
-      "maxter-media",
-      `media/${dataToUpload.group.name}/photos`
-    );
-    if (files !== undefined && files.length > 0) {
-      setUploadedFiles(files);
+    const photos = await axios.post("/api/photos/", {
+      bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
+      folderPath: `media/${selectedGroup.name}/photos`,
+    }).then((res) => res.data.photos);
+    if (photos !== undefined && photos.length > 0) {
+      setUploadedFiles(photos);
     }
-    return files;
+    return photos;
   };
 
   const uppy = new Uppy({
@@ -117,12 +118,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   const handleDelete = async (fileName: string, photoId: string) => {
     try {
-      await deleteGoogleStorageFile(
-        fileName,
-        `media%2F${selectedGroup.name}%2Fphotos`,
-        "maxter-media"
-      );
-
+      
       const response = await fetch(
         `/api/upload/photos?groupId=${selectedGroup.id}&photoId=${photoId}`,
         {
@@ -161,10 +157,10 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                 ) : (
                   uploadedFiles.map((file: any) => {
                     return (
-                      <div key={file.name} className="flex items-center w-full">
+                      <div key={file.Key} className="flex items-center w-full">
                         <div className="flex flex-row items-center gap-2">
                           <p className="text-xs font-semibold">
-                            {file.name.replace(
+                            {file.Key.replace(
                               `media/${selectedGroup.name}/photos/`,
                               ""
                             )}
@@ -173,17 +169,17 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
                         <div className="flex flex-row ml-2 justify-center items-center">
                           <p className="text-[10px] text-gray-500">
-                            {formatBytes(file.size)}
+                            {formatBytes(file.Size)}
                           </p>
                           <button
                             className="text-light-gray hover:text-orange-600 ml-1 themeTransition font-semibold text-sm"
                             onClick={() =>
                               handleDelete(
-                                file.name.replace(
+                                file.Key.replace(
                                   `media/${selectedGroup.name}/photos/`,
                                   ""
                                 ),
-                                file.id
+                                file.Key
                               )
                             }
                             type="button"

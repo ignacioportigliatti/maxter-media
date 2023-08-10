@@ -18,15 +18,7 @@ export async function POST(req: Request) {
         if (err) {
           reject(err);
         } else {
-          const videoList =
-            data.Contents?.map((obj) => {
-              return {
-                key: obj.Key,
-                size: obj.Size,
-                lastModified: obj.LastModified,
-              };
-            }) || [];
-          resolve(videoList);
+         resolve(data.Contents);
         }
       });
     });

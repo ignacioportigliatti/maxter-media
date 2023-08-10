@@ -21,18 +21,18 @@ const VideoLightbox = (props: VideoLightboxProps) => {
     const videos = useSelector((state: any) => state.videos);
   
     // Call the hook directly in the component body
-    const currentVideoSrc = useSignedVideoUrl(videos[currentVideoIndex].key);
+    const currentVideoSrc = useSignedVideoUrl(videos[currentVideoIndex].Key);
   
     const previousVideo = () => {
       const newIndex = Math.max(currentVideoIndex - 1, 0);
       setCurrentVideoIndex(newIndex);
-      setCurrentTitle(videos[newIndex].key.split("/")[3].split(".")[0]);
+      setCurrentTitle(videos[newIndex].Key.split("/")[3].split(".")[0]);
     };
   
     const nextVideo = () => {
       const newIndex = Math.min(currentVideoIndex + 1, videos.length - 1);
       setCurrentVideoIndex(newIndex);
-      setCurrentTitle(videos[newIndex].key.split("/")[3].split(".")[0]);
+      setCurrentTitle(videos[newIndex].Key.split("/")[3].split(".")[0]);
     };
   
     return (

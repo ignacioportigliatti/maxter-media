@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 
-
 // Interface para el objeto de caché de URLs firmadas
 interface SignedUrlCache {
   [key: string]: {
@@ -24,14 +23,7 @@ export async function POST(request: Request) {
   const body: RequestBody = await request.json();
   const { bucketName, fileName, isUpload, contentType } = body;
 
-  const cacheKey = `${bucketName}/${fileName}`;
-
   try {
-
-
-// Obtén la fecha y hora actual más 1 hora en milisegundos
-
-
     // Generar una nueva URL firmada
     const params = {
       Bucket: bucketName,
@@ -39,7 +31,6 @@ export async function POST(request: Request) {
       ContentType: contentType,
       Expires: 60 * 60,
     };
-
     let url;
 
     if (isUpload === true) {
@@ -50,8 +41,10 @@ export async function POST(request: Request) {
       url = await wasabiClient.getSignedUrl("getObject", params);
     }
 
-
-    return NextResponse.json({ method: isUpload === true ? 'PUT' : 'GET', url: url });
+    return NextResponse.json({
+      method: isUpload === true ? "PUT" : "GET",
+      url: url,
+    });
   } catch (error) {
     return NextResponse.json({ error: "Error al firmar la URL" });
   }

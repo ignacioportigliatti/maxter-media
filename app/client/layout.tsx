@@ -200,7 +200,7 @@ export default function RootLayout({
                 selectedGroup={selectedGroup}
                 selectedNavItemLabel={selectedNavItemLabel}
               />
-              <div className="h-full pt-16 md:pl-14">{children}</div>
+              <div className="h-full pt-16 md:pl-14 max-w-[100vw]">{children}</div>
             </div>
           </div>
         </div>

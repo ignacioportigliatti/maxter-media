@@ -5,7 +5,7 @@ import useSignedVideoUrl from "./hooks/useSignedVideoUrl";
 import { useSelector } from "react-redux";
 import { Agency, Group } from "@prisma/client";
 import VideoLightbox from "./VideoLightBox";
-import VideoThumbnail from "react-video-thumbnail"; // use npm published version
+import VideoThumbnail from "./VideoThumbnail"; // use npm published version
 import axios from "axios";
 import Image from "next/image";
 
@@ -34,7 +34,7 @@ export const VideoCard = (props: VideoCardProps) => {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 lg:w-1/4 md:w-1/3 w-full px-4 md:p-0">
         <div
           className="cursor-pointer"
           onClick={openLightbox}
@@ -46,6 +46,7 @@ export const VideoCard = (props: VideoCardProps) => {
             preload="metadata"
             unloadVideoOnPaused
             disableRemotePlayback
+            sizingMode="overlay"
             disablePictureInPicture
             loadingOverlay={
               <div className="flex items-center justify-center">
@@ -67,11 +68,12 @@ export const VideoCard = (props: VideoCardProps) => {
                 </svg>
               </div>
             }
-            pausedOverlayWrapperClassName=""
+            pausedOverlayWrapperClassName="block"
             pausedOverlay={
               <VideoThumbnail
                 videoUrl={videoSrc as string}
                 snapshotAtTime={25}
+                width={300}
               />
             }
           />

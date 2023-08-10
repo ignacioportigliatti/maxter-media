@@ -177,10 +177,19 @@ export default function RootLayout({
           </div>
         </div>
       ) : isVerified ? (
-        <div className="flex w-screen h-screen">
+        <div className="flex flex-col w-screen h-full">
           <ToastContainer />
-          <div className="flex w-full">
-            <div className="hidden md:flex min-h-screen">
+          <div className="flex flex-col w-full h-full">
+          <div className="h-full flex flex-col z-50 mx-auto w-full">
+              <ClientHeader
+                agency={agency}
+                selectedGroup={selectedGroup}
+                selectedNavItemLabel={selectedNavItemLabel}
+              />
+            </div>
+              <div className="h-full flex min-h-screen py-16 md:pl-14 max-w-[100vw]">{children}</div>
+
+            <div className="hidden md:flex">
               <ClientSidebar
                 navigationItems={navigationItems}
                 agency={agency}
@@ -194,14 +203,7 @@ export default function RootLayout({
                 setSelectedNavItemLabel={setSelectedNavItemLabel}
               />
             </div>
-            <div className="lg:h-full flex flex-col mx-auto w-full">
-              <ClientHeader
-                agency={agency}
-                selectedGroup={selectedGroup}
-                selectedNavItemLabel={selectedNavItemLabel}
-              />
-              <div className="h-full pt-16 md:pl-14 max-w-[100vw]">{children}</div>
-            </div>
+            
           </div>
         </div>
       ) : (

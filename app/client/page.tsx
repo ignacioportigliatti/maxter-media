@@ -4,8 +4,8 @@ import { Steps } from "@/components/home/Steps";
 
 export default function ClientHome() {
   return (
-    <div className="w-full">
-      <div className="flex flex-col justify-start items-center mx-auto p-7">
+    <div className="w-full h-full">
+      <div className="flex flex-col justify-start items-center mx-auto my-auto h-full p-7">
         <div className="text-center">
           <h4 className="-mb-[5px]">PROMO 2023</h4>
           <h1>Tu Viaje de Egresados</h1>

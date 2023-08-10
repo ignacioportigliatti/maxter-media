@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 export const Steps = () => {
   
   return (
-    <div className="flex flex-row flex-wrap">
+    <div className="flex h-full flex-row flex-wrap justify-center items-center">
       <Step
         title="Buscá"
         description="El material que adquiriste con tu código de compra, podes encontrarlos en el menú de la izquierda."

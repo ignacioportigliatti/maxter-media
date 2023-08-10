@@ -33,11 +33,10 @@ export const VideoGrid = (props: VideoGridProps) => {
   };
 
   return (
-    <div className="flex animate-in fade-in-0 duration-500">
-      <div className="flex flex-row items-start justify-center mx-auto">
-        <div className="flex flex-wrap gap-2 justify-center items-start">
+   
+      <div className="flex flex-row items-start justify-center mx-auto animate-in fade-in-0 duration-500">
+        <div className="flex flex-wrap gap-2 justify-center items-start min-w-screen w-full h-full">
           {videos.map((video: any, index: number) => (
-          
               <VideoCard
                 key={video.Key}
                 title={video.Key.split("/")[3].split(".")[0]}
@@ -46,10 +45,8 @@ export const VideoGrid = (props: VideoGridProps) => {
                 filePath={video.Key}
                 videoIndex={index}
               />
-          
           ))}
         </div>
       </div>
-    </div>
   );
 };

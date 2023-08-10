@@ -21,7 +21,7 @@ export const VideoCard = (props: VideoCardProps) => {
   const { title, agencyName, uploadedAt, filePath, videoIndex } = props;
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
-
+  const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
   const videoSrc: string | undefined = useSignedVideoUrl(filePath as string);
 
   const openLightbox = () => {
@@ -35,10 +35,7 @@ export const VideoCard = (props: VideoCardProps) => {
   return (
     <>
       <div className="flex flex-col gap-6 lg:w-1/4 md:w-1/3 w-full px-4 md:p-0">
-        <div
-          className="cursor-pointer"
-          onClick={openLightbox}
-        >
+        <div className="cursor-pointer" onClick={openLightbox}>
           <HoverVideoPlayer
             videoSrc={videoSrc}
             playbackRangeStart={25}
@@ -68,7 +65,8 @@ export const VideoCard = (props: VideoCardProps) => {
                 </svg>
               </div>
             }
-            pausedOverlayWrapperClassName="block"
+            className="w-full h-full"
+            pausedOverlayWrapperClassName="block w-full h-full"
             pausedOverlay={
               <VideoThumbnail
                 videoUrl={videoSrc as string}
@@ -79,7 +77,7 @@ export const VideoCard = (props: VideoCardProps) => {
           />
         </div>
 
-        <div className="flex flex-row">
+        <div className="flex -mt-3 flex-row">
           <a href="#">
             <Image
               src={selectedAgency?.logoSrc as string}

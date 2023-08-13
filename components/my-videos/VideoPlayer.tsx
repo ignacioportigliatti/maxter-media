@@ -10,7 +10,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps ) => {
   return (
     <video
       autoPlay
-      className={`w-full h-auto`}
+      className={`w-full h-full`}
       preload="metadata"
       controls
       src={videoSrc}

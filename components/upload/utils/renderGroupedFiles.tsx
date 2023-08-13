@@ -4,10 +4,12 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { UploadData } from "../UploadContext";
 
 export const renderGroupedFiles = (
+    activeTab: string,
     uploadQueue: [UppyFile, UploadData][],
     uppy: Uppy,
     fileUploadProgress: Record<string, number>,
-    deleteFromUploadQueue: (file: UppyFile, data: any) => void,
+    deleteFromVideoUploadQueue: (file: UppyFile, data: any) => void,
+    deleteFromPhotoUploadQueue: (file: UppyFile, data: any) => void,
     groupedFiles: Record<string, [UppyFile, any][]>
   ) => {
     return uploadQueue.length === 0 ? (
@@ -69,7 +71,11 @@ export const renderGroupedFiles = (
                     <td align="right" className="px-4 py-2">
                       <button
                         onClick={() => {
-                          deleteFromUploadQueue(file, data);
+                          if (activeTab === 'videos') {
+                            deleteFromVideoUploadQueue(file, data);
+                          } else if (activeTab === 'photos') {
+                            deleteFromPhotoUploadQueue(file, data)
+                          }
                         }}
                         className=""
                       >

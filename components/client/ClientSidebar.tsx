@@ -32,7 +32,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
     return <></>;
   } else {
     return (
-      <div className="fixed z-50 min-h-screen h-full top-0">
+      <div className="min-h-screen h-full top-0">
         <aside
           style={{
             backgroundColor: agency.primaryColor as string,

@@ -64,12 +64,14 @@ export default function RootLayout({
         .post("/api/videos/", {
           bucketName,
           folderPath,
+          needThumbs: true,
         })
         .then((res) => {
           if (res.data.success) {
             return res.data.videos;
           }
         });
+        console.log('videos', videos)
       const photos = await axios
         .post("/api/photos/", {
           bucketName: bucketName,
@@ -177,25 +179,28 @@ export default function RootLayout({
           </div>
         </div>
       ) : isVerified ? (
-        <div className="flex flex-col w-screen h-full">
+        <div className="flex w-screen h-full">
           <ToastContainer />
-          <div className="flex flex-col w-full h-full">
-          <div className="h-full flex flex-col z-50 mx-auto w-full">
+          <div className="hidden md:flex">
+            <ClientSidebar
+              navigationItems={navigationItems}
+              agency={agency}
+              setSelectedNavItemLabel={setSelectedNavItemLabel}
+            />
+          </div>
+
+          <div className="flex flex-col w-full min-h-screen h-full">
+            <div className="flex w-full">
               <ClientHeader
                 agency={agency}
                 selectedGroup={selectedGroup}
                 selectedNavItemLabel={selectedNavItemLabel}
               />
             </div>
-              <div className="h-full flex min-h-screen py-16 md:pl-14 max-w-[100vw]">{children}</div>
-
-            <div className="hidden md:flex">
-              <ClientSidebar
-                navigationItems={navigationItems}
-                agency={agency}
-                setSelectedNavItemLabel={setSelectedNavItemLabel}
-              />
+            <div className="h-full flex max-w-[100vw]">
+              {children}
             </div>
+
             <div className="flex md:hidden">
               <ClientMobileNavbar
                 navigationItems={navigationItems}
@@ -203,7 +208,6 @@ export default function RootLayout({
                 setSelectedNavItemLabel={setSelectedNavItemLabel}
               />
             </div>
-            
           </div>
         </div>
       ) : (

@@ -24,6 +24,15 @@ export async function POST(request: Request) {
   const { bucketName, fileName, isUpload, contentType } = body;
 
   try {
+    // Verificar si ya tenemos una URL firmada en caché para este fileName
+    if (signedUrlCache[fileName] && signedUrlCache[fileName].expires > Date.now()) {
+      console.log(`Usando URL firmada en caché para ${fileName}`)
+      return NextResponse.json({
+        method: isUpload === true ? "PUT" : "GET",
+        url: signedUrlCache[fileName].url,
+      });
+    }
+
     // Generar una nueva URL firmada
     const params = {
       Bucket: bucketName,
@@ -34,13 +43,17 @@ export async function POST(request: Request) {
     let url;
 
     if (isUpload === true) {
-      // Generar una URL firmada para cargar el archivo (PUT)
       url = await wasabiClient.getSignedUrl("putObject", params);
     } else {
-      // Generar una URL firmada para descargar el archivo (GET)
       url = await wasabiClient.getSignedUrl("getObject", params);
     }
 
+    // Almacenar la nueva URL firmada en caché
+    signedUrlCache[fileName] = {
+      url: url,
+      expires: Date.now() + 60 * 60 * 1000, // Expira en una hora (ms)
+    };
+    console.log(`URL firmada almacenada en caché para ${fileName}`);
     return NextResponse.json({
       method: isUpload === true ? "PUT" : "GET",
       url: url,

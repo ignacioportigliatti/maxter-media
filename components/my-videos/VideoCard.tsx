@@ -1,13 +1,11 @@
 // VideoCard.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HoverVideoPlayer from "react-hover-video-player";
-import useSignedVideoUrl from "./hooks/useSignedVideoUrl";
 import { useSelector } from "react-redux";
 import { Agency, Group } from "@prisma/client";
 import VideoLightbox from "./VideoLightBox";
-import VideoThumbnail from "./VideoThumbnail"; // use npm published version
-import axios from "axios";
 import Image from "next/image";
+import useSignedUrl from "@/hooks/useSignedUrl";
 
 interface VideoCardProps {
   title: string;
@@ -15,14 +13,26 @@ interface VideoCardProps {
   uploadedAt: string;
   filePath?: string;
   videoIndex: number;
+  thumbnailKey?: string;
 }
 
 export const VideoCard = (props: VideoCardProps) => {
-  const { title, agencyName, uploadedAt, filePath, videoIndex } = props;
+  const { title, agencyName, uploadedAt, filePath, videoIndex, thumbnailKey } =
+    props;
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
-  const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
-  const videoSrc: string | undefined = useSignedVideoUrl(filePath as string);
+  const videoSrc: string | undefined = useSignedUrl(filePath as string);
+  const thumbnailSrc = useSignedUrl(thumbnailKey as string);
+
+  const thumbnailImage = thumbnailSrc ? (
+    <Image
+      src={thumbnailSrc}
+      alt={`${title} thumbnail`}
+      width={320}
+      height={180}
+      className="w-full h-full"
+    />
+  ) : null;
 
   const openLightbox = () => {
     setLightboxIsOpen(true);
@@ -71,17 +81,11 @@ export const VideoCard = (props: VideoCardProps) => {
             }
             className="w-full h-full"
             pausedOverlayWrapperClassName="block w-full h-full"
-            pausedOverlay={
-              <VideoThumbnail
-                videoUrl={videoSrc as string}
-                snapshotAtTime={25}
-                width={300}
-              />
-            }
+            pausedOverlay={thumbnailImage}
           />
         </div>
 
-        <div className="flex -mt-3 flex-row">
+        <div className="flex -mt-5 flex-row">
           <a href="#">
             <Image
               src={selectedAgency?.logoSrc as string}

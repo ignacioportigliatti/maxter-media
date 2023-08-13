@@ -1,23 +1,39 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
-        // Agrega tus configuraciones personalizadas de webpack aquí
-        config.plugins.push(
-          new webpack.DefinePlugin({
-            'process.env.FLUENTFFMPEG_COV': false
-          })
-        );
-    
-        // Devuelve la configuración modificada
-        return config;
-      },
-    experimental: {
-        serverActions: true,
-        serverComponentsExternalPackages: ['@prisma/client', 'bcrypt', 'node-cache'],
-    },
-    images: {
-        domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com', 'via.placeholder.com', "maxter-media.s3.us-central-1.wasabisys.com"],
-    },
+  async headers() {
+
+    return [
+
+      {
+        // matching all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+        ]
+      }
+    ]
+  },
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+    // Agrega tus configuraciones personalizadas de webpack aquí
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.FLUENTFFMPEG_COV': false
+      })
+    );
+
+    // Devuelve la configuración modificada
+    return config;
+  },
+  experimental: {
+    serverActions: true,
+    serverComponentsExternalPackages: ['@prisma/client', 'bcrypt', 'node-cache'],
+  },
+  images: {
+    domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com', 'via.placeholder.com', "maxter-media.s3.us-central-1.wasabisys.com"],
+  },
 }
 
 module.exports = nextConfig

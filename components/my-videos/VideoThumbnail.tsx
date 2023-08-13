@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Skeleton from "react-loading-skeleton";
 
 interface VideoThumbnailProps {
   cors?: boolean;
@@ -9,6 +8,7 @@ interface VideoThumbnailProps {
   snapshotAtTime?: number;
   thumbnailHandler?: (thumbnail: string) => void;
   videoUrl: string;
+  videoId: string;
 }
 
 export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
@@ -19,6 +19,7 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
   snapshotAtTime = 2,
   thumbnailHandler,
   videoUrl,
+  videoId,
 }) => {
   const [metadataLoaded, setMetadataLoaded] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -32,13 +33,17 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
 
   const ThumbnailImage = () => {
     return (
-      <div className="react-thumbnail-generator">
-        <img src={snapshot as string} className="h-full" alt="my video thumbnail" />
-      </div>
+      thumbnailLoaded && (
+        <img
+          src={snapshot as string}
+          className="h-full w-full object-fill "
+          alt="my video thumbnail"
+        />
+      )
     );
   };
 
-  const getSnapshot = () => {
+  const getSnapshot = async () => {
     try {
       if (!videoRef.current || !canvasRef.current) {
         return;
@@ -47,8 +52,8 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
       const video = videoRef.current;
       const canvas = canvasRef.current;
 
-      canvas.height = video.videoHeight;
-      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight * 0.15;
+      canvas.width = video.videoWidth * 0.15;
 
       const context = canvas.getContext("2d");
 
@@ -57,21 +62,52 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
       }
 
       if (!width || !height) {
-        context.drawImage(video, 0, 0);
+        context.drawImage(
+          video,
+          0,
+          0,
+          video.videoWidth * 0.15,
+          video.videoHeight * 0.15
+        );
       } else {
         context.drawImage(video, 0, 0, width, height);
       }
 
-      const thumbnail = canvas.toDataURL("image/png");
+      const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.95);
 
-      video.src = "";
-      video.remove();
-      canvas.remove();
+      if (thumbnailUrl) {
+        const img = new Image();
+        img.onload = function () {
+          console.log(
+            "For image",
+            img.crossOrigin ? "WITH" : "without",
+            "crossOrigin set"
+          );
+          try {
+            const ctx = document.createElement("canvas").getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              ctx.getImageData(0, 0, 1, 1);
+            } else {
+              console.log("Canvas is not supported");
+            }
+            console.log("canvas still clean");
+          } catch (error) {
+            console.error("Canvas error:", error);
+          }
+        };
+        img.src = thumbnailUrl;
 
-      setSnapshot(thumbnail);
-      setThumbnailLoaded(true);
-      if (thumbnailHandler) {
-        thumbnailHandler(thumbnail);
+        console.log(thumbnailUrl);
+        video.src = "";
+        video.remove();
+        canvas.remove();
+        localStorage.setItem(videoId, thumbnailUrl);
+        setSnapshot(thumbnailUrl);
+        setThumbnailLoaded(true);
+        if (thumbnailHandler) {
+          thumbnailHandler(thumbnailUrl);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -85,7 +121,12 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!snapshot) {
+    const cachedThumbnail = localStorage.getItem(videoUrl);
+
+    if (cachedThumbnail) {
+      setSnapshot(cachedThumbnail);
+      setThumbnailLoaded(true);
+    } else {
       if (metadataLoaded && dataLoaded && suspended) {
         if (
           !videoRef.current?.currentTime ||
@@ -104,7 +145,7 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
   }, [metadataLoaded, dataLoaded, suspended, seeked, snapshot, snapshotAtTime]);
 
   return (
-    <div className="react-thumbnail-generator min-h-[150px] w-full h-full">
+    <div className="react-thumbnail-generator min-h-[200px] w-full h-full">
       {!snapshot && (
         <div className="w-full h-full">
           <canvas className="snapshot-generator" ref={canvasRef}></canvas>
@@ -123,7 +164,7 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
       {thumbnailLoaded === true ? (
         <ThumbnailImage />
       ) : (
-        <div className="flex w-full h-full min-h-[250px] md:min-h-[150px] animate-pulse bg-gray-400">
+        <div className="flex w-full h-full min-h-[250px] md:min-h-[200px] animate-pulse bg-gray-400">
           <p>Cargando</p>
         </div>
       )}

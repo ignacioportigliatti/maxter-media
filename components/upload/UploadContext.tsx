@@ -18,7 +18,8 @@ type UploadContextProps = {
   videoUploadQueue: [UppyFile, UploadData][];
   addToPhotoUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
   addToVideoUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
-  deleteFromUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
+  deleteFromPhotoUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
+  deleteFromVideoUploadQueue: (item: UppyFile, uploadData: UploadData) => void;
 };
 
 export const UploadContext = createContext<UploadContextProps>({
@@ -28,7 +29,8 @@ export const UploadContext = createContext<UploadContextProps>({
   videoUploadQueue: [],
   addToPhotoUploadQueue: () => {},
   addToVideoUploadQueue: () => {},
-  deleteFromUploadQueue: () => {},
+  deleteFromPhotoUploadQueue: () => {},
+  deleteFromVideoUploadQueue: () => {},
 });
 
 export const useUploadContext = () => useContext(UploadContext);
@@ -53,7 +55,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
       async getUploadParameters(file: UppyFile) {
         const response = await axios.post("/api/sign-url", {
           bucketName: "maxter-media",
-          fileName: `media/${file.meta.groupName}/uploads/${file.name}`,
+          fileName: `media/${file.meta.groupName}/photos/${file.name}`,
           isUpload: true,
           contentType: file.type,
         });
@@ -66,7 +68,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
       async getUploadParameters(file: UppyFile) {
         const response = await axios.post("/api/sign-url", {
           bucketName: "maxter-media",
-          fileName: `media/${file.meta.groupName}/uploads/${file.name}`,
+          fileName: `media/${file.meta.groupName}/videos/${file.name}`,
           isUpload: true,
           contentType: file.type,
         });
@@ -85,7 +87,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
     photoUppy.current.on("file-removed", (file) => {
       setPhotoUploadQueue((prevQueue) =>
         prevQueue.filter(
-          ([uploadedFile]) => uploadedFile.meta.id !== file.meta.id
+          ([uploadedFile]) => uploadedFile.id !== file.id
         )
       );
     });
@@ -93,7 +95,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
     videoUppy.current.on("file-removed", (file) => {
       setVideoUploadQueue((prevQueue) =>
         prevQueue.filter(
-          ([uploadedFile]) => uploadedFile.meta.id !== file.meta.id
+          ([uploadedFile]) => uploadedFile.id !== file.id
         )
       );
     });
@@ -167,10 +169,25 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
     });
   };
 
-  const deleteFromUploadQueue = (item: UppyFile, uploadData: UploadData) => {
-    photoUppy.current.removeFile(item.id);
-    videoUppy.current.removeFile(item.id);
-  };
+  const deleteFromPhotoUploadQueue = (file: UppyFile, uploadData: UploadData) => {
+    setPhotoUploadQueue((prevQueue) =>
+      prevQueue.filter(
+        ([uploadedFile]) => uploadedFile.id !== file.id
+      )
+    );
+
+    photoUppy.current.removeFile(file.id);
+  }
+
+  const deleteFromVideoUploadQueue = (file: UppyFile, uploadData: UploadData) => {
+    setVideoUploadQueue((prevQueue) =>
+      prevQueue.filter(
+        ([uploadedFile]) => uploadedFile.id !== file.id
+      )
+    );
+
+    videoUppy.current.removeFile(file.id);
+  }
 
   return (
     <UploadContext.Provider
@@ -181,7 +198,8 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
         videoUploadQueue,
         addToPhotoUploadQueue,
         addToVideoUploadQueue,
-        deleteFromUploadQueue,
+        deleteFromVideoUploadQueue,
+        deleteFromPhotoUploadQueue,
       }}
     >
       {children}

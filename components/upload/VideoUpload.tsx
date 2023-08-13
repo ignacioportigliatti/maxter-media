@@ -44,7 +44,8 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     photoUppy,
     photoUploadQueue,
     addToPhotoUploadQueue,
-    deleteFromUploadQueue,
+    deleteFromPhotoUploadQueue,
+    deleteFromVideoUploadQueue,
     videoUploadQueue,
     videoUppy,
     addToVideoUploadQueue,
@@ -58,6 +59,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
         .post("/api/videos/", {
           bucketName,
           folderPath,
+          needThumbs: false,
         })
         .then((res) => {
           if (res.data.success) {
@@ -161,7 +163,8 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
         photoUppy,
         photoUploadQueue,
         addToPhotoUploadQueue,
-        deleteFromUploadQueue,
+        deleteFromPhotoUploadQueue,
+        deleteFromVideoUploadQueue,
         videoUploadQueue,
         videoUppy,
         addToVideoUploadQueue,

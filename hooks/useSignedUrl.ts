@@ -1,30 +1,29 @@
-// useSignedVideoUrl.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function useSignedVideoUrl(filePath: string) {
-  const [videoSrc, setVideoSrc] = useState("");
+function useSignedUrl(filePath: string) {
+  const [signedUrl, setSignedUrl] = useState("");
 
   useEffect(() => {
-    const loadVideo = async () => {
+    const setUrl = async () => {
       try {
         if (!filePath) return;
 
-        const signedVideo = await axios.post("/api/sign-url", {
+        const signedUrl = await axios.post("/api/sign-url", {
           bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
           fileName: filePath,
+          isUpload: false,
         });
-
-        setVideoSrc(signedVideo.data.url);
+        setSignedUrl(signedUrl.data.url);
       } catch (error) {
         console.error("Error fetching signed URL:", error);
       }
     };
 
-    loadVideo();
+    setUrl();
   }, [filePath]);
 
-  return videoSrc;
+  return signedUrl;
 }
 
-export default useSignedVideoUrl;
+export default useSignedUrl;

@@ -43,7 +43,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
     { name: "", size: 0 },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { photoUploadQueue, addToPhotoUploadQueue, photoUppy, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } =
+  const { photoUploadQueue, addToPhotoUploadQueue, photoUppy, deleteFromPhotoUploadQueue, deleteFromVideoUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } =
     useUploadContext();
 
   const checkFiles = async () => {
@@ -142,7 +142,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   return (
     <UploadContext.Provider
-      value={{ photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue }}
+      value={{ photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromPhotoUploadQueue, deleteFromVideoUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue }}
     >
       <div className="flex flex-col w-full">
         <form onSubmit={handleSubmit}>

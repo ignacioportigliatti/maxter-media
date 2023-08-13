@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { TfiClose } from "react-icons/tfi";
 import { StatusBar } from "@uppy/react";
-import AwsS3 from "@uppy/aws-s3";
-import Uppy, { UppyFile } from "@uppy/core";
+
+import { UppyFile } from "@uppy/core";
 import axios from "axios";
-import Spanish from "@uppy/locales/lib/es_ES";
+
 import { toast } from "react-toastify";
-import { AiOutlineDelete } from "react-icons/ai";
 import * as uppyLocale from "./locale/uploadQueue_es.json";
-import JSZip from "jszip";
 import { renderGroupedFiles } from "./utils/renderGroupedFiles";
 import { UploadData, useUploadContext } from "./UploadContext";
+import { generateVideoThumbnail } from "./utils/generateVideoThumbnail";
 
 interface UploadQueueProps {
   toggleModal: () => void;
@@ -25,16 +24,25 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [completedFiles, setCompletedFiles] = useState<UppyFile[]>([]);
+  const [completedFiles, setCompletedFiles] = useState<string[]>([]);
   const [fileUploadProgress, setFileUploadProgress] = useState<
     Record<string, number>
   >({});
-  const { photoUppy, photoUploadQueue, addToPhotoUploadQueue, deleteFromUploadQueue, videoUploadQueue, videoUppy, addToVideoUploadQueue } = useUploadContext();
+  const {
+    photoUppy,
+    photoUploadQueue,
+    addToPhotoUploadQueue,
+    deleteFromPhotoUploadQueue,
+    deleteFromVideoUploadQueue,
+    videoUploadQueue,
+    videoUppy,
+    addToVideoUploadQueue,
+  } = useUploadContext();
   const uppy = activeTab === "photos" ? photoUppy : videoUppy;
-  const uploadQueue = activeTab === "photos" ? photoUploadQueue : videoUploadQueue;
+  const uploadQueue =
+    activeTab === "photos" ? photoUploadQueue : videoUploadQueue;
 
-// Now you can use the `uploadContext` object throughout your component
-  console.log('uploadQueue', uploadQueue);
+  // Now you can use the `uploadContext` object throughout your component
 
   const groupFilesByGroupName = (files: [UppyFile, any][]) => {
     const groupedFiles: Record<string, [UppyFile, any][]> = {};
@@ -54,6 +62,7 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
       try {
         uppy
           .on("upload", (data) => {
+            console.log('uploadQueue', uploadQueue)
             if (data.fileIDs.length > 0) {
               toast.info(`Subiendo ${data.fileIDs.length} archivo(s)`);
             } else {
@@ -68,9 +77,33 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
                 progress.bytesUploaded / progress.bytesTotal,
             }));
           })
-          .on("upload-success", (file, data) => {
-            toast.success(`Archivo ${file?.name} subido correctamente`);
-            setCompletedFiles((prevFiles) => [...prevFiles, file as UppyFile]);
+          .on("upload-success", async (file, data) => {
+            if (file) {
+              setCompletedFiles((prevFiles) => [...prevFiles, file.name]);
+              const { groupId, groupName, agencyName, fileName } = file.meta;
+              const uploadData: UploadData = {
+                groupId: groupId as string,
+                groupName: groupName as string,
+                agencyName: agencyName as string,
+                fileName: fileName as string,
+              };
+              console.log('file', file, 'data', data)
+              const uppyFiles = uppy.getFiles();
+
+              try {
+                if (activeTab === 'videos') {
+                  deleteFromVideoUploadQueue(file, uploadData);
+                } else if (activeTab === 'photos') {
+                  deleteFromPhotoUploadQueue(file, uploadData);
+                }
+                console.log('uppyFiles', uppyFiles);
+                console.log(uploadQueue)
+                toast.success(`Archivo ${file?.name} subido correctamente`);
+              } catch (error) {
+                toast.error(`Error al subir ${file?.name}`);
+              }
+            }
+            
           })
           .on("upload-error", (file, error) => {
             toast.error(`Error al subir ${file?.name}`);
@@ -81,9 +114,15 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
             setIsUploading(false);
           })
           .on("complete", (result) => {
-            toast.success(
-              `Subida completada de ${result.successful.length} archivo(s)`
-            );
+            if (result.successful.length > 0) {
+              toast.success(
+                `Subida completada de ${result.successful.length} archivo(s)`
+              );
+              setIsUploading(false);
+            } else {
+              toast.error("No se pudo completar la subida de los archivos");
+              setIsUploading(false);
+            }
             setIsUploading(false);
           });
 
@@ -95,17 +134,8 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
   };
 
   const clearCompletedFiles = () => {
-    completedFiles.forEach((file) => {
-      const data: UploadData = {
-        groupId: file.meta.groupId as string,
-        groupName: file.meta.groupName as string,
-        agencyName: file.meta.agencyName as string,
-        fileName: file.meta.fileName as string,
-      };
-      deleteFromUploadQueue(file, data);
-      setCompletedFiles((prevFiles) =>
-        prevFiles.filter((prevFile) => prevFile.id !== file.id)
-      );
+    completedFiles.map((fileName:string) => {
+      setCompletedFiles([]);
     });
   };
 
@@ -150,14 +180,37 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
             <div className="flex-grow h-full flex flex-col">
               <div className="overflow-auto h-full ">
                 {renderGroupedFiles(
+                  activeTab,
                   uploadQueue,
                   uppy,
                   fileUploadProgress,
-                  deleteFromUploadQueue,
+                  deleteFromVideoUploadQueue,
+                  deleteFromPhotoUploadQueue,
                   groupFilesByGroupName(uploadQueue)
                 )}
               </div>
-
+              <div>
+                {completedFiles.length > 0 ? (
+                  <div className="flex flex-row justify-center items-center gap-2">
+                    <p className="text-white text-center">
+                      {`Completados (${completedFiles.length})`}
+                    </p>
+                    <ul>
+                      {completedFiles.map((file) => (
+                        <li key={file}>
+                          <p className="text-white text-center">{file}</p>
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      onClick={clearCompletedFiles}
+                      className="button button--small"
+                    >
+                      Limpiar
+                    </button>
+                  </div>
+                ) : null}
+              </div>
               <StatusBar
                 id={`statusBar-${activeTab}`}
                 uppy={uppy}
@@ -170,7 +223,7 @@ const UploadQueue: React.FC<UploadQueueProps> = ({
         </div>
         <div className="flex flex-row gap-2 justify-center items-center w-full h-1/6 bg-dark-gray rounded-b-lg">
           <button
-            disabled={isUploading}
+            
             onClick={uploadFiles}
             className="button"
           >

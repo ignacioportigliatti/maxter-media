@@ -280,13 +280,12 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   const handleLogoUpload = async (file: File) => {
     const filePath = `agencies-logos/${file.name}`;
     const fileArrayBuffer = Buffer.from(await file.arrayBuffer());
-    console.log(fileArrayBuffer);
 
     const response = await axios.post('/api/upload/local', {
       filePath: filePath,
       file: fileArrayBuffer,
     }).then((res) => res.data);
-    return response.uploadPath;
+    return `/static/uploads/${filePath}`;
   };
 
   const handleInputChange = (

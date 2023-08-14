@@ -8,10 +8,10 @@ export async function POST(request: Request) {
   const { filePath, file } = body;
   // save file on public local folder using fs
 
-  const uploadPath = path.join(process.cwd(), `public/uploads/${filePath}`);
+  const uploadPath = path.join(process.cwd(), `/public/static/uploads/${filePath}`);
   const uploadDir = path.join(
     process.cwd(),
-    `public/uploads/${filePath.split("/").slice(0, -1).join("/")}`
+    `/public/static/uploads/${filePath.split("/").slice(0, -1).join("/")}`
   );
 
   try {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     const baseUrl = `${protocol}://${request.headers.get("host")}`;
 
-    const publicPath = path.relative(path.join(process.cwd(), "public"), uploadPath);
+    const publicPath = path.relative(path.join(process.cwd(), "/public/static"), uploadPath);
     const fileUrlOnServer = `${baseUrl}/${publicPath}`;
 
     return NextResponse.json({

@@ -56,7 +56,7 @@ export default function RootLayout({
     try {
       const agencies = await fetch("/api/agencies").then((res) => res.json());
       const selectedAgency: Agency = agencies.find(
-        (agency: any) => agency.name === group.agencyName
+        (agency: any) => agency.id === group.agencyId
       );
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
       
@@ -211,7 +211,7 @@ export default function RootLayout({
       ) : isVerified ? (
         <div className="flex w-screen h-full">
           <ToastContainer />
-          <div className="hidden min-h-full md:flex">
+          <div className="hidden min-h-full w-[10vh] md:flex">
             <ClientSidebar
               navigationItems={navigationItems}
               agency={agency}
@@ -220,14 +220,14 @@ export default function RootLayout({
           </div>
 
           <div className="flex flex-col w-full min-h-screen h-full">
-            <div className="flex w-full h-[10vh]">
+            <div className="flex sticky top-0 w-full h-[8vh] z-50">
               <ClientHeader
                 agency={agency}
                 selectedGroup={selectedGroup}
                 selectedNavItemLabel={selectedNavItemLabel}
               />
             </div>
-            <div className="min-h-[90vh] flex max-w-[100vw]">
+            <div className="min-h-[92vh] flex max-w-[100vw]">
               {children}
             </div>
 

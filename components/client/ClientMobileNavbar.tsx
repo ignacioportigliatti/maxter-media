@@ -37,9 +37,9 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
         className="fixed flex flex-row z-50 bottom-0 items-center justify-between text-gray-700 shadow w-full pl-8"
       >
        
-          <Link className="h-6 w-6" href={navigationItems[0].href}>
+          <Link className="h-8 w-8" href={navigationItems[0].href}>
             <Image
-              className="h-6 w-6 mx-auto"
+              className="h-8 w-8 mx-auto object-contain"
               src={agency.logoSrc as string}
               alt={`${agency.name} logo}`}
               width={24}
@@ -83,7 +83,7 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
                     color: agency.accentColor as string,
                     textDecoration: "none", // Opcional: quitar el subrayado del enlace
                   }}
-                  className="h-16 px-6 flex justify-center items-center"
+                  className="h-16 px-6 flex flex-col justify-center items-center"
                   onClick={
                     setSelectedNavItemLabel
                       ? () => setSelectedNavItemLabel(item.label)
@@ -91,6 +91,10 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
                   }
                 >
                   {item.icon}
+                  <p className="text-xs" style={{
+                    color: agency.accentColor as string,
+                    textDecoration: "none", // Opcional: quitar el subrayado del enlace
+                  }}>{item.label}</p>
                 </Link>
               </li>
             );

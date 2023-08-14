@@ -54,7 +54,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       .get("/api/agencies")
       .then((res) => res.data);
     const selectedAgency = agencies.find(
-      (agency: any) => agency.name === group.agencyName
+      (agency: any) => agency.id === group.agencyId
     );
     setSelectedAgency(selectedAgency);
     return selectedAgency;

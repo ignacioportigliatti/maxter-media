@@ -1,7 +1,5 @@
 import { VideoCard } from "./VideoCard";
 import { Group } from "@prisma/client";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 interface VideoGridProps {
@@ -13,6 +11,7 @@ export const VideoGrid = (props: VideoGridProps) => {
 
 
   const videos = useSelector((state: any) => state.videos);
+  console.log('videos', videos)
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
@@ -40,17 +39,19 @@ export const VideoGrid = (props: VideoGridProps) => {
   return (
    
       <div className="flex flex-row items-center justify-center mx-auto animate-in fade-in-0 duration-500">
-        <div className="flex flex-wrap gap-y-4 gap-x-2 justify-center items-center w-full h-full">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 w-full h-full">
           {videos.map((video: any, index: number) => (
+             video ? (
               <VideoCard
-                key={video.video.Key}
-                title={video.video.Key.split("/")[3].split(".")[0]}
-                agencyName={selectedGroup.agencyName as string}
-                uploadedAt={formatUploadedAt(video.video.LastModified)}
-                videoSrc={video.video.url}
-                videoIndex={index}
-                thumbnailSrc={video.thumbnail.url}
+                  key={video.video.Key}
+                  title={video.video.Key.split("/")[3].split(".")[0]}
+                  agencyName={selectedGroup.agencyName as string}
+                  uploadedAt={formatUploadedAt(video.video.LastModified)}
+                  videoSrc={video.video.url}
+                  videoIndex={index}
+                  thumbnailSrc={video.thumbnail.url}
               />
+          ) : null
           ))}
         </div>
       </div>

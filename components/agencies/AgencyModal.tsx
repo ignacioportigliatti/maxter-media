@@ -32,6 +32,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   const [primaryColor, setPrimaryColor] = useState<string>("#000000");
   const [secondaryColor, setSecondaryColor] = useState<string>("#000000");
   const [accentColor, setAccentColor] = useState<string>("#000000");
+  const [agency, setAgency] = useState<Agency | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -65,6 +66,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     setEditMode(true);
 
     const agency: Agency = await handleEditAgency();
+    setAgency(agency);
 
     if (agency) {
       try {
@@ -147,7 +149,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         if (selectedFile) {
           try {
             console.log("Subiendo archivo...");
-            const fileUpload = await handleFileUpload(selectedFile);
+            const fileUpload = await handleLogoUpload(selectedFile);
             return fileUpload;
           } catch (error) {
             console.error("Error al subir el archivo:", error);
@@ -170,7 +172,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         if (editMode) {
           const response = await axios.post(
             "/api/edit-agency",
-            updatedFormData
+            {...updatedFormData, id: agency?.id}
           );
           return response;
         } else {
@@ -213,8 +215,8 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   };
 
   const maxSize = 0.2 * 1024 * 1024;
-  const maxWidth = 128;
-  const maxHeight = 128;
+  const maxWidth = 256;
+  const maxHeight = 256;
 
   const requiredFile = editMode ? true : false;
 
@@ -275,19 +277,16 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
 
   const fileName = selectedFile?.name || "";
 
-  const handleFileUpload = async (file: File) => {
-    try {
-      const filePath = await uploadGoogleStorageFile(
-        file,
-        "agency-logos",
-        "maxter-app",
-        true
-      );
+  const handleLogoUpload = async (file: File) => {
+    const filePath = `agencies-logos/${file.name}`;
+    const fileArrayBuffer = Buffer.from(await file.arrayBuffer());
+    console.log(fileArrayBuffer);
 
-      return filePath;
-    } catch (error) {
-      console.error("Error al subir el archivo:", error);
-    }
+    const response = await axios.post('/api/upload/local', {
+      filePath: filePath,
+      file: fileArrayBuffer,
+    }).then((res) => res.data);
+    return response.uploadPath;
   };
 
   const handleInputChange = (

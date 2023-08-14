@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { ToastContainer, toast } from "react-toastify";
 import { AgencyModal } from "./";
 import { Pagination } from "@/components/ui/Pagination";
 import { Agency } from "@prisma/client";
@@ -106,7 +105,7 @@ export const AgencyTable = () => {
                       <div className="inline-flex items-center gap-x-3">
                         <div className="flex items-center gap-x-2">
                           <Image
-                            className="object-cover w-10 h-10 rounded-full bg-medium-gray"
+                            className="object-contain p-1 w-10 h-10 rounded-full bg-medium-gray"
                             src={agency.logoSrc as string}
                             alt={`${agency.name} logo`}
                             width={40}

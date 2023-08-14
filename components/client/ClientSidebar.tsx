@@ -32,95 +32,101 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
     return <></>;
   } else {
     return (
-      <div className="min-h-screen h-full top-0">
+      <div className="min-h-screen w-full h-full  top-0">
         <aside
           style={{
             backgroundColor: agency.primaryColor as string,
           }}
-          className="flex-col items-center text-gray-700 shadow min-h-full"
+          className="flex-col w-full items-center text-gray-700 shadow min-h-full"
         >
-          <div className="h-16 flex items-center w-full">
-            <Link className="h-6 w-6 mx-auto" href={navigationItems[0].href}>
-              <Image
-                className="h-6 w-6 mx-auto"
-                src={agency.logoSrc as string}
-                alt={`${agency.name} logo}`}
-                width={24}
-                height={24}
-              />
-            </Link>
-          </div>
+          <div className="sticky top-0">
+            <div className="h-16 flex items-center w-full">
+              <Link className="h-8 w-8 mx-auto" href={navigationItems[0].href}>
+                <Image
+                  className="h-8 w-8 mx-auto object-contain"
+                  src={agency.logoSrc as string}
+                  alt={`${agency.name} logo}`}
+                  width={32}
+                  height={32}
+                />
+              </Link>
+            </div>
 
-          <ul>
-            {navigationItems.map((item, index) => {
-              const isItemHovered = !!hoveredItems[index]; // Comprueba si el ítem actual está siendo hover
+            <ul>
+              {navigationItems.map((item, index) => {
+                const isItemHovered = !!hoveredItems[index]; // Comprueba si el ítem actual está siendo hover
 
-              const inlineStyles = {
-                color: agency.accentColor as string,
-                backgroundColor: isItemHovered
-                  ? agency.secondaryColor ?? ""
-                  : "transparent",
-                transition: "background-color 0.3s ease",
-              };
+                const inlineStyles = {
+                  color: agency.accentColor as string,
+                  backgroundColor: isItemHovered
+                    ? agency.secondaryColor ?? ""
+                    : "transparent",
+                  transition: "background-color 0.3s ease",
+                };
 
-              return (
-                <li
-                  key={index}
-                  style={inlineStyles}
+                return (
+                  <li
+                    key={index}
+                    style={inlineStyles}
+                    onMouseEnter={() =>
+                      setHoveredItems((prevState) => ({
+                        ...prevState,
+                        [index]: true,
+                      }))
+                    }
+                    onMouseLeave={() =>
+                      setHoveredItems((prevState) => ({
+                        ...prevState,
+                        [index]: false,
+                      }))
+                    }
+                  >
+                    <Link
+                      href={item.href}
+                      style={{
+                        color: agency.accentColor as string,
+                        textDecoration: "none", // Opcional: quitar el subrayado del enlace
+                      }}
+                      className="h-16 flex flex-col justify-center items-center w-full"
+                      onClick={
+                        setSelectedNavItemLabel
+                          ? () => setSelectedNavItemLabel(item.label)
+                          : () => {}
+                      }
+                    >
+                      {item.icon}
+                      <h5 className="text-[11px]">{item.label}</h5>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="mt-auto h-16 flex items-center w-full">
+              <Link
+                className="w-full mx-auto flex justify-center items-center"
+                href="/"
+              >
+                <button
                   onMouseEnter={() =>
                     setHoveredItems((prevState) => ({
                       ...prevState,
-                      [index]: true,
+                      [4]: true,
                     }))
                   }
                   onMouseLeave={() =>
                     setHoveredItems((prevState) => ({
                       ...prevState,
-                      [index]: false,
+                      [4]: false,
                     }))
                   }
-                >
-                  <Link
-                    href={item.href}
-                    style={{
-                      color: agency.accentColor as string,
-                      textDecoration: "none", // Opcional: quitar el subrayado del enlace
-                    }}
-                    className="h-16 px-6 flex justify-center items-center w-full"
-                    onClick={
-                      setSelectedNavItemLabel
-                        ? () => setSelectedNavItemLabel(item.label)
-                        : () => {}
-                    }
-                  >
-                    {item.icon}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-auto h-16 flex items-center w-full">
-            <Link className="w-full mx-auto flex justify-center items-center" href='/'>
-              <button
-                onMouseEnter={() =>
-                  setHoveredItems((prevState) => ({
-                    ...prevState,
-                    [4]: true,
-                  }))
-                }
-                onMouseLeave={() =>
-                  setHoveredItems((prevState) => ({
-                    ...prevState,
-                    [4]: false,
-                  }))
-                }
-                className="h-16 
+                  className="h-16 
 				focus:text-orange-500  focus:outline-none"
-              >
-                <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:text-red-800 hover:opacity-100 duration-500" />
-              </button>
-            </Link>
+                >
+                  <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:text-red-800 hover:opacity-100 duration-500" />
+                </button>
+              </Link>
+            </div>
           </div>
         </aside>
       </div>

@@ -42,7 +42,7 @@ export const VideoCard = (props: VideoCardProps) => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 lg:w-1/4 md:w-1/3 w-full px-4 md:p-0">
+      <div className="flex flex-col gap-6 w-full px-4 md:p-0 opacity-70 hover:opacity-100 duration-500">
         <div className="cursor-pointer" onClick={openLightbox}>
           <HoverVideoPlayer
             videoSrc={videoSrc}
@@ -83,8 +83,8 @@ export const VideoCard = (props: VideoCardProps) => {
           />
         </div>
 
-        <div className="flex -mt-5 flex-row">
-          <a href="#">
+        <div className="flex -mt-4 flex-row">
+          <a href="#" className="flex justify-center items-center">
             <Image
               src={selectedAgency?.logoSrc as string}
               alt="Agency Logo"
@@ -108,17 +108,15 @@ export const VideoCard = (props: VideoCardProps) => {
           </div>
         </div>
       </div>
-      <div>
-        {lightboxIsOpen && (
-          <VideoLightbox
-            videoIndex={videoIndex}
-            videoSrc={videoSrc}
-            title={title}
-            closeLightbox={closeLightbox}
-            agencyLogoSrc={selectedAgency?.logoSrc as string}
-          />
-        )}
-      </div>
+      {lightboxIsOpen && (
+        <VideoLightbox
+          videoIndex={videoIndex}
+          videoSrc={videoSrc}
+          title={title}
+          closeLightbox={closeLightbox}
+          agencyLogoSrc={selectedAgency?.logoSrc as string}
+        />
+      )}
     </>
   );
 };

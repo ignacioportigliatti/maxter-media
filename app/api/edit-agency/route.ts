@@ -5,13 +5,13 @@ export async function POST(request: Request) {
   //Getting body
   const body = await request.json();
   //Extracting body
-  const { name, location, phone, email, logoSrc, primaryColor, secondaryColor, accentColor } = body;
+  const { name, location, phone, email, logoSrc, primaryColor, secondaryColor, accentColor, id } = body;
   //Creating group
   try {
     // Crea un nuevo grupo con los datos del formulario
 
     const agenciesList = await prisma.agency.findMany();
-    const agencyToEdit = agenciesList.find((agency) => agency.name === name);
+    const agencyToEdit = agenciesList.find((agency) => agency.id === id);
     
       try {
         const agency = await prisma.agency.update({

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { GroupModal } from "./";
-import { Group } from "@prisma/client";
+import { Agency, Group } from "@prisma/client";
 import { Pagination } from "@/components/ui/Pagination";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
 import {
@@ -37,6 +37,7 @@ export const GroupsTable = () => {
   const [editMode, setEditMode] = useState(false);
   const [filter, setFilter] = useState<Record<string, string>>({});
   const groups: Group[] = useSelector((state: any) => state.groups);
+  const agencies: Agency[] = useSelector((state: any) => state.agencies);
 
   const [sortOrder, setSortOrder] = useState<{
     column: string | null;
@@ -154,6 +155,11 @@ export const GroupsTable = () => {
     }
   };
 
+  const renderAgencyName = (agencyId: string) => {
+    const agency = agencies.find((agency: Agency) => agency.id === agencyId);
+    return agency?.name;
+  }
+
   const renderFilterInput = (column: string) => {
     if (column === "entry" || column === "exit") {
       return (
@@ -234,7 +240,7 @@ export const GroupsTable = () => {
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                       <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-                      <h2 className="text-sm">{group.agencyName}</h2>
+                      <h2 className="text-sm">{renderAgencyName(group.agencyId as string)}</h2>
                     </td>
                     <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                       {group.coordinator}

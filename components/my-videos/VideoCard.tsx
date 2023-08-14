@@ -11,18 +11,16 @@ interface VideoCardProps {
   title: string;
   agencyName: string;
   uploadedAt: string;
-  filePath?: string;
   videoIndex: number;
-  thumbnailKey?: string;
+  videoSrc: string;
+  thumbnailSrc: string;
 }
 
 export const VideoCard = (props: VideoCardProps) => {
-  const { title, agencyName, uploadedAt, filePath, videoIndex, thumbnailKey } =
+  const { title, agencyName, uploadedAt, videoSrc, videoIndex, thumbnailSrc } =
     props;
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
-  const videoSrc: string | undefined = useSignedUrl(filePath as string);
-  const thumbnailSrc = useSignedUrl(thumbnailKey as string);
 
   const thumbnailImage = thumbnailSrc ? (
     <Image

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import VideoPlayer from "./VideoPlayer";
 import { useSelector } from "react-redux";
-import useSignedVideoUrl from "../../hooks/useSignedUrl";
+import useSignedUrl from "../../hooks/useSignedUrl";
 
 type VideoLightboxProps = {
   videoSrc: string;
@@ -22,7 +22,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
 
 
   // Call the hook directly in the component body
-  const currentVideoSrc = useSignedVideoUrl(reduxVideos[currentVideoIndex].video.Key);
+  const currentVideoSrc = reduxVideos[currentVideoIndex].video.url;
 
   const previousVideo = () => {
     const newIndex = Math.max(currentVideoIndex - 1, 0);
@@ -51,12 +51,14 @@ const VideoLightbox = (props: VideoLightboxProps) => {
           <div className="font-semibold text-white">{currentTitle}</div>
         </div>
         <div className="flex space-x-4">
-          <button
+          <a href={currentVideoSrc ? currentVideoSrc : videoSrc}>
+            <button
             onClick={closeLightbox}
             className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
           >
             <TbDownload className="w-6 h-6" width={24} height={24} />
           </button>
+          </a>
           <button
             onClick={closeLightbox}
             className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"

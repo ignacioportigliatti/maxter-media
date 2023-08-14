@@ -47,9 +47,9 @@ export const VideoGrid = (props: VideoGridProps) => {
                 title={video.video.Key.split("/")[3].split(".")[0]}
                 agencyName={selectedGroup.agencyName as string}
                 uploadedAt={formatUploadedAt(video.video.LastModified)}
-                filePath={video.video.Key}
+                videoSrc={video.video.url}
                 videoIndex={index}
-                thumbnailKey={video.thumbnail.Key}
+                thumbnailSrc={video.thumbnail.url}
               />
           ))}
         </div>

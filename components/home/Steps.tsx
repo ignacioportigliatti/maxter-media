@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 export const Steps = () => {
   
   return (
-    <div className="flex h-full flex-row flex-wrap justify-center items-center">
+    <div className="flex flex-col md:flex-row gap-x-4 flex-wrap justify-center items-center">
       <Step
         title="Buscá"
         description="El material que adquiriste con tu código de compra, podes encontrarlos en el menú de la izquierda."
@@ -18,7 +18,7 @@ export const Steps = () => {
       />
       <Step
         title="Mirá"
-        description="Las fotos y/o videos de tu viaje. Elegí la excursión que quieras ver y disfrutá de todos esos hermosos recuerdos."
+        description="Las fotos y/o videos de tu viaje. Elegí la excursión que quieras ver y disfrutá de todos tus recuerdos."
         stepNumber={2}
         icon={<AiOutlinePlayCircle className="w-8 h-8" />}
       />

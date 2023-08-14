@@ -21,7 +21,7 @@ const ClientHeader = (props: ClientHeaderProps) => {
   return (
     <div
       style={{ backgroundColor: agency.primaryColor as string }}
-      className="flex w-full min-w-screen flex-row items-center justify-between themeTransition py-3 px-6 text-black dark:text-white"
+      className="flex w-full min-w-screen flex-row items-center justify-between themeTransition h-full px-6 text-black dark:text-white"
     >
       <div>
         {/* Utilizamos currentNavItemLabel en lugar de selectedNavItemLabel */}

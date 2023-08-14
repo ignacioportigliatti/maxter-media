@@ -59,19 +59,49 @@ export default function RootLayout({
         (agency: any) => agency.name === group.agencyName
       );
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-      const folderPath = `media/${group.name}/videos`;
-      const videos = await axios
-        .post("/api/videos/", {
-          bucketName,
-          folderPath,
-          needThumbs: true,
-        })
-        .then((res) => {
-          if (res.data.success) {
-            return res.data.videos;
-          }
-        });
-        console.log('videos', videos)
+      
+      
+      const getVideos = async () => {
+        const folderPath = `media/${group.name}/videos`;
+
+       const videos =  await axios
+       .post("/api/videos/", {
+         bucketName,
+         folderPath,
+         needThumbs: true,
+       })
+       .then((res) => {
+         if (res.data.success) {
+           return res.data.videos;
+         }
+       });
+
+       const signedVideos = await Promise.all(
+          videos.map(async (video: any) => {
+            const signedVideo = await axios
+              .post("/api/sign-url/", {
+                bucketName: bucketName,
+                fileName: video.video.Key,
+              })
+              .then((res) => res.data.url);
+
+            const signedThumb = await axios
+              .post("/api/sign-url/", {
+                bucketName: bucketName,
+                fileName: video.thumbnail.Key,
+              })
+
+            return { video: { ...video.video, url: signedVideo }, thumbnail: { ...video.thumbnail, url: signedThumb.data.url } };
+          })
+       )
+        
+        return signedVideos;
+
+      }
+
+      const videos = await getVideos();
+      console.log('videos', videos)
+
       const photos = await axios
         .post("/api/photos/", {
           bucketName: bucketName,
@@ -181,7 +211,7 @@ export default function RootLayout({
       ) : isVerified ? (
         <div className="flex w-screen h-full">
           <ToastContainer />
-          <div className="hidden md:flex">
+          <div className="hidden min-h-full md:flex">
             <ClientSidebar
               navigationItems={navigationItems}
               agency={agency}
@@ -190,14 +220,14 @@ export default function RootLayout({
           </div>
 
           <div className="flex flex-col w-full min-h-screen h-full">
-            <div className="flex w-full">
+            <div className="flex w-full h-[10vh]">
               <ClientHeader
                 agency={agency}
                 selectedGroup={selectedGroup}
                 selectedNavItemLabel={selectedNavItemLabel}
               />
             </div>
-            <div className="h-full flex max-w-[100vw]">
+            <div className="min-h-[90vh] flex max-w-[100vw]">
               {children}
             </div>
 

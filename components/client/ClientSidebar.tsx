@@ -37,7 +37,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
           style={{
             backgroundColor: agency.primaryColor as string,
           }}
-          className="flex-col items-center text-gray-700 shadow h-full"
+          className="flex-col items-center text-gray-700 shadow min-h-full"
         >
           <div className="h-16 flex items-center w-full">
             <Link className="h-6 w-6 mx-auto" href={navigationItems[0].href}>

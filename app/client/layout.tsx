@@ -58,6 +58,15 @@ export default function RootLayout({
       const selectedAgency: Agency = agencies.find(
         (agency: any) => agency.id === group.agencyId
       );
+
+      const signedAgencyLogo = await axios
+        .post("/api/sign-url/", {
+          bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
+          fileName: selectedAgency.logoSrc,
+        })
+        .then((res) => res.data.url);
+
+      selectedAgency.logoSrc = signedAgencyLogo;
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
       
       
@@ -158,6 +167,8 @@ export default function RootLayout({
       );
       setSelectedGroup(group);
       setAgency(selectedAgency);
+
+      console.log('signedPhotos' , signedPhotos)
 
       selectGroup(group, videos, signedPhotos, selectedAgency);
     } catch (error) {

@@ -8,15 +8,25 @@ import Image from "next/image";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import PhotoGallery from "./PhotoGallery";
 
 interface PhotoGridProps {
   selectedGroup: Group;
 }
 
-interface FolderWithPhotos {
+export interface FolderWithPhotos {
   folder: string;
   photos: any[];
   thumbnail: string;
+}
+
+export interface Photo {
+  Key: string;
+  LastModified: string;
+  ETag: string;
+  Size: number;
+  StorageClass: string;
+  url: string;
 }
 
 export const PhotoGrid = (props: PhotoGridProps) => {
@@ -24,7 +34,8 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
-  const [cachedPhotos, setCachedPhotos] = useState<Record<string, any[]>>({});
+
+  const [signedPhotos, setSignedPhotos] = useState<any[]>([]);
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
   const foldersWithPhotos: FolderWithPhotos[] = useSelector(
     (state: any) => state.photos
@@ -37,13 +48,9 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
-    setIsGalleryOpen((prev) => !prev);
+    setIsGalleryOpen(true);
 
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-
-    if (cachedPhotos[folder]) {
-      return;
-    }
 
     try {
       const folderWithPhotos = foldersWithPhotos.find(
@@ -54,67 +61,25 @@ export const PhotoGrid = (props: PhotoGridProps) => {
         return;
       }
 
-      const signedPhotosPromises: Promise<any>[] = folderWithPhotos.photos.map(
-        async (photo) => {
-          const cachedPhoto = localStorage.getItem(photo.Key);
+      const newSignedPhotos = []; // Crear un nuevo array para las fotos firmadas
 
-          if (cachedPhoto) {
-            // Parse the cached photo data and check if it has expired
-            const { url, expiration } = JSON.parse(cachedPhoto);
+      for (const photo of folderWithPhotos.photos) {
+        try {
+          const signedPhoto = await axios.post("/api/sign-url/", {
+            bucketName: bucketName,
+            fileName: photo.Key,
+          });
 
-            const currentTime = Date.now();
-            if (expiration && currentTime < expiration) {
-              // Use the cached URL if it's still valid
-              return { ...photo, url };
-            } else {
-              // If the cached URL has expired, fetch a new signed URL from the server
-              const signedPhoto = await axios
-                .post("/api/sign-url/", {
-                  bucketName: bucketName,
-                  fileName: photo.Key,
-                })
-                .then((res) => res.data.url);
-
-              // Cache the new signed URL in local storage for one hour
-              const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
-              const cachedPhotoData = JSON.stringify({
-                url: signedPhoto,
-                expiration,
-              });
-              localStorage.setItem(photo.Key, cachedPhotoData);
-
-              return { ...photo, url: signedPhoto };
-            }
-          } else {
-            // If the photo URL is not cached, fetch a new signed URL from the server
-            const signedPhoto = await axios
-              .post("/api/sign-url/", {
-                bucketName: bucketName,
-                fileName: photo.Key,
-              })
-              .then((res) => res.data.url);
-
-            // Cache the signed URL in local storage for one hour
-            const expiration = Date.now() + 60 * 60 * 1000; // One hour from now
-            const cachedPhotoData = JSON.stringify({
-              url: signedPhoto,
-              expiration,
-            });
-            localStorage.setItem(photo.Key, cachedPhotoData);
-
-            return { ...photo, url: signedPhoto };
-          }
+          newSignedPhotos.push({
+            ...photo,
+            url: signedPhoto.data.url,
+          });
+        } catch (error) {
+          console.error("Error obteniendo la URL firmada de la foto:", error);
         }
-      );
+      }
 
-      // Wait for all the promises to resolve using Promise.all
-      const signedPhotos = await Promise.all(signedPhotosPromises);
-
-      // Update the cachedPhotos state with the new signed photo URLs
-      setCachedPhotos((prevState) => ({
-        ...prevState,
-        [folder]: signedPhotos,
-      }));
+      setSignedPhotos(newSignedPhotos); // Actualizar el estado con las fotos únicas
     } catch (error) {
       console.error("Error al obtener las URL firmadas de las fotos:", error);
     }
@@ -163,6 +128,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
               width={384}
               height={180}
               onClick={() => handleFolderClick(folderWithPhotos.folder)}
+              className="aspect-video object-cover"
             />
           </div>
           <div className="flex flex-row mt-3 gap-2">
@@ -189,62 +155,12 @@ export const PhotoGrid = (props: PhotoGridProps) => {
           </div>
 
           {isGalleryOpen && selectedFolder === folderWithPhotos.folder ? (
-            <div className="z-50 flex flex-col w-full h-full absolute top-0 left-0 bg-medium-gray ">
-              <div className="fixed flex flex-row items-center w-full bg-dark-gray z-30 h-[50px] justify-end">
-                <button
-                  onClick={handleGalleryClose}
-                  className="flex flex-row justify-center items-center button !border-0 duration-500"
-                >
-                  <p className="!text-white text-sm font-semibold ">Volver</p>
-                  <TbDoorExit />
-                </button>
-                <button
-                  onClick={handleGalleryClose}
-                  className="flex flex-row justify-center items-center button !border-0 duration-500"
-                >
-                  <p className="!text-white text-sm font-semibold ">
-                    Descargar
-                  </p>
-                  <TbDownload />
-                </button>
-              </div>
-              <div className="bg-medium-gray pt-[50px]">
-                <Gallery id={folderWithPhotos.folder} withDownloadButton>
-                  <div className="grid grid-cols-4 p-9 gap-2 relative top-0 animate-in fade-in-0 duration-1000">
-                    {cachedPhotos[folderWithPhotos.folder]?.map(
-                      (photo, index) => (
-                        <div
-                          className="cursor-pointer opacity-75 hover:opacity-100 transition duration-500"
-                          key={photo.Key}
-                        >
-                          <Item
-                            original={photo.url}
-                            thumbnail={photo.url}
-                            id={photo.Key}
-                          >
-                            {({ ref, open }) => (
-                              <Image
-                                alt={`${folderWithPhotos.folder} Foto ${index}`}
-                                ref={ref as any}
-                                onClick={open}
-                                width={384}
-                                height={180}
-                                src={photo.url}
-                                className="fade-in-0 duration-1000"
-                                onLoad={(e) => {
-                                  e.currentTarget.className +=
-                                    " fade-in-0 duration-1000 animate";
-                                }}
-                              />
-                            )}
-                          </Item>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </Gallery>
-              </div>
-            </div>
+            <PhotoGallery
+              selectedFolder={selectedFolder}
+              handleGalleryClose={handleGalleryClose}
+              signedPhotos={signedPhotos}
+              folderWithPhotos={folderWithPhotos}
+            />
           ) : null}
         </div>
       ))}

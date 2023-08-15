@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { setAgencies } from "@/redux/agenciesSlice";
 import { getAgencies } from "@/utils";
+import axios from "axios";
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -18,6 +19,7 @@ export const AgencyTable = () => {
   const dispatch = useDispatch();
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const agencies: Agency[] = useSelector((state: any) => state.agencies);
+
 
   const handleToggleModal = () => {
     setShowModal((modal) => !modal);
@@ -174,7 +176,7 @@ export const AgencyTable = () => {
           toggleModal={handleToggleModal}
           buttonText="Agregar Empresa"
           refresh={() =>
-            getAgencies().then((agencies) => dispatch(setAgencies(agencies as Agency[])))
+            dispatch(setAgencies(agencies as Agency[]))
           }
         />
       )}

@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
 import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 
-// Interface para el objeto de caché de URLs firmadas
-interface SignedUrlCache {
-  [key: string]: {
-    url: string;
-    expires: number;
-  };
-}
-
 interface RequestBody {
   bucketName: string;
   fileName: string;
@@ -35,7 +27,7 @@ export async function POST(request: Request) {
     } else {
       url = await wasabiClient.getSignedUrl("getObject", params);
     }
-    
+
     return NextResponse.json({
       method: isUpload === true ? "PUT" : "GET",
       url: url,

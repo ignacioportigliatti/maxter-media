@@ -170,10 +170,10 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           accentColor,
         };
         if (editMode) {
-          const response = await axios.post(
-            "/api/edit-agency",
-            {...updatedFormData, id: agency?.id}
-          );
+          const response = await axios.post("/api/edit-agency", {
+            ...updatedFormData,
+            id: agency?.id,
+          });
           return response;
         } else {
           await checkName();
@@ -278,14 +278,18 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   const fileName = selectedFile?.name || "";
 
   const handleLogoUpload = async (file: File) => {
-    const filePath = `agencies-logos/${file.name}`;
+    const filePath = `app/agencies-logos/${file.name}`;
     const fileArrayBuffer = Buffer.from(await file.arrayBuffer());
 
-    const response = await axios.post('/api/upload/local', {
-      filePath: filePath,
-      file: fileArrayBuffer,
-    }).then((res) => res.data);
-    return `/static/uploads/${filePath}`;
+    const response = await axios
+      .post("/api/upload/", {
+        bucketName: "maxter-media",
+        filePath: filePath,
+        fileBlob: fileArrayBuffer,
+      })
+      .then((res) => res.data);
+    console.log(response);
+    return response.src;
   };
 
   const handleInputChange = (
@@ -445,7 +449,6 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           </div>
         </div>
       </div>
-
     </div>
   );
 };

@@ -13,15 +13,16 @@ export async function POST(req: Request) {
 
   // Realiza la solicitud para listar los objetos
   try {
-    const photos = await new Promise((resolve, reject) => {
+    const photos: any[] = await new Promise((resolve, reject) => {
       wasabiClient.listObjectsV2(params, (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(data.Contents);
+          resolve(data.Contents as any[]);
         }
       });
     });
+
     return NextResponse.json({ success: true, photos: photos });
   } catch (error) {
     return NextResponse.json({ success: false, error: error });

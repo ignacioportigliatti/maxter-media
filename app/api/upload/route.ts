@@ -2,35 +2,42 @@ import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 import { ManagedUpload } from "aws-sdk/clients/s3";
 import { NextResponse } from "next/server";
 
+interface RequestBody {
+  bucketName: string;
+  filePath: string;
+  fileBlob: any;
+}
+
+function uploadToWasabi(params: any): Promise<string> {
+  return new Promise((resolve, reject) => {
+    wasabiClient.upload(params, (err: Error, data: ManagedUpload.SendData) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+      } else {
+        resolve(data.Key);
+      }
+    });
+  });
+}
+
 export async function POST(request: Request) {
-    const body = await request.json();
-    const { bucketName, filePath, fileBlob } = body;
+  const body: RequestBody = await request.json();
+  const { bucketName, filePath, fileBlob } = body;
 
-    const params = {
-        Bucket: bucketName,
-        Key: filePath,
-        Body: fileBlob,
-    }
+  const buffer = Buffer.from(fileBlob.data);
+  const uploadParams = {
+    Bucket: bucketName,
+    Key: filePath,
+    Body: buffer,
+  };
 
-    try {
-        const uploadedFileKey = await new Promise((resolve, reject) => {
-           try {
-            wasabiClient.upload(params, (err: Error, data: ManagedUpload.SendData) => {
-                if (err) {
-                    console.log(err);
-                    reject(err);
-                } else {
-                    console.log(data);
-                    resolve(data.Key);
-                }
-            });
-           } catch (error) {
-            console.error(error);
-           }
-        })
+  try {
+    const uploadedKey = await uploadToWasabi(uploadParams);
 
-        return NextResponse.json({ success: true, fileKey: uploadedFileKey })
-    } catch (error) {
-        return NextResponse.json({ success: false, error: error })
-    }
+    return NextResponse.json({ success: true, src: uploadedKey });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ success: false, error: error });
+  }
 }

@@ -44,7 +44,6 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     primaryColor: "",
     secondaryColor: "",
     accentColor: "",
-    allInclusive: false,
   });
 
   const [editMode, setEditMode] = useState(false);
@@ -61,7 +60,6 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         primaryColor: "",
         secondaryColor: "",
         accentColor: "",
-        allInclusive: false,
       });
       return;
     }
@@ -82,7 +80,6 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           primaryColor: agency.primaryColor as string,
           secondaryColor: agency.secondaryColor as string,
           accentColor: agency.accentColor as string,
-          allInclusive: agency.allInclusive as boolean,
         });
         setPrimaryColor(agency.primaryColor as string);
         setSecondaryColor(agency.secondaryColor as string);
@@ -366,23 +363,6 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
               </div>
               <div className="grid grid-cols-1 gap-4">
                 
-              {/* <div className="flex bg-orange-500 w-fit px-2 text-white items-center mt-4 justify-start rounded-lg gap-2">
-                <label  className="text-sm" htmlFor="allInclusive">Todo Incluido?</label>
-                  <input
-                  className="w-3 h-3"
-                    id="allInclusive"
-                    type="checkbox"
-                    onChange={(event) =>
-                      handleInputChange(event, "allInclusive")
-                    }
-                    required
-                  />
-                  {formErrors.allInclusive && (
-                    <p className="text-red-500 text-xs">
-                      {formErrors.allInclusive}
-                    </p>
-                  )}{" "}
-                </div> */}
                 <FileUpload
                   label="Logo"
                   id="logo"

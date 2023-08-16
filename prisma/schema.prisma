@@ -16,7 +16,6 @@ model Agency {
   location String
   phone    String
   email    String
-  allInclusive Boolean @default(false)
   logoSrc  String?
   primaryColor String?
   secondaryColor String?

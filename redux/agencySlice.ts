@@ -10,7 +10,6 @@ const initialState: Agency = {
     phone: "",
     email: "",
     logoSrc: "",
-    groupIds: [],
     primaryColor: "",
     secondaryColor: "",
     accentColor: "",

@@ -62,8 +62,8 @@ export default function RootLayout({
 
           const cachedSignedUrl = localStorage.getItem(cacheKey);
           const parsedCachedSignedUrl = cachedSignedUrl ? JSON.parse(cachedSignedUrl) : null;
-
-          if (cachedSignedUrl) {
+          
+          if (cachedSignedUrl && parsedCachedSignedUrl.expiration > Date.now()) {
             return { ...agency, logoSrc: parsedCachedSignedUrl.url };
           }
 
@@ -76,7 +76,7 @@ export default function RootLayout({
             .then(res => res.data.url);
 
           // Store the signed URL in localStorage with expiration time
-          const expirationTimestamp = Date.now() + 55 * 60 * 1000; // 55 minutes in milliseconds
+          const expirationTimestamp = Date.now() + 55 * 60 * 1000; // 55 minutes in milliseconds - 3 hours 
           const cacheObject = { url: signedLogoSrc, expiration: expirationTimestamp };
           localStorage.setItem(cacheKey, JSON.stringify(cacheObject));
 

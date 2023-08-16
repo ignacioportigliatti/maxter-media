@@ -16,15 +16,11 @@ model Agency {
   location String
   phone    String
   email    String
+  allInclusive Boolean @default(false)
   logoSrc  String?
   primaryColor String?
   secondaryColor String?
   accentColor String?
-
-  // Agrega un campo `groupIds` para almacenar los IDs de los grupos asociados a la agencia
-  groupIds  String[] 
-
-  // Remueve la relación `groups` existente
 
   groups    Group[] 
 }
@@ -40,11 +36,11 @@ model Group {
   agencyId    String?  @db.ObjectId
   agency      Agency?  @relation(fields: [agencyId], references: [id])
 
-  agencyName  String? 
+  agencyName  String?
   photosIds   String[]
   videoIds    String[]
 
-  codes      Codes[]
+  codes      Codes[] 
 
   inQueue    UploadQueue[]
 }
@@ -56,6 +52,7 @@ model Codes {
   included    Boolean
   optional    Boolean
   type        String
+  link        String
   expires     DateTime
   qrCode      String
   

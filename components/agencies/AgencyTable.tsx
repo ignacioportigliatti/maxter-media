@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAgencies } from "@/redux/agenciesSlice";
 import { getAgencies } from "@/utils";
 import axios from "axios";
+import { AgencyWithGroups } from "@/types/prisma";
 
 export const AgencyTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -18,7 +19,7 @@ export const AgencyTable = () => {
   const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
-  const agencies: Agency[] = useSelector((state: any) => state.agencies);
+  const agencies: AgencyWithGroups[] = useSelector((state: any) => state.agencies);
 
 
   const handleToggleModal = () => {
@@ -128,8 +129,8 @@ export const AgencyTable = () => {
                       <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-orange-100/60 dark:bg-medium-gray">
                         <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
                         <h2 className="text-sm font-normal text-orange-500">
-                          {agency.groupIds.length}{" "}
-                          {agency.groupIds.length !== 1 ? "Grupos" : "Grupo"}
+                          {agency.groups.length}{" "}
+                          {agency.groups.length !== 1 ? "Grupos" : "Grupo"}
                         </h2>
                       </div>
                     </td>

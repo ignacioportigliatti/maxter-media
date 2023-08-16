@@ -15,6 +15,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
 
     const { selectedFolder, handleGalleryClose, signedPhotos, folderWithPhotos } = props;
     const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+    const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState<boolean>(false);
 
     const handlePhotoClick = (photoKey: string) => {
         if (selectedPhotos.includes(photoKey)) {
@@ -24,6 +25,11 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         } else {
           setSelectedPhotos((prevSelected) => [...prevSelected, photoKey]);
         }
+      };
+
+
+      const handleDownloadDropdown = () => {
+
       };
 
       const handleDownloadSelected = () => {
@@ -49,8 +55,10 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
               <p className="!text-white text-sm font-semibold ">Volver</p>
               <TbDoorExit />
             </button>
+            <div>
+
             <button
-              onClick={handleGalleryClose}
+              onClick={handleDownloadDropdown}
               className="flex flex-row justify-center items-center button !border-0 duration-500"
             >
               <p className="!text-white text-sm font-semibold ">
@@ -58,6 +66,12 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
               </p>
               <TbDownload />
             </button>
+            {isDownloadDropdownOpen && (
+              <div>
+
+              </div>
+            )}
+            </div>
           </div>
           <div className="bg-medium-gray pt-[50px]">
             <Gallery id={selectedFolder} withDownloadButton>

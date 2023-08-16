@@ -13,6 +13,15 @@ export async function DELETE(request: Request) {
       },
     });
 
+    await prisma.group.deleteMany({
+      where: {
+        agency: {
+          id: String(id),
+        }
+      },
+    });
+    
+
     console.log("Empresa eliminada correctamente");
     return NextResponse.json({ success: true }); // Agrega la propiedad "success" a la respuesta
   } catch (error) {
@@ -23,6 +32,10 @@ export async function DELETE(request: Request) {
 
 
 export async function GET(request: Request) {
-  const agencies = await prisma.agency.findMany();
+  const agencies = await prisma.agency.findMany({
+    include: {
+      groups: true,
+    },
+  });
   return NextResponse.json(agencies);
 }

@@ -8,41 +8,6 @@ export async function DELETE(request: Request) {
   try {
     
 
-    const agencyIdArray = await prisma.group.findMany({
-      where: {
-        id: String(id),
-      },
-      select: {
-        agencyId: true,
-      },
-    });
-
-    const agencyId = agencyIdArray[0].agencyId; 
-
-    const groupIdsArray = await prisma.agency.findMany({
-      where: {
-        id: agencyId as string,
-      },
-      select: {
-        groupIds: true,
-      },
-    });
-
-    const updatedGroupIds = groupIdsArray[0].groupIds.filter(
-      (group) => group !== id
-    );
-
-    await prisma.agency.updateMany({
-      where: {
-        id: agencyId as string,
-      },
-      data: {
-        groupIds: { set: updatedGroupIds },
-      },
-    });
-
-    console.log(`Group ${id} deleted from agency ${agencyId}`);
-
     await prisma.group.deleteMany({
       where: {
         id: String(id),
@@ -67,6 +32,12 @@ export async function DELETE(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const groups = await prisma.group.findMany();
+  const groups = await prisma.group.findMany(
+    {
+      include: {
+        agency: true,
+      }
+    }
+  );
   return NextResponse.json(groups);
 }

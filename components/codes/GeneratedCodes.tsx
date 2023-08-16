@@ -14,6 +14,7 @@ import { Pagination } from "../ui";
 
 import { CodePdfTemplate } from "./CodePdfTemplate";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { useSelector } from "react-redux";
 
 type GeneratedCodesProps = {
   selectedGroup: Group;
@@ -33,7 +34,8 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
   });
   const itemsPerPage = 6; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
-
+  const agencies = useSelector((state: any) => state.agencies);
+  
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -49,10 +51,9 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     }
   };
 
+
   const getSelectedAgency = async (group: Group) => {
-    const agencies: Agency[] = await axios
-      .get("/api/agencies")
-      .then((res) => res.data);
+
     const selectedAgency = agencies.find(
       (agency: any) => agency.id === group.agencyId
     );
@@ -228,9 +229,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                       loading ? <AiOutlineLoading /> : <AiOutlineFilePdf className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
                     }
                   </PDFDownloadLink>
-                  <button>
-                    <AiOutlineFileImage className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
-                  </button>
+
                   <button>
                     <AiOutlineWhatsApp className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
                   </button>

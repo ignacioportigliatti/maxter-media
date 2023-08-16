@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { useState } from "react";
@@ -17,7 +17,6 @@ interface FileUploadProps {
 export const FileUpload = (props: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  
   const {
     id,
     label,
@@ -46,33 +45,31 @@ export const FileUpload = (props: FileUploadProps) => {
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
-  
+
     const files = event.dataTransfer.files;
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.files = files;
     const fileChangeEvent = {
-      target: fileInput
+      target: fileInput,
     } as React.ChangeEvent<HTMLInputElement>;
-    
+
     handleFileChange(fileChangeEvent);
   };
-  
-  
-
 
   return (
     <div>
-      <label className="text-dark-gray dark:text-light-gray">{label}</label>
+      <label className="text-dark-gray text-sm dark:text-light-gray">
+        {label}
+      </label>
       <div
-        className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed ${
+        className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed ${
           isDragging ? "border-orange-500" : ""
         }`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-
       >
         <div className="space-y-1 text-center">
           <AiOutlineFileAdd className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
@@ -100,9 +97,7 @@ export const FileUpload = (props: FileUploadProps) => {
           </p>
         </div>
       </div>
-      {error && (
-        <p className="text-red-500 text-xs text-center">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-xs text-center">{error}</p>}
     </div>
   );
 };

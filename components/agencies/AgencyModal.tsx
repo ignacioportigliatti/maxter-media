@@ -27,6 +27,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     email: "",
     location: "",
     logoSrc: "",
+    allInclusive: "",
   });
 
   const [primaryColor, setPrimaryColor] = useState<string>("#000000");
@@ -43,6 +44,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
     primaryColor: "",
     secondaryColor: "",
     accentColor: "",
+    allInclusive: false,
   });
 
   const [editMode, setEditMode] = useState(false);
@@ -59,6 +61,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
         primaryColor: "",
         secondaryColor: "",
         accentColor: "",
+        allInclusive: false,
       });
       return;
     }
@@ -79,6 +82,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           primaryColor: agency.primaryColor as string,
           secondaryColor: agency.secondaryColor as string,
           accentColor: agency.accentColor as string,
+          allInclusive: agency.allInclusive as boolean,
         });
         setPrimaryColor(agency.primaryColor as string);
         setSecondaryColor(agency.secondaryColor as string);
@@ -121,6 +125,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           ? "El campo Provincia es requerido."
           : "",
       logoSrc: !editMode && !selectedFile ? "El campo Logo es requerido." : "",
+      allInclusive: "",
     };
 
     setFormErrors(errors);
@@ -170,14 +175,17 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
           accentColor,
         };
         if (editMode) {
-          const response = await axios.post("/api/edit-agency", {
+          const response = await axios.post("/api/agencies/edit", {
             ...updatedFormData,
             id: agency?.id,
           });
           return response;
         } else {
           await checkName();
-          const response = await axios.post("/api/new-agency", updatedFormData);
+          const response = await axios.post(
+            "/api/agencies/add",
+            updatedFormData
+          );
 
           return response;
         }
@@ -302,67 +310,79 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
 
   return (
     <div>
-      <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
-        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
-          <div className="py-2 bg-orange-500 w-full text-center relative">
-            <h2 className="text-white">
+      <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70 rounded-t-lg">
+        <div className="flex flex-col pb-7 justify-center items-center bg-white dark:bg-medium-gray w-[60%] rounded-t-lg">
+        <div className="py-4 flex flex-row w-full justify-between bg-dark-gray px-4 text-white text-center ">
+        <h2 className="text-lg uppercase font-light">
               {editMode ? "Editar empresa" : "Agregar nueva empresa"}
             </h2>
-            <button onClick={toggleModal} className="absolute top-3 right-4">
+            <button onClick={toggleModal} className=" top-3 right-6">
               <TfiClose className="w-5 h-5 text-white" />
             </button>
           </div>
           <div className="w-full px-7 flex flex-col justify-center">
             <form onSubmit={handleSubmit} noValidate>
-              <div className="grid grid-cols-2 gap-4 mx-auto">
-                <div>
-                  <Input
-                    id="empresa"
-                    label="Empresa"
-                    type="input"
-                    required
-                    value={formData.name}
-                    onChange={(event) => handleInputChange(event, "name")}
-                    error={formErrors.name}
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-x-2 mx-auto">
+                <Input
+                  id="empresa"
+                  label="Empresa"
+                  type="input"
+                  required
+                  value={formData.name}
+                  onChange={(event) => handleInputChange(event, "name")}
+                  error={formErrors.name}
+                />
 
-                <div>
-                  <Input
-                    id="telefono"
-                    label="Telefono"
-                    type="input"
-                    value={formData.phone}
-                    onChange={(event) => handleInputChange(event, "phone")}
-                    error={formErrors.phone}
-                  />
-                </div>
+                <Input
+                  id="telefono"
+                  label="Telefono"
+                  type="input"
+                  value={formData.phone}
+                  onChange={(event) => handleInputChange(event, "phone")}
+                  error={formErrors.phone}
+                />
 
-                <div>
-                  <Input
-                    id="email"
-                    label="Email"
-                    type="input"
-                    value={formData.email}
-                    onChange={(event) => handleInputChange(event, "email")}
-                    required
-                    error={formErrors.email}
-                  />
-                </div>
+                <Input
+                  id="email"
+                  label="Email"
+                  type="input"
+                  value={formData.email}
+                  onChange={(event) => handleInputChange(event, "email")}
+                  required
+                  error={formErrors.email}
+                />
 
-                <div>
-                  <Input
-                    id="provincia"
-                    label="Provincia"
-                    type="input"
-                    value={formData.location}
-                    onChange={(event) => handleInputChange(event, "location")}
-                    required
-                    error={formErrors.location}
-                  />
-                </div>
+                <Input
+                  id="provincia"
+                  label="Provincia"
+                  type="input"
+                  value={formData.location}
+                  onChange={(event) => handleInputChange(event, "location")}
+                  required
+                  error={formErrors.location}
+                />
+
+                
               </div>
-              <div className="grid grid-cols-1 pt-5 gap-4">
+              <div className="grid grid-cols-1 gap-4">
+                
+              {/* <div className="flex bg-orange-500 w-fit px-2 text-white items-center mt-4 justify-start rounded-lg gap-2">
+                <label  className="text-sm" htmlFor="allInclusive">Todo Incluido?</label>
+                  <input
+                  className="w-3 h-3"
+                    id="allInclusive"
+                    type="checkbox"
+                    onChange={(event) =>
+                      handleInputChange(event, "allInclusive")
+                    }
+                    required
+                  />
+                  {formErrors.allInclusive && (
+                    <p className="text-red-500 text-xs">
+                      {formErrors.allInclusive}
+                    </p>
+                  )}{" "}
+                </div> */}
                 <FileUpload
                   label="Logo"
                   id="logo"
@@ -376,7 +396,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                 <div className="grid grid-cols-3">
                   <div className="flex flex-col justify-center items-center">
                     <label
-                      className="text-left text-sm w-full pl-4 pb-1"
+                      className="text-left text-xs w-full pl-4 pb-1"
                       key="primary-color"
                     >
                       Color primario
@@ -394,7 +414,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                   </div>
                   <div className="flex flex-col justify-center items-center">
                     <label
-                      className="text-left text-sm w-full pl-4 pb-1"
+                      className="text-left text-xs w-full pl-4 pb-1"
                       key="primary-color"
                     >
                       Color secundario
@@ -410,9 +430,9 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                       onChange={setSecondaryColor}
                     />
                   </div>
-                  <div className="flex flex-col justify-center items-center">
+                  <div className="flex flex-col h-full justify-center items-center">
                     <label
-                      className="text-left text-sm w-full pl-4 pb-1"
+                      className="text-left text-xs w-full pl-4 pb-1"
                       key="primary-color"
                     >
                       Color de acento
@@ -430,9 +450,9 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 w-[50%] mx-auto">
+                <div className="grid grid-cols-2 gap-4 w-[75%] mx-auto">
                   <button
-                    className="p-1 button !text-white text-center !bg-green-700 hover:!bg-green-500"
+                    className="p-1 button !text-white text-center"
                     type="submit"
                   >
                     {buttonText}

@@ -22,15 +22,7 @@ export async function POST(request: Request) {
       }
     });
 
-    // Agrega el grupo a la agencia
-    await prisma.agency.update({
-      where: { id: data.agencyId },
-      data: {
-        groupIds: {
-          push: createdGroup.id
-        }
-      }
-    });
+   
 
     console.log("Grupo creado correctamente");
     return NextResponse.json({ success: true, group: createdGroup });

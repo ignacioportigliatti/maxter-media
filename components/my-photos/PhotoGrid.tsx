@@ -49,40 +49,6 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   const handleFolderClick = async (folder: string) => {
     setSelectedFolder(folder);
     setIsGalleryOpen(true);
-
-    const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-
-    try {
-      const folderWithPhotos = foldersWithPhotos.find(
-        (folderWithPhotos) => folderWithPhotos.folder === folder
-      );
-
-      if (!folderWithPhotos) {
-        return;
-      }
-
-      const newSignedPhotos = []; // Crear un nuevo array para las fotos firmadas
-
-      for (const photo of folderWithPhotos.photos) {
-        try {
-          const signedPhoto = await axios.post("/api/sign-url/", {
-            bucketName: bucketName,
-            fileName: photo.Key,
-          });
-
-          newSignedPhotos.push({
-            ...photo,
-            url: signedPhoto.data.url,
-          });
-        } catch (error) {
-          console.error("Error obteniendo la URL firmada de la foto:", error);
-        }
-      }
-
-      setSignedPhotos(newSignedPhotos); // Actualizar el estado con las fotos únicas
-    } catch (error) {
-      console.error("Error al obtener las URL firmadas de las fotos:", error);
-    }
   };
 
   const formatUploadedAt = (dateString: string) => {
@@ -96,13 +62,13 @@ export const PhotoGrid = (props: PhotoGridProps) => {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-      return `Subido hace ${days} día${days > 1 ? "s" : ""}`;
+      return `Hace ${days} día${days > 1 ? "s" : ""}`;
     } else if (hours > 0) {
-      return `Subido hace ${hours} hora${hours > 1 ? "s" : ""}`;
+      return `Hace ${hours} hora${hours > 1 ? "s" : ""}`;
     } else if (minutes > 0) {
-      return `Subido hace ${minutes} minuto${minutes > 1 ? "s" : ""}`;
+      return `Hace ${minutes} minuto${minutes > 1 ? "s" : ""}`;
     } else {
-      return "Subido hace unos segundos";
+      return "Hace unos segundos";
     }
   };
 
@@ -135,7 +101,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
             <a href="#">
               <img
                 src={selectedAgency?.logoSrc as string}
-                className="rounded-full max-h-10 max-w-10 mr-2"
+                className="rounded-full max-h-10 max-w-10"
               />
             </a>
 
@@ -158,7 +124,6 @@ export const PhotoGrid = (props: PhotoGridProps) => {
             <PhotoGallery
               selectedFolder={selectedFolder}
               handleGalleryClose={handleGalleryClose}
-              signedPhotos={signedPhotos}
               folderWithPhotos={folderWithPhotos}
             />
           ) : null}

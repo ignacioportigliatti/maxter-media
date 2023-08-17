@@ -83,8 +83,8 @@ export const VideoCard = (props: VideoCardProps) => {
           />
         </div>
 
-        <div className="flex -mt-4 flex-row">
-          <a href="#" className="flex justify-center items-center">
+        <div className="flex gap-1 -mt-4 flex-row">
+          <a href="#">
             <Image
               src={selectedAgency?.logoSrc as string}
               alt="Agency Logo"

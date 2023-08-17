@@ -20,20 +20,23 @@ const VideoLightbox = (props: VideoLightboxProps) => {
   const [currentTitle, setCurrentTitle] = useState(title);
   const reduxVideos = useSelector((state: any) => state.videos);
 
-
   // Call the hook directly in the component body
   const currentVideoSrc = reduxVideos[currentVideoIndex].video.url;
 
   const previousVideo = () => {
     const newIndex = Math.max(currentVideoIndex - 1, 0);
     setCurrentVideoIndex(newIndex);
-    setCurrentTitle(reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]);
+    setCurrentTitle(
+      reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]
+    );
   };
 
   const nextVideo = () => {
     const newIndex = Math.min(currentVideoIndex + 1, reduxVideos.length - 1);
     setCurrentVideoIndex(newIndex);
-    setCurrentTitle(reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]);
+    setCurrentTitle(
+      reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]
+    );
   };
 
   return (
@@ -53,11 +56,11 @@ const VideoLightbox = (props: VideoLightboxProps) => {
         <div className="flex space-x-4">
           <a href={currentVideoSrc ? currentVideoSrc : videoSrc}>
             <button
-            onClick={closeLightbox}
-            className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
-          >
-            <TbDownload className="w-6 h-6" width={24} height={24} />
-          </button>
+              onClick={closeLightbox}
+              className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
+            >
+              <TbDownload className="w-6 h-6" width={24} height={24} />
+            </button>
           </a>
           <button
             onClick={closeLightbox}
@@ -68,29 +71,31 @@ const VideoLightbox = (props: VideoLightboxProps) => {
         </div>
       </div>
       <div className="flex justify-between items-center flex-1">
-        <button
-          onClick={previousVideo}
-          className="fixed top-0 left-0 flex items-center justify-center w-12 h-full hover:bg-gray-800 bg-opacity-0 transition duration-500 hover:opacity-70"
-        >
-          <ArrowLeftFromLine />
-        </button>
-  
-          <div className="flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
-            {videoSrc && (
-              <VideoPlayer
-                videoSrc={currentVideoSrc ? currentVideoSrc : videoSrc}
-                onVideoEnded={nextVideo}
-              />
-            )}
-          </div>
- 
-        <button
-          onClick={nextVideo}
-          className="fixed top-0 right-0 flex items-center justify-center w-12 h-full hover:bg-gray-800 bg-opacity-0 transition duration-500 hover:opacity-70"
-        >
-          <ArrowRightFromLine />
-        </button>
+      {/* Previous Video Button */}
+      <button
+        onClick={previousVideo}
+        className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
+      >
+        <ArrowLeftFromLine className={`hover:animate-pulse active:animate-ping`} />
+      </button>
+
+      <div className="flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
+        {videoSrc && (
+          <VideoPlayer
+            videoSrc={currentVideoSrc ? currentVideoSrc : videoSrc}
+            onVideoEnded={nextVideo}
+          />
+        )}
       </div>
+
+      {/* Next Video Button */}
+      <button
+        onClick={nextVideo}
+        className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
+      >
+        <ArrowRightFromLine className={`hover:animate-pulse active:animate-ping`} />
+      </button>
+    </div>
     </div>
   );
 };

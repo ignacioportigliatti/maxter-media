@@ -26,6 +26,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
   });
 
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     agencyId: "",
     agencyName: "",
@@ -67,6 +68,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
   const checkEditMode = async () => {
     if (!groupToEdit) {
       setFormData({
+        id: "",
         name: "",
         agencyId: "",
         agencyName: "",
@@ -81,6 +83,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
 
     try {
       setFormData({
+        id: groupToEdit.id,
         name: groupToEdit.name,
         agencyId: groupToEdit.agencyId as string,
         agencyName: groupToEdit.agencyName as string,

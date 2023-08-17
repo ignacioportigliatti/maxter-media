@@ -11,17 +11,10 @@ export async function POST(request: Request) {
   //Creating group
   try {
     // Crea un nuevo grupo con los datos del formulario
-
-    const groupList = await prisma.group.findMany({
-      include: {
-        agency: true,
-      },
-    });
-    const groupToEdit = groupList.find((group) => group.name === name);
-
+    
     try {
       const group = await prisma.group.update({
-        where: { id: groupToEdit?.id },
+        where: { id: id },
         data: {
           name: name,
           coordinator: coordinator,

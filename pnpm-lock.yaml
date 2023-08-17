@@ -170,6 +170,9 @@ dependencies:
   request:
     specifier: ^2.88.2
     version: 2.88.2
+  shaka-player:
+    specifier: ^4.3.8
+    version: 4.3.8
   tailwind-merge:
     specifier: ^1.14.0
     version: 1.14.0
@@ -2378,6 +2381,10 @@ packages:
 
   /electron-to-chromium@1.4.477:
     resolution: {integrity: sha512-shUVy6Eawp33dFBFIoYbIwLHrX0IZ857AlH9ug2o4rvbWmpaCUdBpQ5Zw39HRrfzAFm4APJE9V+E2A/WB0YqJw==}
+    dev: false
+
+  /eme-encryption-scheme-polyfill@2.1.1:
+    resolution: {integrity: sha512-njD17wcUrbqCj0ArpLu5zWXtaiupHb/2fIUQGdInf83GlI+Q6mmqaPGLdrke4savKAu15J/z1Tg/ivDgl14g0g==}
     dev: false
 
   /emoji-regex@10.2.1:
@@ -5054,6 +5061,13 @@ packages:
 
   /setimmediate@1.0.5:
     resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
+
+  /shaka-player@4.3.8:
+    resolution: {integrity: sha512-P67GLel4JoaYBsftic+FS2TH5xaBsJnk5y4WTncGIx2WY5qfHOPBNrtTslOuPbOXydOa2P4rWYeV5ZJu5K7XCA==}
+    engines: {node: '>=14'}
+    dependencies:
+      eme-encryption-scheme-polyfill: 2.1.1
+    dev: false
 
   /shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}

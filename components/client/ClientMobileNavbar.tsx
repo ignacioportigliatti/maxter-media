@@ -31,9 +31,9 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
   } else {
     return (
       <div
-        style={{
-          backgroundColor: agency.primaryColor as string,
-        }}
+      style={{
+        background: `linear-gradient(to left, ${agency.primaryColor} , ${agency.secondaryColor})`
+      }}
         className="fixed z-50 bottom-0 w-full pl-4 py-2 sm:pl-8"
       >
         <div className="flex flex-row justify-between items-center text-gray-700 shadow">

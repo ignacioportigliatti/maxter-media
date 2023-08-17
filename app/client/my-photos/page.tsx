@@ -8,7 +8,7 @@ export default function MyPhotosPage() {
   const group: Group = useSelector((state: any) => state.group);
 
   return (
-    <div className="w-full p-14">
+    <div className="w-full p-6 md:p-9">
       {group && <PhotoGrid selectedGroup={group as Group} />}
     </div>
   );

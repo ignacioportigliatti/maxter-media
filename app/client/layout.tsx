@@ -68,24 +68,24 @@ export default function RootLayout({
 
       selectedAgency.logoSrc = signedAgencyLogo;
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-      
-      
+
       const getVideos = async () => {
-        const folderPath = `media/${group.name}/videos`;
+        const folderPath = `media/videos/${group.name}`;
 
-       const videos =  await axios
-       .post("/api/videos/", {
-         bucketName,
-         folderPath,
-         needThumbs: true,
-       })
-       .then((res) => {
-         if (res.data.success) {
-           return res.data.videos;
-         }
-       });
+        const videos = await axios
+          .post("/api/videos/", {
+            bucketName,
+            folderPath,
+            needThumbs: true,
+            groupName: group.name,
+          })
+          .then((res) => {
+            if (res.data.success) {
+              return res.data.videos;
+            }
+          });
 
-       const signedVideos = await Promise.all(
+        const signedVideos = await Promise.all(
           videos.map(async (video: any) => {
             const signedVideo = await axios
               .post("/api/sign-url/", {
@@ -94,27 +94,27 @@ export default function RootLayout({
               })
               .then((res) => res.data.url);
 
-            const signedThumb = await axios
-              .post("/api/sign-url/", {
-                bucketName: bucketName,
-                fileName: video.thumbnail.Key,
-              })
+            const signedThumb = await axios.post("/api/sign-url/", {
+              bucketName: bucketName,
+              fileName: video.thumbnail.Key,
+            });
 
-            return { video: { ...video.video, url: signedVideo }, thumbnail: { ...video.thumbnail, url: signedThumb.data.url } };
+            return {
+              video: { ...video.video, url: signedVideo },
+              thumbnail: { ...video.thumbnail, url: signedThumb.data.url },
+            };
           })
-       )
-        
-        return signedVideos;
+        );
 
-      }
+        return signedVideos;
+      };
 
       const videos = await getVideos();
-      console.log('videos', videos)
 
       const photos = await axios
         .post("/api/photos/", {
           bucketName: bucketName,
-          folderPath: `media/${group.name}/photos`,
+          folderPath: `media/fotos/${group.name}`,
         })
         .then((res) => res.data.photos);
       const foldersMap = new Map<string, any[]>();
@@ -145,14 +145,14 @@ export default function RootLayout({
         foldersWithPhotosArray.map(async (folderWithPhotos) => {
           const firstPhoto = folderWithPhotos.photos[0];
           const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-          console.log("firstPhoto", firstPhoto);
+
           const firstPhotoSignedUrl = await axios
             .post("/api/sign-url/", {
               bucketName: bucketName,
               fileName: firstPhoto.Key,
             })
             .then((res) => res.data.url);
-          console.log("firstPhotoSignedUrl", firstPhotoSignedUrl);
+
           const signedThumbnail = { ...firstPhoto, url: firstPhotoSignedUrl };
           const signedPhotos = [
             signedThumbnail,
@@ -168,11 +168,9 @@ export default function RootLayout({
       setSelectedGroup(group);
       setAgency(selectedAgency);
 
-      console.log('signedPhotos' , signedPhotos)
-
       selectGroup(group, videos, signedPhotos, selectedAgency);
     } catch (error) {
-      console.log("Error al setear el grupo", error);
+      console.error("Error al setear el grupo", error);
     }
   };
 
@@ -216,7 +214,7 @@ export default function RootLayout({
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
           <div className="relative w-24 h-24 animate-spin rounded-full bg-gradient-to-r from-purple-400 via-blue-500 to-red-400 ">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full border-2 "></div>
+            <div className="absolute top-1/2 left-1/2 w-20 h-20 rounded-full border-2 "></div>
           </div>
         </div>
       ) : isVerified ? (
@@ -238,7 +236,7 @@ export default function RootLayout({
                 selectedNavItemLabel={selectedNavItemLabel}
               />
             </div>
-            <div className="min-h-[92vh] flex max-w-[100vw]">
+            <div className="min-h-[92vh] flex max-w-[100vw] pb-20 md:pb-0">
               {children}
             </div>
 

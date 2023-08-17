@@ -1,9 +1,16 @@
 import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 import { NextResponse } from "next/server";
 
+interface VideoRequestBody {
+  bucketName: string;
+  folderPath: string;
+  needThumbs: boolean;
+  groupName?: string;
+}
+
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { bucketName, folderPath, needThumbs } = body;
+  const body: VideoRequestBody = await req.json();
+  const { bucketName, folderPath, needThumbs, groupName } = body;
 
   // Configura los parámetros de la solicitud para listar objetos
   const videoParams = {
@@ -36,9 +43,10 @@ export async function POST(req: Request) {
                 const thumbObjects = thumbData.Contents;
     
                 const videoThumbnailPairs = filteredVideos?.map((video) => {
-                  const videoName = video.Key;
+                  const videoPath = video.Key;
+                  const videoName = videoPath?.split("/").pop();
                   const matchingThumb = thumbObjects?.find((thumb) =>
-                    thumb.Key === videoName?.replace("/videos/", "/videos/thumbs/").replace(".mp4", ".jpg")
+                    thumb.Key === `media/videos/${groupName}/thumbs/${videoName?.replace('.mp4', '.jpg')}`
                   );
     
                   return {

@@ -34,92 +34,94 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
         style={{
           backgroundColor: agency.primaryColor as string,
         }}
-        className="fixed flex flex-row z-50 bottom-0 items-center justify-between text-gray-700 shadow w-full pl-8"
+        className="fixed z-50 bottom-0 w-full pl-4 py-2 sm:pl-8"
       >
-       
-          <Link className="h-8 w-8" href={navigationItems[0].href}>
+        <div className="flex flex-row justify-between items-center text-gray-700 shadow">
+          <Link className="h-8 w-8 p-1" href={navigationItems[0].href}>
             <Image
-              className="h-8 w-8 mx-auto object-contain"
+              className="h-full w-full object-contain"
               src={agency.logoSrc as string}
-              alt={`${agency.name} logo}`}
+              alt={`${agency.name} logo`}
               width={24}
               height={24}
             />
           </Link>
-      
 
-        <ul className="flex flex-row">
-          {navigationItems.map((item, index) => {
-            const isItemHovered = !!hoveredItems[index]; // Comprueba si el ítem actual está siendo hover
+          <ul className="flex flex-row">
+            {navigationItems.map((item, index) => {
+              const isItemHovered = !!hoveredItems[index];
 
-            const inlineStyles = {
-              color: agency.accentColor as string,
-              backgroundColor: isItemHovered
-                ? agency.secondaryColor ?? ""
-                : "transparent",
-              transition: "background-color 0.3s ease",
-            };
+              const inlineStyles = {
+                color: agency.accentColor as string,
+                backgroundColor: isItemHovered
+                  ? agency.secondaryColor ?? ""
+                  : "transparent",
+                transition: "background-color 0.3s ease",
+              };
 
-            return (
-              <li
-                key={index}
-                style={inlineStyles}
-                onMouseEnter={() =>
-                  setHoveredItems((prevState) => ({
-                    ...prevState,
-                    [index]: true,
-                  }))
-                }
-                onMouseLeave={() =>
-                  setHoveredItems((prevState) => ({
-                    ...prevState,
-                    [index]: false,
-                  }))
-                }
-              >
-                <Link
-                  href={item.href}
-                  style={{
-                    color: agency.accentColor as string,
-                    textDecoration: "none", // Opcional: quitar el subrayado del enlace
-                  }}
-                  className="h-16 px-6 flex flex-col justify-center items-center"
-                  onClick={
-                    setSelectedNavItemLabel
-                      ? () => setSelectedNavItemLabel(item.label)
-                      : () => {}
+              return (
+                <li
+                  key={index}
+                  style={inlineStyles}
+                  onMouseEnter={() =>
+                    setHoveredItems((prevState) => ({
+                      ...prevState,
+                      [index]: true,
+                    }))
+                  }
+                  onMouseLeave={() =>
+                    setHoveredItems((prevState) => ({
+                      ...prevState,
+                      [index]: false,
+                    }))
                   }
                 >
-                  {item.icon}
-                  <p className="text-xs" style={{
-                    color: agency.accentColor as string,
-                    textDecoration: "none", // Opcional: quitar el subrayado del enlace
-                  }}>{item.label}</p>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  <Link
+                    href={item.href}
+                    style={{
+                      color: agency.accentColor as string,
+                      textDecoration: "none",
+                    }}
+                    className="h-12 px-3 sm:px-6 flex flex-col justify-center items-center"
+                    onClick={
+                      setSelectedNavItemLabel
+                        ? () => setSelectedNavItemLabel(item.label)
+                        : () => {}
+                    }
+                  >
+                    {item.icon}
+                    <p
+                      className="text-xs"
+                      style={{ color: agency.accentColor as string }}
+                    >
+                      {item.label}
+                    </p>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
 
-        <div className="mt-auto w-16 h-16">
-          <button
-            onMouseEnter={() =>
-              setHoveredItems((prevState) => ({
-                ...prevState,
-                [4]: true,
-              }))
-            }
-            onMouseLeave={() =>
-              setHoveredItems((prevState) => ({
-                ...prevState,
-                [4]: false,
-              }))
-            }
-            className="h-16 w-full mx-auto flex justify-center items-center
+          <div className="mt-auto w-12 h-12">
+            <button
+              onMouseEnter={() =>
+                setHoveredItems((prevState) => ({
+                  ...prevState,
+                  [4]: true,
+                }))
+              }
+              onMouseLeave={() =>
+                setHoveredItems((prevState) => ({
+                  ...prevState,
+                  [4]: false,
+                }))
+              }
+              className="h-full w-full flex justify-center items-center
 				focus:text-orange-500 hover:bg-red-200 focus:outline-none"
-          >
-            <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:opacity-100" />
-          </button>
+            >
+              <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:opacity-100" />
+            </button>
+          </div>
         </div>
       </div>
     );

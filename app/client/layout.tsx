@@ -213,7 +213,7 @@ export default function RootLayout({
     <div>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <div className="absolute right-1/2 bottom-1/2  transform translate-x-1/2 translate-y-1/2 ">
+          <div className="absolute right-1/2 bottom-1/2  translate-x-1/2 translate-y-1/2 ">
     <div className={`border-t-transparent border-solid animate-spin rounded-full ${agency.primaryColor !== undefined ? `border-[${agency.primaryColor}]` : 'border-white'} border-8 h-16 w-16`}></div>
 </div>
         </div>

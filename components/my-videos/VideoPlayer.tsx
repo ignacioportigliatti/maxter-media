@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from "react";
-const shaka = require('shaka-player/dist/shaka-player.ui.js');
 
 interface VideoPlayerProps {
   videoSrc: string;
@@ -11,27 +10,31 @@ const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    const initPlayer = async () => {
-      try {
-        await shaka.polyfill.installAll();
+    if (typeof window !== "undefined") {
+      // This ensures the following code runs only on the client-side
+      const initPlayer = async () => {
+        try {
+          const shaka = require('shaka-player/dist/shaka-player.compiled.js');
+          await shaka.polyfill.installAll();
 
-        const videoElement = videoRef.current;
-        const player = new shaka.Player(videoElement);
-        // Configurar ABR automático
-        player.configure({
-          abr: { enabled: true },
-          'overflowMenuButtons': ['quality'],
-        });
+          const videoElement = videoRef.current;
+          const player = new shaka.Player(videoElement);
 
-        await player.load(videoSrc);
+          player.configure({
+            abr: { enabled: true },
+            'overflowMenuButtons': ['quality'],
+          });
 
-        videoElement?.addEventListener("ended", onVideoEnded);
-      } catch (error) {
-        console.error("Error al cargar el video DASH:", error);
-      }
-    };
+          await player.load(videoSrc);
 
-    initPlayer();
+          videoElement?.addEventListener("ended", onVideoEnded);
+        } catch (error) {
+          console.error("Error loading DASH video:", error);
+        }
+      };
+
+      initPlayer();
+    }
   }, [videoSrc, onVideoEnded]);
 
   return (

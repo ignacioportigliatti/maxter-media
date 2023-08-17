@@ -9,9 +9,7 @@ interface VideoGridProps {
 export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
 
-
   const videos = useSelector((state: any) => state.videos);
-  console.log('videos', videos)
 
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();

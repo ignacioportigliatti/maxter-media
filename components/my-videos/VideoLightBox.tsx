@@ -39,9 +39,23 @@ const VideoLightbox = (props: VideoLightboxProps) => {
     );
   };
 
+  const handleVideoDownload = async () => {
+    const file = await fetch(currentVideoSrc);
+    const fileBlob = await file.blob();
+    const fileUrl = URL.createObjectURL(fileBlob); 
+    // download the file
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = currentTitle;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(fileUrl);
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col bg-black z-50">
-      <div className="fixed w-full flex justify-between items-center py-4 px-16 bg-opacity-80 ">
+      <div className="fixed w-full z-50 flex justify-between items-center py-4 px-16 bg-opacity-80 ">
         <div className="flex items-center space-x-4">
           <div className="w-8">
             <Image
@@ -54,14 +68,13 @@ const VideoLightbox = (props: VideoLightboxProps) => {
           <div className="font-semibold text-white">{currentTitle}</div>
         </div>
         <div className="flex space-x-4">
-          <a href={currentVideoSrc ? currentVideoSrc : videoSrc}>
-            <button
-              onClick={closeLightbox}
-              className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
-            >
-              <TbDownload className="w-6 h-6" width={24} height={24} />
-            </button>
-          </a>
+          <button
+            onClick={handleVideoDownload}
+            className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
+          >
+            <TbDownload className="w-6 h-6" width={24} height={24} />
+          </button>
+
           <button
             onClick={closeLightbox}
             className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
@@ -71,31 +84,35 @@ const VideoLightbox = (props: VideoLightboxProps) => {
         </div>
       </div>
       <div className="flex justify-between items-center flex-1">
-      {/* Previous Video Button */}
-      <button
-        onClick={previousVideo}
-        className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
-      >
-        <ArrowLeftFromLine className={`hover:animate-pulse active:animate-ping`} />
-      </button>
-
-      <div className="flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
-        {videoSrc && (
-          <VideoPlayer
-            videoSrc={currentVideoSrc ? currentVideoSrc : videoSrc}
-            onVideoEnded={nextVideo}
+        <div className="z-0 flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
+          {videoSrc && (
+            <VideoPlayer
+              videoSrc={currentVideoSrc ? currentVideoSrc : videoSrc}
+              onVideoEnded={nextVideo}
+            />
+          )}
+        </div>
+        {/* Previous Video Button */}
+        <button
+         
+          className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
+        >
+          <ArrowLeftFromLine
+           onClick={previousVideo}
+            className={`hover:animate-pulse active:animate-ping`}
           />
-        )}
+        </button>
+        {/* Next Video Button */}
+        <button
+          
+          className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
+        >
+          <ArrowRightFromLine
+          onClick={nextVideo}
+            className={`hover:animate-pulse active:animate-ping`}
+          />
+        </button>
       </div>
-
-      {/* Next Video Button */}
-      <button
-        onClick={nextVideo}
-        className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
-      >
-        <ArrowRightFromLine className={`hover:animate-pulse active:animate-ping`} />
-      </button>
-    </div>
     </div>
   );
 };

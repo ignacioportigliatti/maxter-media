@@ -1,17 +1,17 @@
 "use client";
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import ClientHeader from "@/components/client/ClientHeader";
+import ClientMobileNavbar from "@/components/client/ClientMobileNavbar";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
-import { TbPhotoAi } from "react-icons/tb";
-import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
-import { useEffect, useState } from "react";
-import { Agency, Codes, Group } from "@prisma/client";
 import { useSelectGroup } from "@/redux/groupManager";
+import { Agency, Codes, Group } from "@prisma/client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import ClientHeader from "@/components/client/ClientHeader";
-import { ClientMobileNavbar } from "@/components/client/ClientMobileNavbar";
+import { useEffect, useState } from "react";
+import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
+import { TbPhotoAi } from "react-icons/tb";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface FolderWithPhotos {
   folder: string;
@@ -213,9 +213,15 @@ export default function RootLayout({
     <div>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <div className="absolute right-1/2 bottom-1/2  translate-x-1/2 translate-y-1/2 ">
-    <div className={`border-t-transparent border-solid animate-spin rounded-full ${agency.primaryColor !== undefined ? `border-[${agency.primaryColor}]` : 'border-white'} border-8 h-16 w-16`}></div>
-</div>
+          <div className="absolute right-1/2 bottom-1/2">
+            <div
+              className={`border-t-transparent border-solid animate-spin rounded-full ${
+                agency.primaryColor !== undefined
+                  ? `border-[${agency.primaryColor}]`
+                  : "border-white"
+              } border-8 h-16 w-16`}
+            ></div>
+          </div>
         </div>
       ) : isVerified ? (
         <div className="flex w-screen h-full">

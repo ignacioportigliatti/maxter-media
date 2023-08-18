@@ -10,7 +10,7 @@ export default function ClientHome() {
   const selectedGroup: Group = useSelector((state: any) => state.group);
 
   return (
-    <div className="w-full min-h-full">
+
       <div className="flex flex-col justify-center items-center mx-auto my-auto h-full p-7">
         <div className="text-center">
           <h4 className="-mb-[5px]">{`PROMO 2023 - ${selectedGroup.school}`}</h4>
@@ -21,13 +21,8 @@ export default function ClientHome() {
           </p>
         </div>
         <Steps />
-        <div className="flex w-full p-9 flex-row gap-4 md:min-h-[150px] min-h-[100px] items-center py-4 justify-start">
-          <div>
-            <h3>Mis Videos</h3>
-            <VideosCarousel />
-          </div>
-        </div>
+       
       </div>
-    </div>
+
   );
 }

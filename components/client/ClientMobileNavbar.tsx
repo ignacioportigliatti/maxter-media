@@ -17,7 +17,7 @@ interface ClientMobileNavbarProps {
   agency: Agency;
 }
 
-export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
+const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
   const { navigationItems, agency, setSelectedNavItemLabel } = props;
 
   const [hoveredItems, setHoveredItems] = useState<{ [key: number]: boolean }>(
@@ -127,3 +127,5 @@ export const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
     );
   }
 };
+
+export default ClientMobileNavbar;

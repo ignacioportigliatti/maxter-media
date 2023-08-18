@@ -36,11 +36,8 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
         <aside
              style={{
               background: `linear-gradient(to bottom, ${agency.primaryColor} , ${agency.secondaryColor})`,
-              WebkitAnimation: "clientAnimation 6s ease infinite;",
-              MozAnimation: "clientAnimation 6s ease infinite;",
-              animation: "clientAnimation 6s ease infinite;",
             }}       
-          className="gradient-container flex-col w-full items-center text-gray-700 shadow min-h-full"
+          className="flex-col w-full items-center text-gray-700 shadow min-h-full"
         >
           <div className="sticky top-0">
             <div className="h-16 flex items-center w-full">

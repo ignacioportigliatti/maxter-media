@@ -37,7 +37,7 @@ export const VideoGrid = (props: VideoGridProps) => {
   return (
    
       <div className="flex flex-row w-full items-center justify-center mx-auto animate-in fade-in-0 duration-500">
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4 w-full h-full">
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2 w-full h-full">
           {videos.map((video: any, index: number) => (
              video ? (
               <VideoCard

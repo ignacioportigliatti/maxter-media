@@ -11,21 +11,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // This ensures the following code runs only on the client-side
       const initPlayer = async () => {
         try {
-          const shaka = require('shaka-player/dist/shaka-player.compiled.js');
+          const shaka = require('shaka-player/dist/shaka-player.ui.js');
           await shaka.polyfill.installAll();
 
           const videoElement = videoRef.current;
           const player = new shaka.Player(videoElement);
 
-          player.configure({
-            abr: { enabled: true },
-            'overflowMenuButtons': ['quality'],
-          });
+          // Habilitar el AdaptationRateBased ABR
+          const abrConfig = {
+            enabled: true,
+          };
+          player.configure({abr: abrConfig});
 
-          await player.load(videoSrc);
+          // Definir las representaciones de diferentes calidades
+          const manifestUri = videoSrc;
+          await player.load(manifestUri);
 
           videoElement?.addEventListener("ended", onVideoEnded);
         } catch (error) {

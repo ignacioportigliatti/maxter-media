@@ -11,7 +11,8 @@ const ClientHeader = (props: ClientHeaderProps) => {
   const { agency, selectedGroup, selectedNavItemLabel } = props;
 
   // Estado local para mantener el valor actual de selectedNavItemLabel
-  const [currentNavItemLabel, setCurrentNavItemLabel] = useState(selectedNavItemLabel);
+  const [currentNavItemLabel, setCurrentNavItemLabel] =
+    useState(selectedNavItemLabel);
 
   // Utilizamos el efecto de React para realizar la transición cuando el valor cambie
   useEffect(() => {
@@ -20,10 +21,9 @@ const ClientHeader = (props: ClientHeaderProps) => {
 
   return (
     <div
-    style={{
-      background: `linear-gradient(to right, ${agency.primaryColor} , ${agency.secondaryColor})`
-    }}
-    
+      style={{
+        background: `linear-gradient(to right, ${agency.primaryColor} , ${agency.secondaryColor})`,
+      }}
       className="flex w-full min-w-screen flex-row items-center justify-between themeTransition h-full px-6 text-black dark:text-white"
     >
       <div>

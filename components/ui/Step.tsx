@@ -39,7 +39,10 @@ export const Step = (props: StepProps) => {
           </div>
           
           <div
-            className={`absolute top-0 left-0 z-10 w-24 h-40 flex flex-col justify-center items-center text-5xl font-bold text-center text-white bg-primary rounded-lg`} style={{backgroundColor: agency.primaryColor as string}}
+            className={`absolute top-0 left-0 z-10 w-24 h-40 flex flex-col justify-center items-center text-5xl font-bold text-center text-white bg-primary rounded-lg`}
+            style={{
+              background: `linear-gradient(45deg, ${agency.primaryColor} , ${agency.secondaryColor})`,
+            }}     
           >
             <div className={` flex justify-center mx-auto items-center z-20 w-12 h-12 bg-white rounded-full`} style={{color: agency.primaryColor as string}}>
             {icon}

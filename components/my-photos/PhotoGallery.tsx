@@ -123,7 +123,8 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
                 </div>
                 <Item original={photo.url} thumbnail={`${photo.url}?w=96&q=30`} id={photo.Key}>
                   {({ ref, open }) => (
-                    <Image
+                    <img
+                      loading="lazy"
                       alt={`${selectedFolder} Foto ${index}`}
                       ref={ref as any}
                       onClick={open}

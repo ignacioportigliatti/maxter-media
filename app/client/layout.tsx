@@ -69,6 +69,13 @@ export default function RootLayout({
       selectedAgency.logoSrc = signedAgencyLogo;
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
 
+      setSelectedGroup(group);
+      setAgency(selectedAgency);
+      
+      selectGroup.updateGroup(group);
+      selectGroup.updateSelectedAgency(selectedAgency);
+      setIsLoading(false);
+
       const getVideos = async () => {
         const folderPath = `media/videos/${group.name}`;
 
@@ -85,28 +92,58 @@ export default function RootLayout({
             }
           });
 
-        const signedVideos = await Promise.all(
-          videos.map(async (video: any) => {
+          const CACHE_EXPIRATION = 50 * 60 * 1000; // 50 minutes in milliseconds
+
+          const getSignedVideoUrl = async (bucketName: string, fileName: string) => {
+            const cachedUrl = localStorage.getItem(`video_${fileName}`);
+            if (cachedUrl) {
+              return cachedUrl;
+            }
+          
             const signedVideo = await axios
               .post("/api/sign-url/", {
-                bucketName: bucketName,
-                fileName: video.video.Key,
+                bucketName,
+                fileName,
               })
               .then((res) => res.data.url);
-
-            const signedThumb = await axios.post("/api/sign-url/", {
-              bucketName: bucketName,
-              fileName: video.thumbnail.Key,
-            });
-
-            return {
-              video: { ...video.video, url: signedVideo },
-              thumbnail: { ...video.thumbnail, url: signedThumb.data.url },
-            };
-          })
-        );
-
-        return signedVideos;
+          
+            // Cache the signed URL with expiration time
+            const expirationTime = Date.now() + CACHE_EXPIRATION;
+            localStorage.setItem(`video_${fileName}`, signedVideo);
+            localStorage.setItem(`video_${fileName}_expires`, `${expirationTime}`);
+          
+            return signedVideo;
+          };
+          
+          const signedVideos = await Promise.all(
+            videos.map(async (video: any) => {
+              const signedVideoUrl = await getSignedVideoUrl(
+                bucketName as string,
+                video.video.Key
+              );
+          
+              const cachedThumbUrl = localStorage.getItem(
+                `video_${video.thumbnail.Key}`
+              );
+          
+              let signedThumbUrl;
+              if (cachedThumbUrl) {
+                signedThumbUrl = cachedThumbUrl;
+              } else {
+                signedThumbUrl = await getSignedVideoUrl(
+                  bucketName as string,
+                  video.thumbnail.Key
+                );
+              }
+          
+              return {
+                video: { ...video.video, url: signedVideoUrl },
+                thumbnail: { ...video.thumbnail, url: signedThumbUrl },
+              };
+            })
+          );
+          
+          return signedVideos;
       };
 
       const videos = await getVideos();
@@ -165,47 +202,42 @@ export default function RootLayout({
           };
         })
       );
-      setSelectedGroup(group);
-      setAgency(selectedAgency);
 
-      selectGroup(group, videos, signedPhotos, selectedAgency);
+      selectGroup.updateVideos(videos);
+      selectGroup.updatePhotos(signedPhotos);
     } catch (error) {
       console.error("Error al setear el grupo", error);
     }
   };
 
   useEffect(() => {
-    try {
-      const code = searchParams.get("code");
-      if (!code) {
-        setIsVerified(false);
-      }
+    const code = searchParams.get("code");
 
-      const verifyCode = async () => {
-        try {
-          const response = await axios
-            .post("/api/codes/verify", {
-              code,
-            })
-            .then((res) => res.data);
-          if (response.success) {
-            setIsVerified(true);
-            setCode(response.code);
-            setGroup(response.selectedGroup).finally(() => {
-              setIsLoading(false);
-            });
-            return true;
-          }
-        } catch (error) {
+    const verifyCode = async () => {
+      try {
+        const response = await axios
+          .post("/api/codes/verify", { code })
+          .then((res) => res.data);
+        if (response.success) {
+          setIsVerified(true);
+          setCode(response.code);
+          setGroup(response.selectedGroup);
+        } else {
           setIsVerified(false);
           setIsLoading(false);
-          console.error("Error verificando el código", error);
         }
-      };
+      } catch (error) {
+        setIsVerified(false);
+        setIsLoading(false);
+        console.error("Error verificando el código", error);
+      }
+    };
 
+    if (code) {
       verifyCode();
-    } catch (error) {
-      console.error("Error al obtener el grupo", error);
+    } else {
+      setIsVerified(false);
+      setIsLoading(false);
     }
   }, []);
 

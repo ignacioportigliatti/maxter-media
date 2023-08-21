@@ -7,14 +7,31 @@ import { setPhotos } from "./photosSlice";
 import { setAgency } from "./agencySlice";
 import { Agency, Group } from "@prisma/client";
 
+// Extraer cada acción de dispatch en funciones individuales
+
 export const useSelectGroup = () => {
-    const dispatch = useDispatch();
-  
-    // Función para seleccionar un Grupo y actualizar los estados de Videos y Photos
-    return (selectedGroup: Group, groupVideos: any, groupPhotos: any, selectedAgency: Agency) => {
-      dispatch(setGroup(selectedGroup));
-      dispatch(setVideos(groupVideos));
-      dispatch(setPhotos(groupPhotos));
-      dispatch(setAgency(selectedAgency))
-    };
+  const dispatch = useDispatch();
+
+  const updateGroup = (selectedGroup: Group) => {
+    dispatch(setGroup(selectedGroup));
   };
+
+  const updateVideos = (groupVideos: any) => {
+    dispatch(setVideos(groupVideos));
+  };
+
+  const updatePhotos = (groupPhotos: any) => {
+    dispatch(setPhotos(groupPhotos));
+  };
+
+  const updateSelectedAgency = (selectedAgency: Agency) => {
+    dispatch(setAgency(selectedAgency));
+  };
+
+  return {
+    updateGroup,
+    updateVideos,
+    updatePhotos,
+    updateSelectedAgency,
+  };
+};

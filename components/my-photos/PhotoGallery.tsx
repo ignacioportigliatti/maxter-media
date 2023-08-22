@@ -248,7 +248,10 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
             ).map((photo: Photo | null, index: number) => {
               if (!photo) {
                 return (
-                  <div key={index} className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative">
+                  <div
+                    key={index}
+                    className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative"
+                  >
                     <div className="absolute top-0 left-0 p-4">
                       <div className="w-5 h-5 bg-gray-300 animate-pulse rounded-md"></div>
                     </div>
@@ -258,59 +261,43 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
               }
             })}
             {photosToShow.map((photo: Photo, index: number) => (
-  <div
-    ref={index === photosToShow.length - 1 ? lastPhotoRef : null}
-    className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative"
-    key={photo.url}
-  >
-    <div
-      className={`absolute top-0 left-0 p-4 ${
-        selectedPhotos.includes(photo.Key) ? "z-10" : "z-20"
-      }`}
-    >
-      <input
-        className="w-5 h-5 rounded-md"
-        type="checkbox"
-        checked={selectedPhotos.includes(photo.Key)}
-        onChange={() => handlePhotoClick(photo.Key)}
-      />
-    </div>
-    <Item
-      original={photo.url}
-      thumbnail={`${photo.url}?w=96&q=30`}
-      id={photo.Key}
-    >
-      {({ ref, open }) => (
-        <div className="aspect-[3/2] w-full shadow-md h-full object-cover object-center fade-in-0 duration-1000 rounded-md">
-          <img
-            loading="lazy"
-            alt=""
-            ref={(img) => {
-            
-              // Esperar a que la imagen esté completamente cargada antes de mostrarla
-              if (img && img.complete) {
-                setLoadedPhotosCount(index + 1);
-              }
-            }}
-            onClick={open}
-            width={384}
-            height={180}
-            src={photo.url}
-            className={`w-full h-full object-cover object-center absolute top-0 left-0 transition-opacity ${
-              loadedPhotosCount > index ? "opacity-100" : "opacity-0"
-            }`}
-          />
-          <div
-            className={`w-full h-full absolute top-0 left-0 transition ${
-              loadedPhotosCount > index ? "opacity-0" : "opacity-100 bg-light-gray animate-pulse duration-1000"
-            }`}
-          ></div>
-        </div>
-      )}
-    </Item>
-  </div>
-))}
-
+              <div
+                ref={index === photosToShow.length - 1 ? lastPhotoRef : null}
+                className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative"
+                key={photo.url}
+              >
+                <div className="absolute top-0 left-0 p-4">
+                  <input
+                    className="w-5 h-5 bg-white rounded-md"
+                    type="checkbox"
+                    checked={selectedPhotos.includes(photo.Key)}
+                    onChange={() => handlePhotoClick(photo.Key)}
+                  />
+                </div>
+                <Item
+                  original={photo.url}
+                  thumbnail={`${photo.url}?w=96&q=30`}
+                  id={photo.Key}
+                >
+                  {({ ref, open }) => (
+                    <img
+                      loading="lazy"
+                      alt={`${selectedFolder} Foto ${index}`}
+                      ref={ref as any}
+                      onClick={open}
+                      width={384}
+                      height={180}
+                      src={photo.url}
+                      className="aspect-[3/2] w-full shadow-md h-full object-cover object-center fade-in-0 duration-1000 rounded-md"
+                      onLoad={(e) => {
+                        e.currentTarget.className +=
+                          " fade-in-0 duration-1000 animate";
+                      }}
+                    />
+                  )}
+                </Item>
+              </div>
+            ))}
           </div>
         </Gallery>
       </div>

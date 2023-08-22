@@ -248,7 +248,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
             ).map((photo: Photo | null, index: number) => {
               if (!photo) {
                 return (
-                  <div className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative">
+                  <div key={index} className="cursor-pointer opacity-75 hover:scale-105 hover:shadow-xl hover:opacity-100 transition duration-500 relative">
                     <div className="absolute top-0 left-0 p-4">
                       <div className="w-5 h-5 bg-gray-300 animate-pulse rounded-md"></div>
                     </div>

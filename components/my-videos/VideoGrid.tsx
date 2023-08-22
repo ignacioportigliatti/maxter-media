@@ -10,12 +10,11 @@ export const VideoGrid = (props: VideoGridProps) => {
   const { selectedGroup } = props;
 
   const videos = useSelector((state: any) => state.videos);
-
+  const skeletonsArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   const formatUploadedAt = (dateString: string) => {
     const currentDate = new Date();
     const uploadedDate = new Date(dateString);
     const timeDiff = currentDate.getTime() - uploadedDate.getTime();
-
     const seconds = Math.floor(timeDiff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -32,26 +31,37 @@ export const VideoGrid = (props: VideoGridProps) => {
     }
   };
 
-
-
   return (
-   
-      <div className="flex flex-row w-full items-center justify-center mx-auto animate-in fade-in-0 duration-500">
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2 w-full h-full">
-          {videos.map((video: any, index: number) => (
-             video ? (
-              <VideoCard
-                  key={video.video.Key}
-                  title={video.video.Key.split("/")[3].split(".")[0]}
-                  agencyName={selectedGroup.agencyName as string}
-                  uploadedAt={formatUploadedAt(video.video.LastModified)}
-                  videoSrc={video.video.url}
-                  videoIndex={index}
-                  thumbnailSrc={video.thumbnail.url}
-              />
-          ) : null
-          ))}
-        </div>
+    <div className="flex flex-row w-full items-center justify-center mx-auto animate-in fade-in-0 duration-500">
+      <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2 min-w-full w-full h-full">
+        {videos !== null ? (
+          videos.map((video: any, index: number) => (
+            <VideoCard
+              key={video.video.Key}
+              title={video.video.Key.split("/")[3].split(".")[0]}
+              agencyName={selectedGroup.agencyName as string}
+              uploadedAt={formatUploadedAt(video.video.LastModified)}
+              videoSrc={video.video.url}
+              videoIndex={index}
+              thumbnailSrc={video.thumbnail.url}
+            />
+          ))
+        ) : (
+          <>
+            {skeletonsArray.map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse w-full duration-1000 flex gap-2 flex-col justify-center items-start bg-medium-gray"
+              >
+                <div className="w-full aspect-video bg-light-gray"></div>
+                <div className="w-1/2 h-[15px] bg-light-gray"></div>
+                <div className="w-1/3 h-[10px] bg-light-gray "></div>
+                <div className="w-1/4 h-[8px] bg-light-gray"></div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
+    </div>
   );
 };

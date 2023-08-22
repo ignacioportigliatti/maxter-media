@@ -31,10 +31,10 @@ export const Step = (props: StepProps) => {
           >
             <div className="w-1/3 h-40"></div>
             <div className="w-2/3 h-32 pr-4">
-              <h3 className="themeTransition text-lg leading-6 font-semibold text-gray-700 dark:text-white">
+              <h3 className="themeTransition text-lg leading-6 font-semibold text-white">
                 {title}
               </h3>
-              <p className="pt-1 text-sm text-gray-600">{description}</p>
+              <p className="pt-1 text-sm text-gray-300">{description}</p>
             </div>
           </div>
           

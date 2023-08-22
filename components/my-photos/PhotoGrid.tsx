@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Agency, Group } from "@prisma/client";
-import "photoswipe/dist/photoswipe.css";
-import { Gallery, Item } from "react-photoswipe-gallery";
 import Image from "next/image";
-import { TbDoorExit, TbDownload } from "react-icons/tb";
+import "photoswipe/dist/photoswipe.css";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import PhotoGallery from "./PhotoGallery";
 
 interface PhotoGridProps {
@@ -73,7 +70,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-2">
+    <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-2 animate-in fade-in-0 duration-500">
       {/* Mapeo de carpetas con fotos */}
       {foldersWithPhotos.map((folderWithPhotos) => (
         <div className="" key={folderWithPhotos.folder}>
@@ -115,14 +112,13 @@ export const PhotoGrid = (props: PhotoGridProps) => {
                 {selectedGroup.agencyName}
               </p>
               <p className="text-gray-400 text-xs">
-                {formatUploadedAt(folderWithPhotos.photos[0].timeCreated)}
+                {formatUploadedAt(folderWithPhotos.photos[0].LastModified)}
               </p>
             </div>
           </div>
 
           {isGalleryOpen && selectedFolder === folderWithPhotos.folder ? (
             <PhotoGallery
-              selectedFolder={selectedFolder}
               handleGalleryClose={handleGalleryClose}
               folderWithPhotos={folderWithPhotos}
             />

@@ -71,7 +71,7 @@ export default function RootLayout({
 
       setSelectedGroup(group);
       setAgency(selectedAgency);
-      
+
       selectGroup.updateGroup(group);
       selectGroup.updateSelectedAgency(selectedAgency);
       setIsLoading(false);
@@ -92,58 +92,51 @@ export default function RootLayout({
             }
           });
 
-          const CACHE_EXPIRATION = 50 * 60 * 1000; // 50 minutes in milliseconds
-
-          const getSignedVideoUrl = async (bucketName: string, fileName: string) => {
-            const cachedUrl = localStorage.getItem(`video_${fileName}`);
-            if (cachedUrl) {
-              return cachedUrl;
-            }
-          
-            const signedVideo = await axios
-              .post("/api/sign-url/", {
-                bucketName,
-                fileName,
-              })
-              .then((res) => res.data.url);
-          
-            // Cache the signed URL with expiration time
-            const expirationTime = Date.now() + CACHE_EXPIRATION;
-            localStorage.setItem(`video_${fileName}`, signedVideo);
-            localStorage.setItem(`video_${fileName}_expires`, `${expirationTime}`);
-          
-            return signedVideo;
-          };
-          
-          const signedVideos = await Promise.all(
-            videos.map(async (video: any) => {
-              const signedVideoUrl = await getSignedVideoUrl(
-                bucketName as string,
-                video.video.Key
-              );
-          
-              const cachedThumbUrl = localStorage.getItem(
-                `video_${video.thumbnail.Key}`
-              );
-          
-              let signedThumbUrl;
-              if (cachedThumbUrl) {
-                signedThumbUrl = cachedThumbUrl;
-              } else {
-                signedThumbUrl = await getSignedVideoUrl(
-                  bucketName as string,
-                  video.thumbnail.Key
-                );
-              }
-          
-              return {
-                video: { ...video.video, url: signedVideoUrl },
-                thumbnail: { ...video.thumbnail, url: signedThumbUrl },
-              };
+        const getSignedVideoUrl = async (
+          bucketName: string,
+          fileName: string
+        ) => {
+          const signedVideo = await axios
+            .post("/api/sign-url/", {
+              bucketName,
+              fileName,
             })
-          );
-          
-          return signedVideos;
+            .then((res) => res.data.url);
+
+          // Cache the signed URL with expiration time
+
+          return signedVideo;
+        };
+
+        const signedVideos = await Promise.all(
+          videos.map(async (video: any) => {
+            const signedVideoUrl = await getSignedVideoUrl(
+              bucketName as string,
+              video.video.Key
+            );
+
+            const cachedThumbUrl = localStorage.getItem(
+              `video_${video.thumbnail.Key}`
+            );
+
+            let signedThumbUrl;
+            if (cachedThumbUrl) {
+              signedThumbUrl = cachedThumbUrl;
+            } else {
+              signedThumbUrl = await getSignedVideoUrl(
+                bucketName as string,
+                video.thumbnail.Key
+              );
+            }
+
+            return {
+              video: { ...video.video, url: signedVideoUrl },
+              thumbnail: { ...video.thumbnail, url: signedThumbUrl },
+            };
+          })
+        );
+
+        return signedVideos;
       };
 
       const videos = await getVideos();

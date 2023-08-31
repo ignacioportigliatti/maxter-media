@@ -33,7 +33,7 @@ const LoginPage = (props: LoginPageProps) => {
   }
   
   return (
-    <div className="bg-orange-500 w-full">
+    <div className="bg-red-600 w-full">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
 
           <Image

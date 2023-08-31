@@ -41,7 +41,7 @@ export const UploadTabs = () => {
               className={`tabButton
               ${
                 activeTab === "photos"
-                  ? "bg-orange-500 text-white"
+                  ? "bg-red-600 text-white"
                   : "bg-transparent"
               }
               `}
@@ -56,7 +56,7 @@ export const UploadTabs = () => {
               className={`tabButton
               ${
                 activeTab === "videos"
-                  ? "bg-orange-500 text-white"
+                  ? "bg-red-600 text-white"
                   : "bg-transparent"
               }
               `}

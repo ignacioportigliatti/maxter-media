@@ -78,7 +78,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
           <div className="relative flex items-center justify-center cursor-pointer opacity-75 hover:opacity-100 transition duration-500 group">
             <div className="absolute transition duration-500 top-0 right-0 opacity-0 group-hover:opacity-100 p-1 bg-black/80 text-gray-400 text-xs">
               {
-                <span className="bg-orange-500 px-1 text-white">{`${folderWithPhotos.photos.length}`}</span>
+                <span className="bg-red-600 px-1 text-white">{`${folderWithPhotos.photos.length}`}</span>
               }{" "}
               Fotos
             </div>
@@ -104,7 +104,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
 
             <div className="flex flex-col">
               <a href="#">
-                <p className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-orange-500">
+                <p className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-red-600">
                   {folderWithPhotos.folder}
                 </p>
               </a>

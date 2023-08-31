@@ -31,6 +31,9 @@ export default function RootLayout({
   const [selectedGroup, setSelectedGroup] = useState({} as Group);
   const [agency, setAgency] = useState({} as Agency);
   const [selectedNavItemLabel, setSelectedNavItemLabel] = useState("");
+  const [isVideoDisabled, setIsVideoDisabled] = useState(true);
+  const [isPhotoDisabled, setIsPhotoDisabled] = useState(true);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
 
   const searchParams = useSearchParams();
 
@@ -39,20 +42,26 @@ export default function RootLayout({
       label: "Inicio",
       icon: <AiOutlineHome className="w-5 h-5" />,
       href: `/client?code=${code.code}`,
+      isDisabled: false,
     },
     {
       label: "Mis Videos",
       icon: <AiOutlineVideoCamera className="w-5 h-5" />,
       href: `/client/my-videos?code=${code.code}`,
+      isDisabled: isVideoDisabled,
+      isMediaLoading: isMediaLoading,
     },
     {
       label: "Mis Fotos",
       icon: <TbPhotoAi className="w-5 h-5" />,
       href: `/client/my-photos?code=${code.code}`,
+      isDisabled: isPhotoDisabled,
+      isMediaLoading: isMediaLoading,
     },
   ];
 
-  const setGroup = async (group: Group) => {
+
+  const setGroup = async (group: Group, codeType: string) => {
     try {
       const agencies = await fetch("/api/agencies").then((res) => res.json());
       const selectedAgency: Agency = agencies.find(
@@ -139,65 +148,86 @@ export default function RootLayout({
         return signedVideos;
       };
 
-      const videos = await getVideos();
+      const getPhotos = async () => {
+        const photos = await axios
+          .post("/api/photos/", {
+            bucketName: bucketName,
+            folderPath: `media/fotos/${group.name}`,
+          })
+          .then((res) => res.data.photos);
+        const foldersMap = new Map<string, any[]>();
 
-      const photos = await axios
-        .post("/api/photos/", {
-          bucketName: bucketName,
-          folderPath: `media/fotos/${group.name}`,
-        })
-        .then((res) => res.data.photos);
-      const foldersMap = new Map<string, any[]>();
+        if (photos !== undefined) {
+          photos.forEach((photo: any) => {
+            const folderPath = photo.Key.split("/");
+            const folder = folderPath[folderPath.length - 2]; // Obtener la carpeta en lugar de la fecha
+            const folderPhotos = foldersMap.get(folder) || [];
+            folderPhotos.push(photo);
+            foldersMap.set(folder, folderPhotos);
+          });
+        }
 
-      if (photos !== undefined) {
-        photos.forEach((photo: any) => {
-          const folderPath = photo.Key.split("/");
-          const folder = folderPath[folderPath.length - 2]; // Obtener la carpeta en lugar de la fecha
-          const folderPhotos = foldersMap.get(folder) || [];
-          folderPhotos.push(photo);
-          foldersMap.set(folder, folderPhotos);
-        });
-      }
-
-      // Convertir el Map a un array de objetos FolderWithPhotos
-      const foldersWithPhotosArray: FolderWithPhotos[] = Array.from(
-        foldersMap
-      ).map(([folder, photos]) => {
-        const thumbnail = photos.length > 0 ? photos[0].url : ""; // Obtener la URL de la primera foto como miniatura
-        return {
-          folder,
-          photos,
-          thumbnail,
-        };
-      });
-
-      const signedPhotos: FolderWithPhotos[] = await Promise.all(
-        foldersWithPhotosArray.map(async (folderWithPhotos) => {
-          const firstPhoto = folderWithPhotos.photos[0];
-          const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-
-          const firstPhotoSignedUrl = await axios
-            .post("/api/sign-url/", {
-              bucketName: bucketName,
-              fileName: firstPhoto.Key,
-            })
-            .then((res) => res.data.url);
-
-          const signedThumbnail = { ...firstPhoto, url: firstPhotoSignedUrl };
-          const signedPhotos = [
-            signedThumbnail,
-            ...folderWithPhotos.photos.slice(1),
-          ];
+        // Convertir el Map a un array de objetos FolderWithPhotos
+        const foldersWithPhotosArray: FolderWithPhotos[] = Array.from(
+          foldersMap
+        ).map(([folder, photos]) => {
+          const thumbnail = photos.length > 0 ? photos[0].url : ""; // Obtener la URL de la primera foto como miniatura
           return {
-            ...folderWithPhotos,
-            photos: signedPhotos,
-            thumbnail: signedThumbnail.url,
+            folder,
+            photos,
+            thumbnail,
           };
-        })
-      );
+        });
 
-      selectGroup.updateVideos(videos);
-      selectGroup.updatePhotos(signedPhotos);
+        const signedPhotos: FolderWithPhotos[] = await Promise.all(
+          foldersWithPhotosArray.map(async (folderWithPhotos) => {
+            const firstPhoto = folderWithPhotos.photos[0];
+            const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
+
+            const firstPhotoSignedUrl = await axios
+              .post("/api/sign-url/", {
+                bucketName: bucketName,
+                fileName: firstPhoto.Key,
+              })
+              .then((res) => res.data.url);
+
+            const signedThumbnail = { ...firstPhoto, url: firstPhotoSignedUrl };
+            const signedPhotos = [
+              signedThumbnail,
+              ...folderWithPhotos.photos.slice(1),
+            ];
+            return {
+              ...folderWithPhotos,
+              photos: signedPhotos,
+              thumbnail: signedThumbnail.url,
+            };
+          })
+        );
+
+        return signedPhotos;
+      };
+
+      if (codeType === "full") {
+        const signedPhotos = await getPhotos();
+        const signedVideos = await getVideos();
+        selectGroup.updateVideos(signedVideos);
+        selectGroup.updatePhotos(signedPhotos);
+        setIsVideoDisabled(false);
+        setIsPhotoDisabled(false);
+        setIsMediaLoading(false);
+      } else if (codeType === "photo") {
+        const signedPhotos = await getPhotos();
+        selectGroup.updatePhotos(signedPhotos);
+        setIsVideoDisabled(true);
+        setIsPhotoDisabled(false);
+        setIsMediaLoading(false);
+      } else if (codeType === "video") {
+        const signedVideos = await getVideos();
+        selectGroup.updateVideos(signedVideos);
+        setIsVideoDisabled(false);
+        setIsPhotoDisabled(true);
+        setIsMediaLoading(false);
+      }
     } catch (error) {
       console.error("Error al setear el grupo", error);
     }
@@ -214,7 +244,7 @@ export default function RootLayout({
         if (response.success) {
           setIsVerified(true);
           setCode(response.code);
-          setGroup(response.selectedGroup);
+          setGroup(response.selectedGroup, response.code.type);
         } else {
           setIsVerified(false);
           setIsLoading(false);
@@ -282,7 +312,8 @@ export default function RootLayout({
         </div>
       ) : (
         <div className="flex w-screen h-screen justify-center items-center">
-          <h1>El código no es válido</h1>
+          <h1>El código no es válido o la fecha de expiracion no es valida</h1>
+          {code && <h2>{code.expires.toString()}</h2>}
         </div>
       )}
     </div>

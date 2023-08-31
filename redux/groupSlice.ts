@@ -14,6 +14,7 @@ const initialState: Group = {
   agencyName: "",
   photosIds: [""],
   videoIds: [""],
+  expirationDays: 30,
 };
 
 const groupSlice = createSlice({

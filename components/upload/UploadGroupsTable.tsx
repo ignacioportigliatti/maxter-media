@@ -260,7 +260,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                     onDrop={(e) => handleDrop(e, group)}
                     className={`${
                       draggedGroups.get(group.id)
-                        ? "bg-orange-500/50 themeTransition"
+                        ? "bg-red-600/50 themeTransition"
                         : ""
                     }`}
                   >
@@ -276,7 +276,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                      <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
                       <h2 className="text-sm">{group.agencyName}</h2>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">

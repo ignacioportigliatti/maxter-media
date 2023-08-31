@@ -146,7 +146,7 @@ export const UserModal: React.FC<UserModalProps> = ({
     
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
         <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
-          <div className="py-2 bg-orange-500 w-full text-center relative">
+          <div className="py-2 bg-red-600 w-full text-center relative">
             <h2 className="text-white">
               {editMode ? "Editar Grupo" : "Añadir Grupo"}
             </h2>
@@ -189,7 +189,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                     {editMode ? "Editar" : "Agregar"} Usuario
                   </button>
                   <button
-                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
+                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-600"
                     onClick={toggleModal}
                   >
                     Cancelar

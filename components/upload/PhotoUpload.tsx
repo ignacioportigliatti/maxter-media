@@ -172,7 +172,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                             {formatBytes(file.Size)}
                           </p>
                           <button
-                            className="text-light-gray hover:text-orange-600 ml-1 themeTransition font-semibold text-sm"
+                            className="text-light-gray hover:text-red-600 ml-1 themeTransition font-semibold text-sm"
                             onClick={() =>
                               handleDelete(
                                 file.Key.replace(
@@ -212,7 +212,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
               {isSubmitting ? "Agregando..." : "Añadir material"}
             </button>
             <button
-              className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
+              className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-600"
               onClick={toggleModal}
             >
               Cancelar

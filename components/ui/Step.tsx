@@ -34,7 +34,7 @@ export const Step = (props: StepProps) => {
               <h3 className="themeTransition text-lg leading-6 font-semibold text-white">
                 {title}
               </h3>
-              <p className="pt-1 text-sm text-gray-300">{description}</p>
+              <p className="pt-1 text-sm text-gray-100">{description}</p>
             </div>
           </div>
           

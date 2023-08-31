@@ -64,7 +64,7 @@ export const FileUpload = (props: FileUploadProps) => {
       </label>
       <div
         className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed ${
-          isDragging ? "border-orange-500" : ""
+          isDragging ? "border-red-600" : ""
         }`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -74,7 +74,7 @@ export const FileUpload = (props: FileUploadProps) => {
         <div className="space-y-1 text-center">
           <AiOutlineFileAdd className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
           <div className="flex text-sm justify-center text-gray-600">
-            <label className="relative cursor-pointer px-2 py-1 dark:bg-white bg-gray-300 font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
+            <label className="relative cursor-pointer px-2 py-1 dark:bg-white bg-gray-300 font-medium text-red-600 hover:text-red-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-600">
               <span className="">{buttonText}</span>
               <input
                 required={required}
@@ -97,7 +97,7 @@ export const FileUpload = (props: FileUploadProps) => {
           </p>
         </div>
       </div>
-      {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+      {error && <p className="text-red-600 text-xs text-center">{error}</p>}
     </div>
   );
 };

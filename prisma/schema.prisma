@@ -11,62 +11,52 @@ datasource db {
 }
 
 model Agency {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  location String
-  phone    String
-  email    String
-  logoSrc  String?
-  primaryColor String?
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  location       String
+  phone          String
+  email          String
+  logoSrc        String?
+  primaryColor   String?
   secondaryColor String?
-  accentColor String?
+  accentColor    String?
 
-  groups    Group[] 
+  groups Group[]
 }
 
 model Group {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   coordinator String
   school      String
   entry       String
   exit        String
 
-  agencyId    String?  @db.ObjectId
-  agency      Agency?  @relation(fields: [agencyId], references: [id])
+  expirationDays Int @default(30)
 
-  agencyName  String?
-  photosIds   String[]
-  videoIds    String[]
+  agencyId String? @db.ObjectId
+  agency   Agency? @relation(fields: [agencyId], references: [id])
 
-  codes      Codes[] 
+  agencyName String?
+  photosIds  String[]
+  videoIds   String[]
 
-  inQueue    UploadQueue[]
+  codes Codes[]
 }
 
 model Codes {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  code        String
-  used        Boolean
-  included    Boolean
-  optional    Boolean
-  type        String
-  link        String
-  expires     DateTime
-  qrCode      String
-  
-  groupId     String?  @db.ObjectId
-  group       Group?   @relation(fields: [groupId], references: [id])
-}
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  code     String
+  used     Boolean
+  included Boolean
+  optional Boolean
+  type     String
+  link     String
+  expires  DateTime
+  qrCode   String
 
-
-
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  userId       String   @db.ObjectId
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId String? @db.ObjectId
+  group   Group?  @relation(fields: [groupId], references: [id])
 }
 
 enum UserRole {
@@ -77,46 +67,10 @@ enum UserRole {
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String   @unique
+  email         String    @unique
   emailVerified DateTime?
   password      String
   image         String?
 
-  role          UserRole  @default(USER)
-
-  uploads       UploadQueue[]
-  sessions      Session[]
-}
-
-model VerificationToken {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-enum UploadStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-model UploadQueue {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  filePath    String
-  fileName    String
-  fileType    String
-  fileSize    Int
-  status      UploadStatus @default(PENDING)
-  createdAt   DateTime @default(now())
-
-  userId      String?  @db.ObjectId
-  user        User?    @relation(fields: [userId], references: [id])
-
-  groupId     String?  @db.ObjectId
-  group       Group?   @relation(fields: [groupId], references: [id])
-
+  role UserRole @default(USER)
 }

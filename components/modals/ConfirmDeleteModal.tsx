@@ -53,7 +53,7 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
      
         <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
           <div className="flex flex-col gap-4 pb-7 justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
-            <div className="py-2 bg-orange-500 w-full text-center relative">
+            <div className="py-2 bg-red-600 w-full text-center relative">
               <h2 className="text-white">{title}</h2>
               <button onClick={toggleModal} className="absolute top-3 right-4">
                 <TfiClose className="w-5 h-5 text-white" />
@@ -68,7 +68,7 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
                     <button onClick={toggleModal} className="px-4 py-2 bg-gray-500 text-white">
                         Cancelar
                     </button>
-                    <button onClick={() => handleDeleteItem(selectedItem.id, selectedItem.name)} className="px-4 py-2 bg-orange-500 text-white">
+                    <button onClick={() => handleDeleteItem(selectedItem.id, selectedItem.name)} className="px-4 py-2 bg-red-600 text-white">
                         Eliminar
                     </button>
 

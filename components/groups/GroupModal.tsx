@@ -328,7 +328,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                     {editMode ? "Editar" : "Agregar"} Grupo
                   </button>
                   <button
-                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-500"
+                    className="p-1 button !text-white text-center !bg-red-700 hover:!bg-red-600"
                     onClick={toggleModal}
                   >
                     Cancelar

@@ -57,7 +57,7 @@ export const FolderUpload = (props: FolderUploadProps) => {
         <div
           {...getRootProps({
             className: `dropzone mt-2 flex flex-col justify-center mx-auto items-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed 
-        ${isDragging ? "border-orange-500" : "border-gray-200"}`,
+        ${isDragging ? "border-red-600" : "border-gray-200"}`,
           })}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -74,7 +74,7 @@ export const FolderUpload = (props: FolderUploadProps) => {
         <h4>Archivos</h4>
         <ul className="border-2 border-b-0">{files}</ul>
       </aside>
-      {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+      {error && <p className="text-red-600 text-xs text-center">{error}</p>}
     </div>
   );
 };

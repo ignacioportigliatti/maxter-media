@@ -54,7 +54,7 @@ export const UserLogin = () => {
   };
 
   return (
-    <div className="w-full h-full flex justify-center items-center">
+    <div className="w-full max-h-screen flex justify-center items-center overflow-hidden">
       <a href="/admin">
         <button className="button !border-white !text-white opacity-0 hover:opacity-100 !transition !duration-500 absolute top-4 right-4 z-20">
           Administradores
@@ -65,9 +65,9 @@ export const UserLogin = () => {
         autoPlay
         loop
         muted
-        className="absolute z-[1] w-full max-h-screen object-cover "
+        className="scale-150 absolute z-[1] w-full max-h-[100vhj] object-cover "
       />
-      <div className="z-10 bg-orange-500/95 h-full w-screen absolute"></div>
+      <div className="z-10 bg-red-600/95 h-full w-screen absolute"></div>
       <div className="z-20 animate-in fade-in-0 transition-all duration-1000 delay-1000">
         <Card className="w-[450px] h-[450px] flex flex-col items-center justify-center shadow-2xl bg-gray-200 dark:bg-medium-gray/90">
           <CardHeader className="flex flex-col justify-center items-center">

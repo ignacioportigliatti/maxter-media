@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { TbDoorExit, TbPhoto, TbVideo } from "react-icons/tb";
+import { TbDoorExit } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { Agency, Group } from "@prisma/client";
@@ -14,6 +14,8 @@ interface ClientSidebarProps {
     label: string;
     icon: React.ReactNode;
     href: string;
+    isDisabled: boolean;
+    isMediaLoading?: boolean;
   }[];
   setSelectedNavItemLabel?: React.Dispatch<React.SetStateAction<string>>;
   agency: Agency;
@@ -34,9 +36,9 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
     return (
       <div className="min-h-screen w-full h-full  top-0">
         <aside
-             style={{
-              background: `linear-gradient(to bottom, ${agency.primaryColor} , ${agency.secondaryColor})`,
-            }}       
+          style={{
+            background: `linear-gradient(to bottom, ${agency.primaryColor} , ${agency.secondaryColor})`,
+          }}
           className="flex-col w-full items-center text-gray-700 shadow min-h-full"
         >
           <div className="sticky top-0">
@@ -62,9 +64,25 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     ? agency.secondaryColor ?? ""
                     : "transparent",
                   transition: "background-color 0.3s ease",
+                  opacity: item.isDisabled ? 0.5 : 1,
                 };
 
-                return (
+                return item.isMediaLoading ? (
+                  <li
+                    key={index}
+                    style={inlineStyles}
+                    className="relative w-full group animate-pulse"
+                  >
+                    <div
+                      className={`h-16 flex flex-col justify-center items-center w-full cursor-wait
+                      }`}
+                    >
+                      <div className="w-5 h-5 animate-pulse duration-1000 bg-gray-300 rounded-lg mb-1"></div>
+                      <div className="w-14 h-3 animate-pulse bg-gray-300 duration-1000 rounded-lg"></div>
+                      
+                    </div>
+                  </li>
+                ) : (
                   <li
                     key={index}
                     style={inlineStyles}
@@ -74,6 +92,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                         [index]: true,
                       }))
                     }
+                    className="relative w-full group"
                     onMouseLeave={() =>
                       setHoveredItems((prevState) => ({
                         ...prevState,
@@ -82,12 +101,14 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     }
                   >
                     <Link
-                      href={item.href}
+                      href={item.isDisabled ? "#" : item.href}
                       style={{
                         color: agency.accentColor as string,
                         textDecoration: "none", // Opcional: quitar el subrayado del enlace
                       }}
-                      className="h-16 flex flex-col justify-center items-center w-full"
+                      className={`h-16 flex flex-col justify-center items-center w-full ${
+                        item.isDisabled ? "cursor-help pointer-events-none" : "cursor-pointer"
+                      }`}
                       onClick={
                         setSelectedNavItemLabel
                           ? () => setSelectedNavItemLabel(item.label)
@@ -96,6 +117,11 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     >
                       {item.icon}
                       <h5 className="text-[11px]">{item.label}</h5>
+                      {item.isDisabled && (
+                        <span className="z-50  group-hover:opacity-100 opacity-0 absolute top-0 inset-[5vw] duration-300 w-max h-full flex justify-center items-center">
+                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`Quiero acceder a ${item.label}`}</h5>
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -121,7 +147,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     }))
                   }
                   className="h-16 
-				focus:text-orange-500  focus:outline-none"
+				focus:text-red-600  focus:outline-none"
                 >
                   <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:text-red-800 hover:opacity-100 duration-500" />
                 </button>

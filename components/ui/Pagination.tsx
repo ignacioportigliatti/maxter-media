@@ -48,7 +48,7 @@ export const Pagination = ({
             key={i + 1}
             className={`px-2 py-2 text-xs ${
               currentPage === i + 1
-                ? "text-white bg-orange-500/60"
+                ? "text-white bg-red-600/60"
                 : "text-gray-500 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100"
             }`}
             onClick={() => handlePageChange(i + 1)}

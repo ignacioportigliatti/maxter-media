@@ -103,7 +103,7 @@ p {
 
 .sideBarButton {
   @apply relative flex flex-row items-center h-10 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 
-  border-l-4 border-transparent hover:border-orange-600 pr-6 transition duration-200
+  border-l-4 border-transparent hover:border-red-600 pr-6 transition duration-200
 }
 
 .sideBarCategories {
@@ -128,17 +128,17 @@ p {
 
 .tabButton {
   @apply cursor-pointer inline-flex p-4 border-b-2 border-transparent 
-  hover:border-orange-600 text-gray-300 transition duration-500
+  hover:border-red-600 text-gray-300 transition duration-500
 }
 
 .buttonWithIcon {
   @apply flex items-center px-5 py-2 text-sm capitalize transition-colors duration-200 bg-transparent 
-  border gap-x-2  text-gray-200 border-gray-700 hover:bg-orange-600 hover:text-white
+  border gap-x-2  text-gray-200 border-gray-700 hover:bg-red-600 hover:text-white
 }
 
 .button {
   @apply px-5 py-2 text-sm transition-colors duration-200 bg-transparent 
-  border gap-x-2  text-gray-200 border-gray-700 hover:bg-orange-600 hover:text-white
+  border gap-x-2  text-gray-200 border-gray-700 hover:bg-red-600 hover:text-white
 }
 
 .react-colorful__last-control {
@@ -219,11 +219,11 @@ p {
 }
 
 .uppy-StatusBar-spinner > path {
-  @apply fill-orange-600
+  @apply fill-red-600
 }
 
 .uppy-StatusBar-progress {
-  @apply !bg-orange-600
+  @apply !bg-red-600
 }
 
 .pswp__img {

@@ -30,7 +30,7 @@ const CodesModal = (props: CodesModalProps) => {
             <GeneratedCodes selectedGroup={selectedGroup as Group} />
           </div>
           {/* Right Side */}
-          <div className="w-1/3 p-6 flex flex-col gap-4 bg-orange-700">
+          <div className="w-1/3 p-6 flex flex-col gap-4 bg-red-700">
             <CodesGenerator selectedGroup={selectedGroup as Group} />
           </div>
         </div>

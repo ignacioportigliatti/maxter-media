@@ -117,7 +117,7 @@ const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
                 }))
               }
               className="h-full w-full flex justify-center items-center
-				focus:text-orange-500 hover:bg-red-200 focus:outline-none"
+				focus:text-red-600 hover:bg-red-200 focus:outline-none"
             >
               <TbDoorExit className="w-5 h-5 text-white opacity-70 hover:opacity-100" />
             </button>

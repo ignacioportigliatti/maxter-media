@@ -45,7 +45,7 @@ export const Sidebar = (props: SidebarProps) => {
   return (
     <div className="min-h-full h-full flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
       <div className="flex flex-col sticky h-screen top-0 left-0 w-64 bg-gray-200 dark:bg-dark-gray themeTransition">
-        <div className="flex items-center justify-center p-6 h-20 border-b border-orange-500">
+        <div className="flex items-center justify-center p-6 h-20 border-b border-red-600">
           <div>
             <Image
               src={logoSrc}

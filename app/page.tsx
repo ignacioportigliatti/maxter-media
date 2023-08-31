@@ -2,7 +2,7 @@ import { UserLogin } from "@/components/home/UserLogin";
 
 export default function Home() {
   return (
-    <div className="flex flex-col justify-start items-center mx-auto p-7 h-screen bg-medium-gray">
+    <div className="flex justify-start items-center mx-auto p-7 max-h-screen h-screen overflow-hidden bg-medium-gray">
         <UserLogin />
     </div>
   );

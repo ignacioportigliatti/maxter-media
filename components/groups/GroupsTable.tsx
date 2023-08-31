@@ -210,8 +210,8 @@ export const GroupsTable = () => {
 
                 <th className="px-4 items-center text-sm whitespace-nowrap relative py-3.5">
                   <button
-                    className="dark:text-white text-black text-[12px] p-2 hover:bg-orange-500 transition duration-300
-                        dark:bg-medium-gray dark:hover:bg-orange-500 hover:text-white bg-gray-200 font-semibold"
+                    className="dark:text-white text-black text-[12px] p-2 hover:bg-red-600 transition duration-300
+                        dark:bg-medium-gray dark:hover:bg-red-600 hover:text-white bg-gray-200 font-semibold"
                     onClick={handleAddGroup}
                   >
                     <span className="font-bold">+</span> Agregar
@@ -239,7 +239,7 @@ export const GroupsTable = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                      <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
                       <h2 className="text-sm">{renderAgencyName(group.agencyId as string)}</h2>
                     </td>
                     <td className="px-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
@@ -257,8 +257,8 @@ export const GroupsTable = () => {
                     <td className="flex justify-end px-4 items-center my-3 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
                         <button
-                          className="text-gray-500 transition-colors duration-200 dark:hover:text-red-500 dark:text-gray-300 
-                            hover:text-red-500 focus:outline-none"
+                          className="text-gray-500 transition-colors duration-200 dark:hover:text-red-600 dark:text-gray-300 
+                            hover:text-red-600 focus:outline-none"
                           onClick={() => handleDeleteButton(group)}
                         >
                           <AiOutlineDelete className="w-5 h-5" />

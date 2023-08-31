@@ -21,7 +21,7 @@ export const renderGroupedFiles = (
     ) : (
       Object.entries(groupedFiles).map(([groupName, files], index) => (
         <details key={index} className="border -mb-[1px] border-slate-800">
-          <summary className="px-4 py-2 cursor-pointe bg-medium-gray hover:bg-orange-600 duration-500 transition cursor-pointer">
+          <summary className="px-4 py-2 cursor-pointe bg-medium-gray hover:bg-red-600 duration-500 transition cursor-pointer">
             {groupName} ({files.length} archivo{files.length !== 1 ? "s" : ""})
           </summary>
           <div className="">
@@ -57,7 +57,7 @@ export const renderGroupedFiles = (
                     <td className="px-4 py-2">
                       <div className="w-full bg-gray-200 rounded-full">
                         <div
-                          className="bg-orange-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                          className="bg-red-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
                           style={{
                             width: `${
                               (fileUploadProgress[file.id] || 0) * 100

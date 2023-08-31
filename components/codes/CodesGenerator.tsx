@@ -19,6 +19,7 @@ export interface CodesGeneratorForm {
   quantity: number;
   included: boolean;
   optional: boolean;
+  expirationDays: string;
   optionalComment?: string;
 }
 
@@ -49,9 +50,9 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
               Tipo
             </label>
             <select className="text-xs p-1" {...register('type', { required: true })} aria-invalid={errors.type ? "true" : "false"}>
+              <option value="full">Foto + Video</option>
               <option value="photo">Foto</option>
               <option value="video">Video</option>
-              <option value="full">Foto + Video</option>
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -59,6 +60,13 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
             <input {...register('quantity', { required: true })} aria-invalid={errors.quantity ? "true" : "false"} className="input text-xs p-1" />
             {errors.quantity?.type === "required" && (
         <p className="text-xs !text-red-600" role="alert">Debes ingresar una cantidad.</p>
+      )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="">Dias de expiracion</label>
+            <input {...register('expirationDays', { required: true })} defaultValue={30} aria-invalid={errors.expirationDays ? "true" : "false"} className="input text-xs p-1" />
+            {errors.expirationDays?.type === "required" && (
+        <p className="text-xs !text-red-600" role="alert">Debes ingresar una cantidad de dias.</p>
       )}
           </div>
           <div className="flex gap-2 items-center">

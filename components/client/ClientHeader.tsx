@@ -24,7 +24,7 @@ const ClientHeader = (props: ClientHeaderProps) => {
       style={{
         background: `linear-gradient(to right, ${agency.primaryColor} , ${agency.secondaryColor})`,
       }}
-      className="flex w-full min-w-screen flex-row items-center justify-between themeTransition h-full px-6 text-black dark:text-white"
+      className="flex w-full min-w-screen flex-row items-center justify-between themeTransition h-full px-6 text-white"
     >
       <div>
         {/* Utilizamos currentNavItemLabel en lugar de selectedNavItemLabel */}

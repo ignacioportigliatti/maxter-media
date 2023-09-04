@@ -78,7 +78,12 @@ export const PhotoGrid = (props: PhotoGridProps) => {
           <div className="relative flex items-center justify-center cursor-pointer opacity-75 hover:opacity-100 transition duration-500 group">
             <div className="absolute transition duration-500 top-0 right-0 opacity-0 group-hover:opacity-100 p-1 bg-black/80 text-gray-400 text-xs">
               {
-                <span className="bg-red-600 px-1 text-white">{`${folderWithPhotos.photos.length}`}</span>
+                <span className="px-1" style={{
+                  backgroundImage: `linear-gradient(315deg, ${selectedAgency.primaryColor} 0%, ${selectedAgency.secondaryColor} 100%)`,
+                  color: selectedAgency.accentColor as string,
+                }}>
+                  {`${folderWithPhotos.photos.length}`}
+                  </span>
               }{" "}
               Fotos
             </div>

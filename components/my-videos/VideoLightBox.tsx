@@ -7,9 +7,9 @@ import { useSelector } from "react-redux";
 import useSignedUrl from "../../hooks/useSignedUrl";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Agency } from "@prisma/client";
 
 type VideoLightboxProps = {
-  videoSrc: string;
   title: string;
   closeLightbox: () => void;
   agencyLogoSrc: string;
@@ -17,13 +17,14 @@ type VideoLightboxProps = {
 };
 
 const VideoLightbox = (props: VideoLightboxProps) => {
-  const { videoSrc, title, closeLightbox, agencyLogoSrc, videoIndex } = props;
+  const { title, closeLightbox, agencyLogoSrc, videoIndex } = props;
   const [currentVideoIndex, setCurrentVideoIndex] = useState(videoIndex);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [isDownloading, setIsDownloading] = useState(false);
+  const agency: Agency = useSelector((state: any) => state.agency);
+
   const reduxVideos = useSelector((state: any) => state.videos);
 
-  // Call the hook directly in the component body
   const currentVideoSrc = reduxVideos[currentVideoIndex].video.url;
 
   const previousVideo = () => {
@@ -43,22 +44,85 @@ const VideoLightbox = (props: VideoLightboxProps) => {
   };
 
   const handleVideoDownload = async () => {
-    toast.info("Descargando video...", { toastId: "downloading", autoClose: false, closeButton: false });
-    const file = await axios.get(currentVideoSrc, {responseType: 'blob'}).then((res) => res.data);
-    const fileBlob = await file.blob();
-    const fileUrl = URL.createObjectURL(fileBlob); 
-    // download the file
-    setIsDownloading(true)
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.download = currentTitle;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(fileUrl);
-    toast.dismiss("downloading");
-    toast.success("Video descargado con éxito", { toastId: "downloaded" });
-    setIsDownloading(false)
+    if (isDownloading) {
+      // Si ya se está descargando, no hacer nada
+      return;
+    }
+
+    setIsDownloading(true);
+
+    const toastOptions = {
+      toastId: "downloading",
+      position: "bottom-right" as "bottom-right",
+      autoClose: false as false,
+      closeButton: false as false,
+      style: {
+        backgroundColor: agency.primaryColor as string,
+        backgroundImage: `linear-gradient(315deg, ${agency.primaryColor} 0%, ${agency.secondaryColor} 100%)`,
+        color: agency.accentColor as string,
+      },
+      
+      progressStyle: {
+        backgroundColor: 'white',
+      },
+    };
+
+    try {
+      toast.info(
+        <p className="text-xs" style={{ color: agency.accentColor as string }}>
+          {`Descargando video ${currentTitle}... 0% (0MB / 0MB)`}
+        </p>,
+        toastOptions
+      );
+
+      const downloadVideoUrl = currentVideoSrc;
+
+      const response = await axios.get(downloadVideoUrl, {
+        responseType: "blob",
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.loaded && progressEvent.total) {
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            const downloadedMb = progressEvent.loaded / 1000000;
+            const totalMb = progressEvent.total / 1000000;
+            const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(
+              2
+            )}MB`;
+
+            toast.update("downloading", {
+              render: (
+                <p
+                  className="text-xs"
+                  style={{ color: agency.accentColor as string }}
+                >
+                  {`Descargando video... ${progress.toFixed(0)}% (${sizeText})`}
+                </p>
+              ),
+              position: "bottom-right",
+            });
+          }
+        },
+      });
+
+      const fileBlob = response.data;
+      const fileUrl = URL.createObjectURL(fileBlob);
+
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = currentTitle;
+      link.target = "_blank"; // Abre en una nueva ventana/pestaña
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(fileUrl);
+      toast.dismiss("downloading");
+      toast.success(<p className="text-xs" style={{color: agency.accentColor as string}}>
+        {`${currentTitle} descargado con éxito!`}
+      </p>, {...toastOptions, toastId: "downloaded", autoClose: 3000, closeButton: true});
+      setIsDownloading(false);
+    } catch (error) {
+      console.error("Error al descargar el video:", error);
+    }
   };
 
   return (
@@ -75,6 +139,8 @@ const VideoLightbox = (props: VideoLightboxProps) => {
           </div>
           <div className="font-semibold text-white">{currentTitle}</div>
         </div>
+        {/* Display download progress */}
+
         <div className="flex space-x-4">
           <button
             disabled={isDownloading === true ? true : false}
@@ -94,30 +160,21 @@ const VideoLightbox = (props: VideoLightboxProps) => {
       </div>
       <div className="flex justify-between items-center flex-1">
         <div className="z-0 flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
-          {videoSrc && (
-            <VideoPlayer
-              videoSrc={currentVideoSrc ? currentVideoSrc : videoSrc}
-              onVideoEnded={nextVideo}
-            />
+          {currentVideoSrc && (
+            <VideoPlayer videoSrc={currentVideoSrc} onVideoEnded={nextVideo} />
           )}
         </div>
         {/* Previous Video Button */}
-        <button
-         
-          className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
-        >
+        <button className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70">
           <ArrowLeftFromLine
-           onClick={previousVideo}
+            onClick={previousVideo}
             className={`hover:animate-pulse active:animate-ping`}
           />
         </button>
         {/* Next Video Button */}
-        <button
-          
-          className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70"
-        >
+        <button className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70">
           <ArrowRightFromLine
-          onClick={nextVideo}
+            onClick={nextVideo}
             className={`hover:animate-pulse active:animate-ping`}
           />
         </button>

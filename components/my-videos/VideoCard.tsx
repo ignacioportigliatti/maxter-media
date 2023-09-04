@@ -110,8 +110,7 @@ export const VideoCard = (props: VideoCardProps) => {
       </div>
       {lightboxIsOpen && (
         <VideoLightbox
-          videoIndex={videoIndex}
-          videoSrc={videoSrc}
+          videoIndex={videoIndex}  
           title={title}
           closeLightbox={closeLightbox}
           agencyLogoSrc={selectedAgency?.logoSrc as string}

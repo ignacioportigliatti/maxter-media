@@ -15,7 +15,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps) => {
         try {
           const shaka = require('shaka-player/dist/shaka-player.ui.js');
           await shaka.polyfill.installAll();
-
           const videoElement = videoRef.current;
           const player = new shaka.Player(videoElement);
 
@@ -37,7 +36,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps) => {
 
       initPlayer();
     }
-  }, [videoSrc, onVideoEnded]);
+  }, [videoSrc]);
 
   return (
     <video

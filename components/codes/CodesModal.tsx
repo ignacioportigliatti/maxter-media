@@ -4,6 +4,7 @@ import { Group } from "@prisma/client";
 import { TfiClose } from "react-icons/tfi";
 import GeneratedCodes from "./GeneratedCodes";
 import CodesGenerator from "./CodesGenerator";
+import { useState } from "react";
 
 type CodesModalProps = {
   selectedGroup: Group;
@@ -12,6 +13,11 @@ type CodesModalProps = {
 
 const CodesModal = (props: CodesModalProps) => {
   const { selectedGroup, handleToggleModal } = props;
+  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+
+  const handlePDFExport = () => {}
+  const handleSendToAgency = () => {}
+
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90">
       <div className="dark:bg-medium-gray w-full max-w-2xl mx-4 rounded-lg shadow-lg">
@@ -34,12 +40,7 @@ const CodesModal = (props: CodesModalProps) => {
             <CodesGenerator selectedGroup={selectedGroup as Group} />
           </div>
         </div>
-        {/* Bottom Actions */}
-        <div className="px-6 py-4 bg-dark-gray flex justify-center">
-          <button className="button mr-2">Exportar PDF</button>
-          <button className="button mr-2">Exportar JPG</button>
-          <button className="button">Enviar a Empresa</button>
-        </div>
+        
       </div>
     </div>
   );

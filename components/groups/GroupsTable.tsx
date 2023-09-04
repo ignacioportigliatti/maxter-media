@@ -30,7 +30,7 @@ export const GroupsTable = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [showCodesModal, setshowCodesModal] = useState(false);
-  const itemsPerPage = 8; // Número de elementos por página
+  const itemsPerPage = 13; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);

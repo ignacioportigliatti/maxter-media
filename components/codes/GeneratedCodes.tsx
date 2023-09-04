@@ -13,8 +13,9 @@ import {
 import { Pagination } from "../ui";
 
 import { CodePdfTemplate } from "./CodePdfTemplate";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
 import { useSelector } from "react-redux";
+import JSZip from "jszip";
 
 type GeneratedCodesProps = {
   selectedGroup: Group;
@@ -35,7 +36,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
   const itemsPerPage = 6; // Número de elementos por página
   const [currentPage, setCurrentPage] = useState(1);
   const agencies = useSelector((state: any) => state.agencies);
-  
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -51,16 +52,13 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     }
   };
 
-
   const getSelectedAgency = async (group: Group) => {
-
     const selectedAgency = agencies.find(
       (agency: any) => agency.id === group.agencyId
     );
     setSelectedAgency(selectedAgency);
     return selectedAgency;
   };
-
 
   const getGroupCodes = async () => {
     await getSelectedAgency(selectedGroup);
@@ -87,8 +85,36 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
 
   useEffect(() => {
     getGroupCodes();
-   
   }, [sortConfig]);
+
+  const handleMultiPDF = () => {
+    const codes = groupCodes.filter((code) =>
+      selectedCodes.includes(code.code)
+    );
+
+    const zip = new JSZip();
+    // for each pdf you have to add the blob to the zip
+    codes.forEach((code) => {
+      zip.file(
+        `${code.code}.pdf`,
+        pdf(
+          <CodePdfTemplate
+            code={code}
+            selectedGroup={selectedGroup}
+            selectedAgency={selectedAgency as Agency}
+          />
+        ).toBlob()
+      );
+    });
+
+    // once you finish adding all the pdf to the zip, return the zip file
+    return zip.generateAsync({ type: "blob" }).then((content) => {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = selectedGroup.name + ".zip";
+      link.click();
+    });
+  };
 
   const sortCodes = (
     codes: Codes[],
@@ -116,6 +142,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       prevSelected.length === allCodes.length ? [] : allCodes
     );
   };
+  
 
   const handleDelete = async (codeId: string) => {
     try {
@@ -133,14 +160,12 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     }
   };
 
-
   return (
-    <div className="w-full">
+    <div className="flex flex-col w-full">
       <h2 className="text-base text-center w-full font-normal mb-1">
         Codigos Generados
       </h2>
-      <div className="flex items-center gap-2"></div>
-      <table className="w-full">
+      <table className="w-full h-full">
         <thead>
           <tr>
             <th align="left" id="headerCode" className="w-auto text-xs py-2">
@@ -220,36 +245,57 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                   {code.included === true ? "Si" : "No"}
                 </td>
                 <td align="center" id="rowDelete">
-                <div className="flex flex-row justify-center items-center">
-                <PDFDownloadLink
-                    document={<CodePdfTemplate code={code} selectedGroup={selectedGroup} selectedAgency={selectedAgency as Agency} />}
-                    fileName={code.code}
-                  >
-                    {({ blob, url, loading, error }) =>
-                      loading ? <AiOutlineLoading /> : <AiOutlineFilePdf className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
-                    }
-                  </PDFDownloadLink>
+                  <div className="flex flex-row justify-center items-center">
+                    <PDFDownloadLink
+                      document={
+                        <CodePdfTemplate
+                          code={code}
+                          selectedGroup={selectedGroup}
+                          selectedAgency={selectedAgency as Agency}
+                        />
+                      }
+                      fileName={code.code}
+                    >
+                      {({ blob, url, loading, error }) =>
+                        loading ? (
+                          <AiOutlineLoading />
+                        ) : (
+                          <AiOutlineFilePdf className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                        )
+                      }
+                    </PDFDownloadLink>
 
-                  <button>
-                    <AiOutlineWhatsApp className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
-                  </button>
-                  <button onClick={() => handleDelete(code.id)}>
-                    <AiOutlineDelete className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
-                  </button>
-                </div>
-
+                    <button>
+                      <AiOutlineWhatsApp className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                    </button>
+                    <button onClick={() => handleDelete(code.id)}>
+                      <AiOutlineDelete className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
         </tbody>
       </table>
-      <div className="scale-95">
+      <div className="">
         {groupCodes.length > itemsPerPage && (
           <Pagination
             totalItems={groupCodes.length}
             itemsPerPage={itemsPerPage}
             handlePageChange={handlePageChange}
           />
+        )}
+      </div>
+      {/* Bottom Actions */}
+      <div className="p-2 flex gap-2 justify-center">
+        {selectedCodes && selectedCodes.length > 0 && (
+          <div className="flex flex-row gap-2 items-center">
+            <p>{selectedCodes.length} codigos</p>
+            <button onClick={handleMultiPDF} className="button !p-1 !text-xs">
+              Exportar PDF
+            </button>
+            <button className="button !p-1 !text-xs">Enviar a Empresa</button>
+          </div>
         )}
       </div>
     </div>

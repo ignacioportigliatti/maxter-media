@@ -5,6 +5,8 @@ import { TbDoorExit, TbDownload } from "react-icons/tb";
 import VideoPlayer from "./VideoPlayer";
 import { useSelector } from "react-redux";
 import useSignedUrl from "../../hooks/useSignedUrl";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 type VideoLightboxProps = {
   videoSrc: string;
@@ -18,6 +20,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
   const { videoSrc, title, closeLightbox, agencyLogoSrc, videoIndex } = props;
   const [currentVideoIndex, setCurrentVideoIndex] = useState(videoIndex);
   const [currentTitle, setCurrentTitle] = useState(title);
+  const [isDownloading, setIsDownloading] = useState(false);
   const reduxVideos = useSelector((state: any) => state.videos);
 
   // Call the hook directly in the component body
@@ -40,10 +43,12 @@ const VideoLightbox = (props: VideoLightboxProps) => {
   };
 
   const handleVideoDownload = async () => {
-    const file = await fetch(currentVideoSrc);
+    toast.info("Descargando video...", { toastId: "downloading", autoClose: false, closeButton: false });
+    const file = await axios.get(currentVideoSrc, {responseType: 'blob'}).then((res) => res.data);
     const fileBlob = await file.blob();
     const fileUrl = URL.createObjectURL(fileBlob); 
     // download the file
+    setIsDownloading(true)
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = currentTitle;
@@ -51,6 +56,9 @@ const VideoLightbox = (props: VideoLightboxProps) => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(fileUrl);
+    toast.dismiss("downloading");
+    toast.success("Video descargado con éxito", { toastId: "downloaded" });
+    setIsDownloading(false)
   };
 
   return (
@@ -69,6 +77,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
         </div>
         <div className="flex space-x-4">
           <button
+            disabled={isDownloading === true ? true : false}
             onClick={handleVideoDownload}
             className="flex items-center space-x-1 text-white font-semibold transition-opacity duration-300 hover:opacity-70"
           >

@@ -175,7 +175,7 @@ export const AgencyTable = () => {
             editMode ? () => handleEditAgency(selectedAgency) : undefined
           }
           toggleModal={handleToggleModal}
-          buttonText="Agregar Empresa"
+          buttonText={editMode ? "Editar Empresa" : "Agregar Empresa"}
           refresh={() =>
             dispatch(setAgencies(agencies as Agency[]))
           }

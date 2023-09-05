@@ -60,7 +60,6 @@ export default function RootLayout({
     },
   ];
 
-
   const setGroup = async (group: Group, codeType: string) => {
     try {
       const agencies = await fetch("/api/agencies").then((res) => res.json());
@@ -280,7 +279,17 @@ export default function RootLayout({
         </div>
       ) : isVerified ? (
         <div className="flex w-screen h-full">
-          <ToastContainer />
+          <ToastContainer
+            position="bottom-right" limit={3}
+            toastStyle={{
+              backgroundImage: `linear-gradient(45deg, ${agency.primaryColor}, ${agency.secondaryColor})`,
+              color: agency.accentColor as string,
+              fontSize: "12px",
+            }}
+            progressStyle={{
+              backgroundImage: `linear-gradient(215deg, ${agency.primaryColor}, ${agency.secondaryColor})`,
+            }}
+          />
           <div className="hidden min-h-full w-[10vh] md:flex">
             <ClientSidebar
               navigationItems={navigationItems}

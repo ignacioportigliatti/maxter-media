@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import { FolderWithPhotos, Photo } from "./PhotoGrid";
-import Image from "next/image";
 import axios from "axios";
 import JSZip from "jszip";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { Agency } from "@prisma/client";
 
 type PhotoGalleryProps = {
   handleGalleryClose: () => void;
@@ -19,7 +21,9 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
   const [loadedPhotosCount, setLoadedPhotosCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const lastPhotoRef = useRef<HTMLDivElement | null>(null);
+  const [buttonIsHovered, setButtonIsHovered] = useState(false);
   const selectedFolder = folderWithPhotos.folder;
+  const selectedAgency: Agency = useSelector((state: any) => state.agency);
 
   useEffect(() => {
     const loadInitialPhotos = async () => {
@@ -152,44 +156,88 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
 
     // Create the ZIP file and initiate the download
     const zip = new JSZip();
-
+    toast.info(`Descargando ${selectedFolder}...`, {
+      autoClose: false,
+      closeButton: false,
+      toastId: "downloading-zip",
+    });
     await Promise.all(
-      allPhotosToDownload.map(async (photo) => {
+      allPhotosToDownload.map(async (photo, index) => {
         const response = await fetch(photo.url);
         const pathComponents = photo.Key.split("/");
         const blob = await response.blob();
         const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
         zip.file(fileName, blob);
+        toast.update("downloading-zip", {
+          render: `Comprimiendo ${selectedFolder} - ${index}/${allPhotosToDownload.length} Fotos`,
+          autoClose: false,
+        });
       })
     );
 
     zip.generateAsync({ type: "blob" }).then((content) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = selectedFolder;
-      link.click();
+      const link = URL.createObjectURL(content);
+      downloadFile(link, `${selectedFolder}.zip`);
     });
   };
 
-  const downloadFile = async (url: string, fileName: string) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
+  const downloadFile = async (
+    url: string,
+    fileName: string,
+    index?: number
+  ) => {
+    const response = await axios.get(url, {
+      responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        if (toast.isActive("downloading-zip")) {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            toast.update("downloading-zip", {
+              render: `Descargando ${selectedFolder}... ${percentCompleted}%`,
+              autoClose: false,
+            });
+          }
+        }
+      },
+    });
+
+    if (response.status !== 200) {
+      toast.error(`Error descargando ${fileName}`);
+      return;
+    } else if (response.status === 200) {
+      if (toast.isActive("downloading-zip")) {
+        toast.success(`Descargado ${fileName}`);
+        toast.dismiss("downloading-zip");
+      } else if (toast.isActive("downloading-multiple")) {
+        if (index === selectedPhotos.length - 1) {
+          toast.success(`Descargadas ${selectedPhotos.length} fotos`);
+          toast.dismiss("downloading-multiple");
+        }
+      }
+    }
+
+    const blob = await response.data;
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = `${fileName}.jpg`;
+    link.download = `${fileName}`;
     link.click();
     window.URL.revokeObjectURL(link.href);
   };
 
   const handleDownloadSelected = () => {
-    selectedPhotos.forEach((photoKey) => {
+    selectedPhotos.map((photoKey, index) => {
       const selectedPhoto = signedPhotos.find(
         (photo) => photo.Key === photoKey
       );
       if (selectedPhoto) {
         const pathComponents = selectedPhoto.Key.split("/");
         const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
-        downloadFile(selectedPhoto.url, fileName);
+        downloadFile(selectedPhoto.url, `${fileName}.jpg`, index);
+        toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
+          toastId: "downloading-multiple",
+        });
       }
     });
   };
@@ -216,8 +264,16 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         </div>
         <div className="flex w-full flex-row justify-end items-center h-full">
           <button
+            onMouseEnter={() => {}}
+            onMouseLeave={() => setButtonIsHovered(false)}
             onClick={handleGalleryClose}
-            className="flex flex-row h-full justify-center items-center button !border-0 duration-500"
+            style={{
+              backgroundColor: buttonIsHovered
+                ? (selectedAgency.primaryColor as string)
+                : "transparent",
+            }}
+            className={`flex flex-row h-full justify-center items-center px-5 py-2 text-sm transition-colors duration-200 
+             gap-x-2  text-gray-200 hover:text-white`}
           >
             <p className="!text-white hidden md:block text-xs  md:text-sm font-semibold ">
               Volver
@@ -237,7 +293,23 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         </div>
       </div>
       <div className="bg-medium-gray pt-[50px]">
-        <Gallery id={selectedFolder} withDownloadButton>
+        <Gallery
+          id={selectedFolder}
+          options={{
+            arrowKeys: false,
+            arrowNext: false,
+            arrowPrev: false,
+            preload: [1, 3],
+            bgOpacity: 0.9,
+            bgClickAction: "close",
+            loop: false,
+            counter: false,
+            showHideAnimationType: "fade",
+            hideAnimationDuration: 333,
+            wheelToZoom: true,
+          }}
+          withDownloadButton
+        >
           <div
             onScroll={handleScroll}
             className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 p-9 gap-4 relative top-0 animate-in fade-in-0 duration-1000"
@@ -276,8 +348,9 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
                 </div>
                 <Item
                   original={photo.url}
-                  thumbnail={`${photo.url}?w=96&q=30`}
+                  thumbnail={`${photo.url}`}
                   id={photo.Key}
+                  alt={`${selectedFolder} Foto ${index}`}
                 >
                   {({ ref, open }) => (
                     <img

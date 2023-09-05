@@ -52,7 +52,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
     };
 
     loadInitialPhotos();
-  }, [folderWithPhotos]);
+  }, []);
 
   const loadMorePhotos = async () => {
     if (isLoadingMore) return;
@@ -186,44 +186,56 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
     fileName: string,
     index?: number
   ) => {
-    const response = await axios.get(url, {
-      responseType: "blob",
-      onDownloadProgress: (progressEvent) => {
+    try {
+      const response = await axios.get(url, {
+        responseType: "blob",
+        onDownloadProgress: (progressEvent) => {
+          if (toast.isActive("downloading-zip")) {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              toast.update("downloading-zip", {
+                render: `Descargando ${selectedFolder}... ${percentCompleted}%`,
+                autoClose: false,
+              });
+            }
+          }
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
+        },
+      });
+  
+      if (response.status !== 200) {
+        toast.error(`Error descargando ${fileName}`);
+        return;
+      } else if (response.status === 200) {
         if (toast.isActive("downloading-zip")) {
-          if (progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            toast.update("downloading-zip", {
-              render: `Descargando ${selectedFolder}... ${percentCompleted}%`,
-              autoClose: false,
-            });
+          toast.success(`Descargado ${fileName}`);
+          toast.dismiss("downloading-zip");
+        } else if (toast.isActive("downloading-multiple")) {
+          if (index === selectedPhotos.length - 1) {
+            toast.success(`Descargadas ${selectedPhotos.length} fotos`);
+            toast.dismiss("downloading-multiple");
           }
         }
-      },
-    });
-
-    if (response.status !== 200) {
-      toast.error(`Error descargando ${fileName}`);
-      return;
-    } else if (response.status === 200) {
-      if (toast.isActive("downloading-zip")) {
-        toast.success(`Descargado ${fileName}`);
-        toast.dismiss("downloading-zip");
-      } else if (toast.isActive("downloading-multiple")) {
-        if (index === selectedPhotos.length - 1) {
-          toast.success(`Descargadas ${selectedPhotos.length} fotos`);
-          toast.dismiss("downloading-multiple");
-        }
       }
+  
+      const blob = await response.data;
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = `${fileName}`;
+      link.click();
+      window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+      toast.error(`Error descargando ${fileName}`);
+      console.log(error);
     }
-
-    const blob = await response.data;
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = `${fileName}`;
-    link.click();
-    window.URL.revokeObjectURL(link.href);
   };
 
   const handleDownloadSelected = () => {

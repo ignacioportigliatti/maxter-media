@@ -11,10 +11,9 @@ interface VideoRequestBody {
 export async function POST(req: Request) {
   const body: VideoRequestBody = await req.json();
   const { bucketName, folderPath, needThumbs, groupName } = body;
-
   try {
     const videos = await listVideos(bucketName, folderPath, needThumbs, groupName);
-    return NextResponse.json({ success: true, videos: videos });
+    return NextResponse.json({ success: true, videos: videos});
   } catch (error) {
     return NextResponse.json({ success: false, error: error });
   }

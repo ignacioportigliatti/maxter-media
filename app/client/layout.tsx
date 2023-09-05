@@ -93,7 +93,7 @@ export default function RootLayout({
             folderPath,
             needThumbs: true,
             groupName: group.name,
-          })
+          }, )
           .then((res) => {
             if (res.data.success) {
               return res.data.videos;

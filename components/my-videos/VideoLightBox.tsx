@@ -114,7 +114,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(fileUrl);
+      URL.revokeObjectURL(link.href);
       toast.dismiss("downloading");
       toast.success(<p className="text-xs" style={{color: agency.accentColor as string}}>
         {`${currentTitle} descargado con éxito!`}

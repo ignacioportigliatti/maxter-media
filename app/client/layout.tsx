@@ -93,7 +93,7 @@ export default function RootLayout({
             folderPath,
             needThumbs: true,
             groupName: group.name,
-          }, )
+          })
           .then((res) => {
             if (res.data.success) {
               return res.data.videos;
@@ -267,20 +267,19 @@ export default function RootLayout({
     <div>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <div className="absolute right-1/2 bottom-1/2">
-            <div
-              className={`border-t-transparent border-solid animate-spin rounded-full ${
-                agency.primaryColor !== undefined
-                  ? `border-[${agency.primaryColor}]`
-                  : "border-white"
-              } border-8 h-16 w-16`}
-            ></div>
-          </div>
+          <div
+            className={`border-t-transparent border-solid animate-spin rounded-full ${
+              agency.primaryColor !== undefined
+                ? `border-[${agency.primaryColor}]`
+                : "border-white"
+            } border-8 h-16 w-16`}
+          ></div>
         </div>
       ) : isVerified ? (
         <div className="flex w-screen h-full">
           <ToastContainer
-            position="bottom-right" limit={3}
+            position="bottom-right"
+            limit={3}
             toastStyle={{
               backgroundImage: `linear-gradient(45deg, ${agency.primaryColor}, ${agency.secondaryColor})`,
               color: agency.accentColor as string,

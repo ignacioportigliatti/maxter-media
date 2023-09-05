@@ -187,7 +187,9 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
     index?: number
   ) => {
     try {
-      const response = await axios.get(url, {
+
+      const downloadFileUrl = url;
+      const response = await axios.get(downloadFileUrl, {
         responseType: "blob",
         onDownloadProgress: (progressEvent) => {
           if (toast.isActive("downloading-zip")) {
@@ -202,17 +204,9 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
             }
           }
         },
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-          "Access-Control-Allow-Headers": "*",
-          "Access-Control-Allow-Methods": "*",
-        },
       });
   
-      if (response.status !== 200) {
-        toast.error(`Error descargando ${fileName}`);
-        return;
-      } else if (response.status === 200) {
+     if (response.status === 200) {
         if (toast.isActive("downloading-zip")) {
           toast.success(`Descargado ${fileName}`);
           toast.dismiss("downloading-zip");
@@ -225,13 +219,16 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
       }
   
       const blob = await response.data;
+      const fileUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.download = `${fileName}`;
+      link.href = fileUrl;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
       link.click();
-      window.URL.revokeObjectURL(link.href);
+
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+
     } catch (error) {
       toast.error(`Error descargando ${fileName}`);
       console.log(error);
@@ -245,8 +242,8 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
       );
       if (selectedPhoto) {
         const pathComponents = selectedPhoto.Key.split("/");
-        const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
-        downloadFile(selectedPhoto.url, `${fileName}.jpg`, index);
+        const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}.jpg`;
+        downloadFile(selectedPhoto.url, fileName, index);
         toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
           toastId: "downloading-multiple",
         });

@@ -125,13 +125,20 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
   };
 
   const handleDownloadAlbum = async () => {
-    // Ensure that all photos are signed before downloading
+
+    toast.info(`Descargando ${selectedFolder}...`, {
+      autoClose: false,
+      closeButton: false,
+      toastId: "downloading-zip",
+    });
+
+    
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
     const unsavedPhotos = folderWithPhotos.photos.filter(
       (photo) =>
         !signedPhotos.some((signedPhoto) => signedPhoto.Key === photo.Key)
     );
-
+  
     const unsavedPhotoPromises = unsavedPhotos.map(async (photo) => {
       try {
         const signedPhoto = await axios.post("/api/sign-url/", {
@@ -147,108 +154,145 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         return null;
       }
     });
-
+  
     const newSignedPhotos = (await Promise.all(unsavedPhotoPromises)).filter(
       (photo) => photo !== null
     );
-
+  
     const allPhotosToDownload = [...signedPhotos, ...newSignedPhotos];
-
-    // Create the ZIP file and initiate the download
+  
     const zip = new JSZip();
-    toast.info(`Descargando ${selectedFolder}...`, {
-      autoClose: false,
-      closeButton: false,
-      toastId: "downloading-zip",
-    });
+    const totalPhotosToDownload = allPhotosToDownload.length;
+    let downloadedPhotosCount = 0;
+  
+   
+  
     await Promise.all(
       allPhotosToDownload.map(async (photo, index) => {
-        const response = await fetch(photo.url);
-        const pathComponents = photo.Key.split("/");
-        const blob = await response.blob();
-        const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
-        zip.file(fileName, blob);
-        toast.update("downloading-zip", {
-          render: `Comprimiendo ${selectedFolder} - ${index}/${allPhotosToDownload.length} Fotos`,
-          autoClose: false,
-        });
+        try {
+          const response = await axios.get(photo.url.replace(/^https:\/\//i, 'http://'), { responseType: "blob" });
+          const pathComponents = photo.Key.split("/");
+          const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
+          zip.file(fileName, response.data);
+          downloadedPhotosCount++;
+  
+          const progress = (downloadedPhotosCount / totalPhotosToDownload) * 100;
+          const downloadedMb = response.data.size / 1000000;
+          const totalMb = response.data.size / 1000000;
+          const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(2)}MB`;
+  
+          toast.update("downloading-zip", {
+            render: `Comprimiendo ${selectedFolder} - ${downloadedPhotosCount}/${totalPhotosToDownload} Fotos (${progress.toFixed(0)}%)`,
+            autoClose: false,
+          });
+        } catch (error) {
+          console.error("Error al descargar la foto:", error);
+        }
       })
     );
-
-    zip.generateAsync({ type: "blob" }).then((content) => {
-      const link = URL.createObjectURL(content);
-      downloadFile(link, `${selectedFolder}.zip`);
-    });
-  };
-
-  const downloadFile = async (
-    url: string,
-    fileName: string,
-    index?: number
-  ) => {
+  
     try {
+      const content = await zip.generateAsync({ type: "blob" });
+      const link = URL.createObjectURL(content);
+      await downloadFile(link, `${selectedFolder}.zip`);
+      toast.success(`Descargado ${selectedFolder}`);
+      toast.dismiss("downloading-zip");
+    } catch (error) {
+      console.error("Error al descargar el álbum:", error);
+      toast.error(`Error al descargar ${selectedFolder}`);
+    }
+  };
+  
 
-      const downloadFileUrl = url;
-      const response = await axios.get(downloadFileUrl, {
+  const downloadFile = async (url: string, fileName: string) => {
+    try {
+      const response = await axios.get(url.replace(/^https:\/\//i, 'http://'), {
         responseType: "blob",
         onDownloadProgress: (progressEvent) => {
-          if (toast.isActive("downloading-zip")) {
-            if (progressEvent.total) {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              toast.update("downloading-zip", {
-                render: `Descargando ${selectedFolder}... ${percentCompleted}%`,
-                autoClose: false,
-              });
-            }
+          if (progressEvent.loaded && progressEvent.total) {
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            const downloadedMb = progressEvent.loaded / 1000000;
+            const totalMb = progressEvent.total / 1000000;
+            const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(2)}MB`;
+  
+            toast.update("downloading", {
+              render: (
+                <p className="text-xs" style={{ color: selectedAgency.accentColor as string }}>
+                  {`Descargando ${fileName}... ${progress.toFixed(0)}% (${sizeText})`}
+                </p>
+              ),
+              position: "bottom-right",
+            });
           }
         },
       });
   
-     if (response.status === 200) {
-        if (toast.isActive("downloading-zip")) {
-          toast.success(`Descargado ${fileName}`);
-          toast.dismiss("downloading-zip");
-        } else if (toast.isActive("downloading-multiple")) {
-          if (index === selectedPhotos.length - 1) {
-            toast.success(`Descargadas ${selectedPhotos.length} fotos`);
-            toast.dismiss("downloading-multiple");
-          }
-        }
+      const fileBlob = response.data;
+  
+      // Verificar si la API Web Share está disponible en el navegador
+      if (navigator.share) {
+        // Convertir el Blob en un objeto de archivo
+        const file = new File([fileBlob], fileName, { type: fileBlob.type });
+  
+        // Compartir el archivo usando la API Web Share
+        await navigator.share({ files: [file] });
+      } else {
+        // Si la API Web Share no está disponible, descargamos el archivo normalmente
+        const fileUrl = URL.createObjectURL(fileBlob);
+  
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = fileName;
+        link.target = "_blank";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
       }
   
-      const blob = await response.data;
-      const fileUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-
-    } catch (error) {
-      toast.error(`Error descargando ${fileName}`);
-      console.log(error);
-    }
-  };
-
-  const handleDownloadSelected = () => {
-    selectedPhotos.map((photoKey, index) => {
-      const selectedPhoto = signedPhotos.find(
-        (photo) => photo.Key === photoKey
-      );
-      if (selectedPhoto) {
-        const pathComponents = selectedPhoto.Key.split("/");
-        const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}.jpg`;
-        downloadFile(selectedPhoto.url, fileName, index);
-        toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
-          toastId: "downloading-multiple",
+      toast.dismiss("downloading");
+      if (toast.isActive('downloading-zip')) {
+        toast.update("downloading-zip", {
+          render: `Descargando ${selectedFolder}...`,
+          autoClose: false,
         });
       }
-    });
+    } catch (error) {
+      toast.error(`Error descargando ${fileName}`);
+      console.error("Error al descargar el archivo:", error);
+    }
+  };
+  
+  
+
+  const handleDownloadSelected = async () => {
+    try {
+      const downloadPhotos = async () => {
+        selectedPhotos.map(async (photoKey, index) => {
+          const selectedPhoto = signedPhotos.find(
+            (photo) => photo.Key === photoKey
+          );
+          if (selectedPhoto) {
+            const pathComponents = selectedPhoto.Key.split("/");
+            const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}.jpg`;
+            toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
+              toastId: "downloading-multiple",
+            });
+            await downloadFile(selectedPhoto.url, fileName);
+          }
+        });
+      }
+
+      await downloadPhotos().finally(() => {
+        toast.success(`Descargadas ${selectedPhotos.length} fotos`);
+        toast.dismiss("downloading-multiple");
+      });
+      
+    } catch (error) {
+      console.error("Error al descargar las fotos:", error);
+      toast.error("Error al descargar las fotos");
+    }
   };
 
   return (
@@ -258,16 +302,16 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
           {selectedPhotos.length > 0 && (
             <button
               onClick={handleDownloadSelected}
-              className="button flex items-center justify-center !border-0 h-full duration-500"
+              className="button flex w-max items-center justify-center !border-0 h-full duration-500"
             >
               <TbDownload className="!text-white" />{" "}
-              <p className="text-xs !text-white">
+              <p className="text-[10px] !text-white">
                 Descargar {selectedPhotos.length} fotos
               </p>
             </button>
           )}
         </div>
-        <div className="h-full w-full justify-center items-center flex font-light text-md">
+        <div className="h-full w-full justify-center items-center flex font-light text-xs md:text-base">
           {selectedFolder &&
             `${selectedFolder} (${folderWithPhotos.photos.length} Fotos)`}
         </div>

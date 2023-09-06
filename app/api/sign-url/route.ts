@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { wasabiClient } from "@/utils/wasabi/wasabiClient";
+import { S3Customizations } from "aws-sdk/lib/services/s3";
 
 interface RequestBody {
   bucketName: string;
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       ContentType: contentType,
       Expires: 60 * 60,
     };
+    
     let url;
 
     if (isUpload === true) {

@@ -16,6 +16,7 @@ const nextConfig = {
       }
     ]
   },
+  crossOrigin: 'anonymous',
   webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     // Agrega tus configuraciones personalizadas de webpack aquí
     config.plugins.push(

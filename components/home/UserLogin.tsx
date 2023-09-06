@@ -61,7 +61,7 @@ export const UserLogin = () => {
         </button>
       </a>
       <video
-        src="http://localhost:3000/user-login/bg-video.mp4"
+        src="/user-login/bg-video.mp4/"
         autoPlay
         loop
         muted

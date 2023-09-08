@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     if (isUpload === true) {
       url = await wasabiClient.getSignedUrl("putObject", params);
     } else {
-      url = await wasabiClient.getSignedUrl("getObject", params);
+      url = await wasabiClient.getSignedUrl("getObject", {...params, ResponseContentDisposition: `attachment; filename="${fileName}"`});
     }
 
     return NextResponse.json({

@@ -125,64 +125,60 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
   };
 
   const handleDownloadAlbum = async () => {
-
     toast.info(`Descargando ${selectedFolder}...`, {
       autoClose: false,
       closeButton: false,
       toastId: "downloading-zip",
     });
 
-    
     const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-    const unsavedPhotos = folderWithPhotos.photos.filter(
-      (photo) =>
-        !signedPhotos.some((signedPhoto) => signedPhoto.Key === photo.Key)
-    );
+    const getAllPhotosToDownload = async () => {
+     
   
-    const unsavedPhotoPromises = unsavedPhotos.map(async (photo) => {
-      try {
-        const signedPhoto = await axios.post("/api/sign-url/", {
-          bucketName: bucketName,
-          fileName: photo.Key,
-        });
-        return {
-          ...photo,
-          url: signedPhoto.data.url,
-        };
-      } catch (error) {
-        console.error("Error obtaining signed photo URL:", error);
-        return null;
-      }
-    });
+      const photoPromises = folderWithPhotos.photos.map(async (photo) => {
+        try {
+          const signedPhoto = await axios.post("/api/sign-url/", {
+            bucketName: bucketName,
+            fileName: photo.Key,
+          });
+          return {
+            ...photo,
+            url: signedPhoto.data.url,
+          };
+        } catch (error) {
+          console.error("Error obtaining signed photo URL:", error);
+          return null;
+        }
+      });
   
-    const newSignedPhotos = (await Promise.all(unsavedPhotoPromises)).filter(
-      (photo) => photo !== null
-    );
+      const newSignedPhotos = await Promise.all(photoPromises)
   
-    const allPhotosToDownload = [...signedPhotos, ...newSignedPhotos];
-  
+      return newSignedPhotos
+    }
+
+    const allPhotosToDownload = await getAllPhotosToDownload();
+
     const zip = new JSZip();
     const totalPhotosToDownload = allPhotosToDownload.length;
     let downloadedPhotosCount = 0;
-  
-   
-  
+
     await Promise.all(
       allPhotosToDownload.map(async (photo, index) => {
         try {
-          const response = await axios.get(photo.url.replace(/^https:\/\//i, 'http://'), { responseType: "blob" });
+          const imgBlob = await fetch(photo.url).then((r) => r.blob());
           const pathComponents = photo.Key.split("/");
           const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
-          zip.file(fileName, response.data);
+          zip.file(fileName, imgBlob);
           downloadedPhotosCount++;
-  
-          const progress = (downloadedPhotosCount / totalPhotosToDownload) * 100;
-          const downloadedMb = response.data.size / 1000000;
-          const totalMb = response.data.size / 1000000;
-          const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(2)}MB`;
-  
+
+          const progress =
+            (downloadedPhotosCount / totalPhotosToDownload) * 100;
+         
+
           toast.update("downloading-zip", {
-            render: `Comprimiendo ${selectedFolder} - ${downloadedPhotosCount}/${totalPhotosToDownload} Fotos (${progress.toFixed(0)}%)`,
+            render: `Comprimiendo ${selectedFolder} - ${downloadedPhotosCount}/${totalPhotosToDownload} Fotos (${progress.toFixed(
+              0
+            )}%)`,
             autoClose: false,
           });
         } catch (error) {
@@ -190,7 +186,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         }
       })
     );
-  
+
     try {
       const content = await zip.generateAsync({ type: "blob" });
       const link = URL.createObjectURL(content);
@@ -202,98 +198,63 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
       toast.error(`Error al descargar ${selectedFolder}`);
     }
   };
-  
 
   const downloadFile = async (url: string, fileName: string) => {
     try {
-      const response = await axios.get(url.replace(/^https:\/\//i, 'http://'), {
-        responseType: "blob",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.loaded && progressEvent.total) {
-            const progress = (progressEvent.loaded / progressEvent.total) * 100;
-            const downloadedMb = progressEvent.loaded / 1000000;
-            const totalMb = progressEvent.total / 1000000;
-            const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(2)}MB`;
-  
-            toast.update("downloading", {
-              render: (
-                <p className="text-xs" style={{ color: selectedAgency.accentColor as string }}>
-                  {`Descargando ${fileName}... ${progress.toFixed(0)}% (${sizeText})`}
-                </p>
-              ),
-              position: "bottom-right",
-            });
-          }
-        },
-      });
-  
-      const fileBlob = response.data;
-  
-      // Verificar si la API Web Share está disponible en el navegador
-      if (navigator.share) {
-        // Convertir el Blob en un objeto de archivo
-        const file = new File([fileBlob], fileName, { type: fileBlob.type });
-  
-        // Compartir el archivo usando la API Web Share
-        await navigator.share({ files: [file] });
-      } else {
-        // Si la API Web Share no está disponible, descargamos el archivo normalmente
-        const fileUrl = URL.createObjectURL(fileBlob);
-  
-        const link = document.createElement("a");
-        link.href = fileUrl;
-        link.download = fileName;
-        link.target = "_blank";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      }
-  
-      toast.dismiss("downloading");
-      if (toast.isActive('downloading-zip')) {
-        toast.update("downloading-zip", {
-          render: `Descargando ${selectedFolder}...`,
-          autoClose: false,
-        });
-      }
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+
+      // Simular un clic en el enlace
+      link.click();
     } catch (error) {
       toast.error(`Error descargando ${fileName}`);
       console.error("Error al descargar el archivo:", error);
     }
   };
-  
-  
 
   const handleDownloadSelected = async () => {
     try {
-      const downloadPhotos = async () => {
-        selectedPhotos.map(async (photoKey, index) => {
+      toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
+        toastId: "downloading-multiple",
+        autoClose: 1500,
+        pauseOnFocusLoss: false,
+        pauseOnHover: false,
+      });
+  
+      const downloadNextPhoto = async (index: number) => {
+        if (index < selectedPhotos.length) {
           const selectedPhoto = signedPhotos.find(
-            (photo) => photo.Key === photoKey
+            (photo) => photo.Key === selectedPhotos[index]
           );
+  
           if (selectedPhoto) {
+            console.log("Descargando foto:", selectedPhoto);
             const pathComponents = selectedPhoto.Key.split("/");
             const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}.jpg`;
-            toast.info(`Descargando ${selectedPhotos.length} fotos...`, {
-              toastId: "downloading-multiple",
-            });
-            await downloadFile(selectedPhoto.url, fileName);
+  
+            try {
+              await downloadFile(selectedPhoto.url, fileName);
+              await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1 segundo antes de continuar con la siguiente descarga
+            } catch (error) {
+              console.error("Error al descargar la foto:", error);
+              toast.error(`Error al descargar ${fileName}`);
+            }
+  
+            // Descargar la siguiente foto
+            await downloadNextPhoto(index + 1);
           }
-        });
+        }
       }
-
-      await downloadPhotos().finally(() => {
-        toast.success(`Descargadas ${selectedPhotos.length} fotos`);
-        toast.dismiss("downloading-multiple");
-      });
-      
+  
+      await downloadNextPhoto(0); // Comienza la descarga con la primera foto
+      setSelectedPhotos([]); // Desmarca todas las fotos seleccionadas
     } catch (error) {
       console.error("Error al descargar las fotos:", error);
       toast.error("Error al descargar las fotos");
     }
   };
+  
 
   return (
     <div className="z-50 flex flex-col w-full h-full absolute top-0 left-0 bg-medium-gray ">
@@ -305,7 +266,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
               className="button flex w-max items-center justify-center !border-0 h-full duration-500"
             >
               <TbDownload className="!text-white" />{" "}
-              <p className="text-[10px] !text-white">
+              <p className="text-[10px] md:text-sm !text-white">
                 Descargar {selectedPhotos.length} fotos
               </p>
             </button>

@@ -51,74 +51,15 @@ const VideoLightbox = (props: VideoLightboxProps) => {
 
     setIsDownloading(true);
 
-    const toastOptions = {
-      toastId: "downloading",
-      position: "bottom-right" as "bottom-right",
-      autoClose: false as false,
-      closeButton: false as false,
-      style: {
-        backgroundColor: agency.primaryColor as string,
-        backgroundImage: `linear-gradient(315deg, ${agency.primaryColor} 0%, ${agency.secondaryColor} 100%)`,
-        color: agency.accentColor as string,
-      },
-      
-      progressStyle: {
-        backgroundColor: 'white',
-      },
-    };
-
     try {
-      toast.info(
-        <p className="text-xs" style={{ color: agency.accentColor as string }}>
-          {`Descargando video ${currentTitle}... 0% (0MB / 0MB)`}
-        </p>,
-        toastOptions
-      );
-
       const downloadVideoUrl = currentVideoSrc;
 
-      const response = await axios.get(downloadVideoUrl, {
-        responseType: "blob",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.loaded && progressEvent.total) {
-            const progress = (progressEvent.loaded / progressEvent.total) * 100;
-            const downloadedMb = progressEvent.loaded / 1000000;
-            const totalMb = progressEvent.total / 1000000;
-            const sizeText = `${downloadedMb.toFixed(2)}MB / ${totalMb.toFixed(
-              2
-            )}MB`;
-
-            toast.update("downloading", {
-              render: (
-                <p
-                  className="text-xs"
-                  style={{ color: agency.accentColor as string }}
-                >
-                  {`Descargando video... ${progress.toFixed(0)}% (${sizeText})`}
-                </p>
-              ),
-              position: "bottom-right",
-            });
-          }
-        },
-      });
-
-      const fileBlob = response.data;
-      const fileUrl = URL.createObjectURL(fileBlob);
-
       const link = document.createElement("a");
-      link.href = fileUrl;
+      link.href = downloadVideoUrl;
       link.download = currentTitle;
-      link.target = "_blank"; // Abre en una nueva ventana/pestaña
-      link.style.display = "none";
-      document.body.appendChild(link);
+
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-      toast.dismiss("downloading");
-      toast.success(<p className="text-xs" style={{color: agency.accentColor as string}}>
-        {`${currentTitle} descargado con éxito!`}
-      </p>, {...toastOptions, toastId: "downloaded", autoClose: 3000, closeButton: true});
+
       setIsDownloading(false);
     } catch (error) {
       console.error("Error al descargar el video:", error);

@@ -221,11 +221,17 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         pauseOnFocusLoss: false,
         pauseOnHover: false,
       });
+
+      const duplicateArray = async () => {
+        return [...selectedPhotos];
+      }
+
+      const selectedPhotosCopy = await duplicateArray();
   
       const downloadNextPhoto = async (index: number) => {
-        if (index < selectedPhotos.length) {
+        if (index < selectedPhotosCopy.length) {
           const selectedPhoto = signedPhotos.find(
-            (photo) => photo.Key === selectedPhotos[index]
+            (photo) => photo.Key === selectedPhotosCopy[index]
           );
   
           if (selectedPhoto) {
@@ -248,7 +254,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
       }
   
       await downloadNextPhoto(0); // Comienza la descarga con la primera foto
-      setSelectedPhotos([]); // Desmarca todas las fotos seleccionadas
+      setSelectedPhotos([]);
     } catch (error) {
       console.error("Error al descargar las fotos:", error);
       toast.error("Error al descargar las fotos");

@@ -52,7 +52,7 @@ export const ConfirmDeleteModal = (props: confirmDeleteModalProps) => {
         <div>
      
         <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
-          <div className="flex flex-col gap-4 pb-7 justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
+          <div className="flex flex-col gap-4 pb-7 justify-center items-center bg-dark-gray w-[50%]">
             <div className="py-2 bg-red-600 w-full text-center relative">
               <h2 className="text-white">{title}</h2>
               <button onClick={toggleModal} className="absolute top-3 right-4">

@@ -212,7 +212,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
     <div>
    
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70">
-        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-white dark:bg-dark-gray w-[50%]">
+        <div className="flex flex-col gap-4 pb-7  justify-center items-center bg-dark-gray w-[50%]">
           <div className="py-4 bg-medi-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
             <h2 className="text-lg uppercase font-light">
               {`${

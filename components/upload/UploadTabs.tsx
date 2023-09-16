@@ -32,9 +32,9 @@ export const UploadTabs = () => {
   }, [showModal]);
 
   return (
-    <div className="w-full mx-auto justify-center items-start border dark:border-gray-500 border-gray-200">
-      <div className="border-gray-200 dark:border-gray-700 dark:bg-[#292929]">
-        <ul className="flex flex-wrap  -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400 border-b dark:border-gray-500 border-gray-200">
+    <div className="w-full mx-auto justify-center items-start border border-gray-500 ">
+      <div className=" border-gray-700 bg-[#292929]">
+        <ul className="flex flex-wrap  -mb-px text-sm font-medium text-center text-gray-400 border-gray-500">
           <li>
             <a
               onClick={() => handleTabChange("photos")}

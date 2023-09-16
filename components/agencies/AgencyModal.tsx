@@ -308,7 +308,7 @@ export const AgencyModal: React.FC<AgencyModalProps> = ({
   return (
     <div>
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-screen w-screen absolute top-0 left-0 bg-black bg-opacity-70 rounded-t-lg">
-        <div className="flex flex-col pb-7 justify-center items-center bg-white dark:bg-medium-gray w-[60%] rounded-t-lg">
+        <div className="flex flex-col pb-7 justify-center items-center  bg-medium-gray w-[60%] rounded-t-lg">
         <div className="py-4 flex flex-row w-full justify-between bg-dark-gray px-4 text-white text-center ">
         <h2 className="text-lg uppercase font-light">
               {editMode ? "Editar empresa" : "Agregar nueva empresa"}

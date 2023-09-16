@@ -39,7 +39,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
   const isOptionalChecked = watch("optional");
 
   return (
-    <div className="w-full">
+    <div className="w-full max-h-fit h-full flex items-center justify-center ">
       <form onSubmit={handleSubmit(onSubmit)}>
         <h2 className="text-base font-semibold w-full text-center">
           Generar Codigos

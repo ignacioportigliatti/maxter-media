@@ -45,7 +45,7 @@ export const MasterInput = (props: MasterInputProps) => {
 
   return (
     <div>
-      <label className="text-dark-gray dark:text-light-gray">{label}</label>
+      <label className="text-light-gray">{label}</label>
       <div className="relative">
         <input
           id={id}
@@ -54,7 +54,7 @@ export const MasterInput = (props: MasterInputProps) => {
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="block w-full px-4 py-2 mt-2 text-gray-700 border border-gray-300 bg-transparent dark:text-gray-300 dark:border-gray-600 focus:border-red-600 focus:outline-none focus:ring focus:ring-red-600 transition duration-300"
+          className="block w-full px-4 py-2 mt-2  border bg-transparent text-gray-300 border-gray-600 focus:border-red-600 focus:outline-none focus:ring focus:ring-red-600 transition duration-300"
         />
       </div>
       {error && <p className="text-red-600 text-xs mt-1">{error}</p>}

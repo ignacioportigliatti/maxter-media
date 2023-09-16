@@ -33,7 +33,7 @@ export const FolderUpload = (props: FolderUploadProps) => {
 
   const files = acceptedFiles.map((file) => (
     <li 
-      className="border-b-2 border-gray-200 dark:border-gray-500 p-2 text-xs"
+      className="border-b-2 border-gray-500 p-2 text-xs"
     key={file.webkitRelativePath}>
       {file.webkitRelativePath === "" ? file.name : file.webkitRelativePath} -{" "}
       {file.size} bytes
@@ -52,11 +52,11 @@ export const FolderUpload = (props: FolderUploadProps) => {
 
   return (
     <div>
-      <label className="text-dark-gray dark:text-light-gray">{label}</label>
+      <label className="text-light-gray">{label}</label>
       <div className={``}>
         <div
           {...getRootProps({
-            className: `dropzone mt-2 flex flex-col justify-center mx-auto items-center px-6 pt-5 pb-6 border-2 dark:border-gray-500 border-gray-200 border-dashed 
+            className: `dropzone mt-2 flex flex-col justify-center mx-auto items-center px-6 pt-5 pb-6 border-2 border-gray-500 border-dashed 
         ${isDragging ? "border-red-600" : "border-gray-200"}`,
           })}
           onDragEnter={handleDragEnter}

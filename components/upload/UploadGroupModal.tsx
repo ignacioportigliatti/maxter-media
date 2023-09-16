@@ -46,7 +46,7 @@ export const UploadGroupModal = (props: UploadGroupModalProps) => {
     <div>
 
       <div className="animate-in animate-out duration-500 fade-in flex justify-center items-center h-full min-h-screen w-full absolute top-0 left-0 bg-black bg-opacity-70">
-        <div className="flex flex-col gap-4 pb-7  justify-center items-center rounded-t-lg bg-white dark:bg-medium-gray w-[80%]">
+        <div className="flex flex-col gap-4 pb-7  justify-center items-center rounded-t-lg bg-medium-gray w-[80%]">
         <div className="!z-50 py-4 bg-dark-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
           <h2 className="text-lg uppercase font-light">
             {`${

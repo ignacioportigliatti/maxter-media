@@ -108,8 +108,8 @@ export const PhotoGrid = (props: PhotoGridProps) => {
             </a>
 
             <div className="flex flex-col">
-              <a href="#">
-                <p className="dark:text-gray-100 text-dark-gray text-sm font-semibold hover:text-red-600">
+              <a href="#" onClick={() => handleFolderClick(folderWithPhotos.folder)}>
+                <p className="text-gray-100 text-sm font-semibold hover:text-red-600">
                   {folderWithPhotos.folder}
                 </p>
               </a>

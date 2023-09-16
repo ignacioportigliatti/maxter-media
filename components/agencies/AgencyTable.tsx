@@ -69,26 +69,26 @@ export const AgencyTable = () => {
     <div>
     
       <div className="flex flex-col">
-        <div className="overflow-hidden border border-gray-200 dark:border-medium-gray">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-dark-gray">
+        <div className="overflow-hidden border  border-medium-gray">
+          <table className="min-w-full divide-y  divide-gray-700">
+            <thead className=" bg-dark-gray">
               <tr>
-                <th className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <th className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-400">
                   Nombre
                 </th>
-                <th className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <th className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-400">
                   Grupos
                 </th>
-                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-400">
                   Teléfono
                 </th>
-                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <th className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-400">
                   Email
                 </th>
                 <th className="flex justify-end px-4 items-center text-sm whitespace-nowrap  py-3.5">
                   <button
-                    className="dark:text-white text-black text-[12px] p-2 hover:bg-red-600 transition duration-300
-                        dark:bg-medium-gray dark:hover:bg-red-600 hover:text-white bg-gray-200 font-semibold"
+                    className="text-white  text-[12px] p-2  transition duration-300
+                        bg-medium-gray hover:bg-red-600 hover:text-white  font-semibold"
                     onClick={handleAddGroup}
                   >
                     <span className="font-bold">+</span> Agregar
@@ -96,7 +96,7 @@ export const AgencyTable = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+            <tbody className="divide-y divide-gray-700 bg-[#292929]">
               {agencies
                 .slice(
                   (currentPage - 1) * itemsPerPage,
@@ -115,10 +115,10 @@ export const AgencyTable = () => {
                             height={40}
                           />
                           <div>
-                            <h2 className="font-medium text-gray-800 dark:text-white">
+                            <h2 className="font-medium text-white">
                               {agency.name}
                             </h2>
-                            <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                            <p className="text-sm font-normal text-gray-400">
                               {agency.location}
                             </p>
                           </div>
@@ -126,7 +126,7 @@ export const AgencyTable = () => {
                       </div>
                     </td>
                     <td className="px-12 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                      <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-red-100/60 dark:bg-medium-gray">
+                      <div className="inline-flex items-center px-3 py-1 rounded-full gap-x-2  bg-medium-gray">
                         <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
                         <h2 className="text-sm font-normal text-red-600">
                           {agency.groups.length}{" "}
@@ -134,24 +134,24 @@ export const AgencyTable = () => {
                         </h2>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {agency.phone}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {agency.email}
                     </td>
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
                         <button
-                          className="text-gray-500 transition-colors duration-200 dark:hover:text-red-600 dark:text-gray-300 
+                          className=" transition-colors duration-200 text-gray-300 
                             hover:text-red-600 focus:outline-none"
                           onClick={() => handleDeleteButton(agency)}
                         >
                           <AiOutlineDelete className="w-5 h-5" />
                         </button>
                         <button
-                          className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 
-                          dark:text-gray-300 hover:text-yellow-500 focus:outline-none"
+                          className="transition-colors duration-200 hover:text-red-500 
+                          text-gray-300 focus:outline-none"
                           onClick={() => handleEditButton(agency)}
                         >
                           <AiOutlineEdit className="w-5 h-5" />

@@ -19,28 +19,26 @@ const CodesModal = (props: CodesModalProps) => {
   const handleSendToAgency = () => {}
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90">
-      <div className="dark:bg-medium-gray w-full max-w-2xl mx-4 rounded-lg shadow-lg">
-        <div className="py-4 bg-dark-gray flex flex-row w-full justify-between px-4 text-white text-center rounded-t-lg">
-          <h2 className="text-lg uppercase font-light">{`Gestión de códigos - ${selectedGroup?.name} - ${selectedGroup?.agencyName}`}</h2>
-          <button
-            onClick={handleToggleModal}
-            
-          >
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center py-4 sm:py-0 bg-black bg-opacity-90">
+      <div className="bg-medium-gray w-full max-w-7xl mx-4 rounded-lg shadow-lg">
+        <div className="py-4 bg-dark-gray flex flex-col sm:flex-row sm:justify-between px-4 text-white text-center rounded-t-lg">
+          <h2 className="text-lg uppercase font-light">
+            {`Gestión de códigos - ${selectedGroup?.name} - ${selectedGroup?.agencyName}`}
+          </h2>
+          <button onClick={handleToggleModal}>
             <TfiClose className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex w-full">
+        <div className="flex flex-col sm:flex-row w-full h-full">
           {/* Left Side */}
-          <div className="w-2/3 p-6 flex flex-col gap-4">
+          <div className="w-full sm:w-3/4 p-4 sm:p-6 flex flex-col gap-4">
             <GeneratedCodes selectedGroup={selectedGroup as Group} />
           </div>
           {/* Right Side */}
-          <div className="w-1/3 p-6 flex flex-col gap-4 bg-red-700">
+          <div className="w-full sm:w-1/4 p-4 sm:p-6 bg-red-700">
             <CodesGenerator selectedGroup={selectedGroup as Group} />
           </div>
         </div>
-        
       </div>
     </div>
   );

@@ -200,7 +200,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
       return (
         <input
           type="date"
-          className="mt-1 w-full py-1 px-1 border text-xs dark:bg-dark-gray border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full py-1 px-1 border text-xs bg-dark-gray border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Filtrar..."
           value={filter[column] || ""}
           onChange={(e) => handleFilterChange(column, e.target.value)}
@@ -210,7 +210,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
       return (
         <input
           type="text"
-          className="mt-1 w-full py-1 px-1 border text-xs dark:bg-dark-gray border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full py-1 px-1 border text-xs bg-dark-gray border-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Filtrar..."
           value={filter[column] || ""}
           onChange={(e) => handleFilterChange(column, e.target.value)}
@@ -222,14 +222,14 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
   return (
     <div>
       <div className="flex flex-col">
-        <div className="md:overflow-hidden border-y border-gray-200 dark:border-gray-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-medium-gray">
+        <div className="md:overflow-hidden border-y border-gray-700">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-medium-gray">
               <tr className="">
                 {columnHeaders.map(({ key, label }) => (
                   <th
                     key={key}
-                    className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400 cursor-pointer"
+                    className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-400 cursor-pointer"
                   >
                     <div
                       onClick={() => handleSortColumn(key)}
@@ -245,7 +245,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                 <th className="px-4 items-center text-sm whitespace-nowrap relative py-3.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-[#292929]">
+            <tbody className="divide-y divide-gray-700 bg-[#292929]">
               {sortedGroups
                 .slice(
                   (currentPage - 1) * itemsPerPage,
@@ -268,7 +268,7 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                       <div className="inline-flex gap-x-3 pointer-events-none">
                         <div className="flex gap-x-2 pointer-events-none">
                           <div>
-                            <h2 className="font-medium text-gray-800 dark:text-white pointer-events-none">
+                            <h2 className="font-medium text-white pointer-events-none">
                               {group.name}
                             </h2>
                           </div>
@@ -279,21 +279,21 @@ export const UploadGroupsTable = (props: UploadGroupsTableProps) => {
                       <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
                       <h2 className="text-sm">{group.agencyName}</h2>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {group.coordinator}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {group.school}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {group.entry}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-4 text-sm text-gray-300 whitespace-nowrap">
                       {group.exit}
                     </td>
                     <td className="flex justify-end px-4 items-center my-3 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center gap-x-2 pr-4">
-                        <button className="text-gray-500 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+                        <button className=" transition-colors duration-200 hover:text-red-500 text-gray-300 focus:outline-none">
                           {activeTab === "videos" ? (
                             <AiOutlineVideoCameraAdd
                               className="w-5 h-5"

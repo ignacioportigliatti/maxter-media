@@ -5,6 +5,7 @@ import ClientMobileNavbar from "@/components/client/ClientMobileNavbar";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
 import { setReduxCode } from "@/redux/codeSlice";
 import { useSelectGroup } from "@/redux/groupManager";
+import { formattedDate } from "@/utils/formattedDate";
 import { Agency, Codes, Group } from "@prisma/client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
@@ -12,7 +13,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
 import { TbPhoneCalling, TbPhotoAi } from "react-icons/tb";
 import { useDispatch } from "react-redux";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface FolderWithPhotos {
@@ -71,7 +72,7 @@ export default function RootLayout({
     },
   ];
 
-  const setGroup = async (group: Group, codeType: string) => {
+  const setGroup = async (group: Group, code: Codes) => {
     try {
       const agencies = await fetch("/api/agencies").then((res) => res.json());
       const selectedAgency: Agency = agencies.find(
@@ -217,11 +218,10 @@ export default function RootLayout({
         return signedPhotos;
       };
 
-      if (codeType === "full") {
+      if (code.type === "full") {
+        await toast.info(`Cargando fotos y videos...`, {toastId: "loading", autoClose: false})
         const signedPhotos = await getPhotos();
         const signedVideos = await getVideos();
-        console.log("signedVideos", signedVideos);
-        console.log("signedPhotos", signedPhotos);
         selectGroup.updateVideos(signedVideos);
         selectGroup.updatePhotos(signedPhotos);
         setIsVideoDisabled(false);
@@ -231,18 +231,25 @@ export default function RootLayout({
           setIsPhotoDisabled(false);
         }
         setIsMediaLoading(false);
-      } else if (codeType === "photo") {
+       toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
+      } else if (code.type === "photo") {
+        toast.info(`Cargando fotos...`, {toastId: "loading", autoClose: false})
         const signedPhotos = await getPhotos();
         selectGroup.updatePhotos(signedPhotos);
+        selectGroup.updateVideos([]);
         setIsVideoDisabled(true);
         setIsPhotoDisabled(false);
         setIsMediaLoading(false);
-      } else if (codeType === "video") {
+        toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
+      } else if (code.type === "video") {
+        toast.info(`Cargando videos...`, {toastId: "loading", autoClose: false})
         const signedVideos = await getVideos();
+        selectGroup.updatePhotos([]);
         selectGroup.updateVideos(signedVideos);
         setIsVideoDisabled(false);
         setIsPhotoDisabled(true);
         setIsMediaLoading(false);
+        toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
       }
     } catch (error) {
       console.error("Error al setear el grupo", error);
@@ -260,8 +267,9 @@ export default function RootLayout({
         if (response.success) {
           setIsVerified(true);
           setCode(response.code);
-          setGroup(response.selectedGroup, response.code.type);
+          setGroup(response.selectedGroup, response.code);
           dispatch(setReduxCode(response.code))
+          
         } else {
           setIsVerified(false);
           setIsLoading(false);
@@ -323,7 +331,7 @@ export default function RootLayout({
                 selectedNavItemLabel={selectedNavItemLabel}
               />
             </div>
-            <div className="min-h-[92vh] flex max-w-[100vw] pb-20 md:pb-0">
+            <div className="min-h-[92vh] flex  pb-20 md:pb-0">
               {children}
             </div>
 

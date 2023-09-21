@@ -25,6 +25,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
 
   const photos = useSelector((state: any) => state.photos);
   const videos = useSelector((state: any) => state.videos);
+  const code = useSelector((state: any) => state.code);
 
   const [hoveredItems, setHoveredItems] = useState<{ [key: number]: boolean }>(
     {}
@@ -120,8 +121,10 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                       {item.icon}
                       <h5 className="text-[11px]">{item.label}</h5>
                       {item.isDisabled && (
-                        <span className="z-50  group-hover:opacity-100 opacity-0 absolute top-0 inset-[5vw] duration-300 w-max h-full flex justify-center items-center">
-                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`${photos.length === 0 || videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}`}`}</h5>
+                        <span className="z-50  group-hover:opacity-100 opacity-0 absolute top-0 inset-[6vw] duration-300 w-max h-full flex justify-center items-center">
+                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`
+                          ${code.type === "full" ? photos.length === 0 || videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}` : code.type === "photo" ? photos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}` : videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}`}
+                          `}</h5>
                         </span>
                       )}
                     </Link>

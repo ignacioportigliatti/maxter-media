@@ -46,7 +46,6 @@ export async function POST(req: Request) {
 
   try {
     const photos = await listAllObjectsRecursive(null);
-    console.log(photos);
     if (photos[0].Size === 0) {
       return NextResponse.json({ success: true, photos: [] });
     } else {

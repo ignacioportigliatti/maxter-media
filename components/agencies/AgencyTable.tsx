@@ -4,7 +4,6 @@ import { AgencyModal } from "./";
 import { Pagination } from "@/components/ui/Pagination";
 import { Agency } from "@prisma/client";
 import { ConfirmDeleteModal } from "@/components/modals/ConfirmDeleteModal";
-import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { setAgencies } from "@/redux/agenciesSlice";
 import { getAgencies } from "@/utils";
@@ -107,7 +106,7 @@ export const AgencyTable = () => {
                     <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                       <div className="inline-flex items-center gap-x-3">
                         <div className="flex items-center gap-x-2">
-                          <Image
+                          <img
                             className="object-contain p-1 w-10 h-10 rounded-full bg-medium-gray"
                             src={agency.logoSrc as string}
                             alt={`${agency.name} logo`}

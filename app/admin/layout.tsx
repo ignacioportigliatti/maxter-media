@@ -5,7 +5,7 @@ import { Providers } from "@/components/auth/Providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Sidebar } from "@/components/admin/Sidebar";
-import { TbFileUpload, TbQrcode, TbUserCheck, TbUsers } from "react-icons/tb";
+import { TbFileUpload, TbQrcode, TbUserCheck, TbUserQuestion, TbUsers, TbUsersGroup } from "react-icons/tb";
 import { AiOutlineGroup } from "react-icons/ai";
 import { useEffect } from "react";
 import { getGroups } from "@/utils";
@@ -30,14 +30,19 @@ const navigationItems = [
     href: "/admin/agencies",
   },
   {
-    label: "Subir Material",
-    icon: <TbFileUpload className="sideBarIconSize" />,
-    href: "/admin/upload",
+    label: "Consultas/Reclamos",
+    icon: <TbUserQuestion className="sideBarIconSize" />,
+    href: "/admin/queries",
   },
   {
     label: "Usuarios",
-    icon: <TbUserCheck className="sideBarIconSize" />,
+    icon: <TbUsersGroup className="sideBarIconSize" />,
     href: "/admin/users",
+  },
+  {
+    label: "Subir Material",
+    icon: <TbFileUpload className="sideBarIconSize" />,
+    href: "/admin/upload",
   },
 ];
 

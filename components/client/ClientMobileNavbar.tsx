@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { TbDoorExit, TbPhoto, TbVideo } from "react-icons/tb";
-import Image from "next/image";
 import { Agency, Group } from "@prisma/client";
 import { useState } from "react";
 import Link from "next/link";
@@ -38,7 +37,7 @@ const ClientMobileNavbar = (props: ClientMobileNavbarProps) => {
       >
         <div className="flex flex-row justify-between items-center text-gray-700 shadow">
           <Link className="h-8 w-8 p-1" href={navigationItems[0].href}>
-            <Image
+            <img
               className="h-full w-full object-contain"
               src={agency.logoSrc as string}
               alt={`${agency.name} logo`}

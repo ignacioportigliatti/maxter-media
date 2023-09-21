@@ -153,7 +153,7 @@ export const CodePdfTemplate = (props: CodePdfTemplateProps) => {
           </Rect>
           <Text style={styles.h1}>Mi Viaje de Egresados 2023</Text>
           <Text style={styles.details}>
-            Escuela: {selectedGroup.school} - Coordinador:{" "}
+            Grupo: {selectedGroup.name} - Coordinador:{" "}
             {selectedGroup.coordinator}
           </Text>
           <Text style={styles.h2}>

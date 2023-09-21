@@ -1,12 +1,8 @@
 import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
-import Image from "next/image";
 import React, { useState } from "react";
 import { TbDoorExit, TbDownload } from "react-icons/tb";
 import VideoPlayer from "./VideoPlayer";
 import { useSelector } from "react-redux";
-import useSignedUrl from "../../hooks/useSignedUrl";
-import { toast } from "react-toastify";
-import axios from "axios";
 import { Agency } from "@prisma/client";
 
 type VideoLightboxProps = {
@@ -71,7 +67,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
       <div className="fixed w-full z-50 flex justify-between items-center py-4 px-16 bg-opacity-80 ">
         <div className="flex items-center space-x-4">
           <div className="w-8">
-            <Image
+            <img
               src={agencyLogoSrc as string}
               alt="Maxter Logo"
               height={40}

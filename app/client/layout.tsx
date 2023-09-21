@@ -3,13 +3,15 @@
 import ClientHeader from "@/components/client/ClientHeader";
 import ClientMobileNavbar from "@/components/client/ClientMobileNavbar";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
+import { setReduxCode } from "@/redux/codeSlice";
 import { useSelectGroup } from "@/redux/groupManager";
 import { Agency, Codes, Group } from "@prisma/client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AiOutlineHome, AiOutlineVideoCamera } from "react-icons/ai";
-import { TbPhotoAi } from "react-icons/tb";
+import { TbPhoneCalling, TbPhotoAi } from "react-icons/tb";
+import { useDispatch } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -18,6 +20,8 @@ interface FolderWithPhotos {
   photos: any[];
   thumbnail: string;
 }
+
+
 
 export default function RootLayout({
   children,
@@ -34,6 +38,7 @@ export default function RootLayout({
   const [isVideoDisabled, setIsVideoDisabled] = useState(true);
   const [isPhotoDisabled, setIsPhotoDisabled] = useState(true);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
+  const dispatch = useDispatch();
 
   const searchParams = useSearchParams();
 
@@ -57,6 +62,12 @@ export default function RootLayout({
       href: `/client/my-photos?code=${code.code}`,
       isDisabled: isPhotoDisabled,
       isMediaLoading: isMediaLoading,
+    },
+    {
+      label: "Contacto",
+      icon: <TbPhoneCalling className="w-5 h-5" />,
+      href: `/client/contact?code=${code.code}`,
+      isDisabled: false,
     },
   ];
 
@@ -209,10 +220,16 @@ export default function RootLayout({
       if (codeType === "full") {
         const signedPhotos = await getPhotos();
         const signedVideos = await getVideos();
+        console.log("signedVideos", signedVideos);
+        console.log("signedPhotos", signedPhotos);
         selectGroup.updateVideos(signedVideos);
         selectGroup.updatePhotos(signedPhotos);
         setIsVideoDisabled(false);
-        setIsPhotoDisabled(false);
+        if (signedPhotos.length === 0) {
+          setIsPhotoDisabled(true);
+        } else {
+          setIsPhotoDisabled(false);
+        }
         setIsMediaLoading(false);
       } else if (codeType === "photo") {
         const signedPhotos = await getPhotos();
@@ -244,6 +261,7 @@ export default function RootLayout({
           setIsVerified(true);
           setCode(response.code);
           setGroup(response.selectedGroup, response.code.type);
+          dispatch(setReduxCode(response.code))
         } else {
           setIsVerified(false);
           setIsLoading(false);

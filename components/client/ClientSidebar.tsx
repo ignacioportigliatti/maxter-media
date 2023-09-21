@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { TbDoorExit } from "react-icons/tb";
 import { useSelector } from "react-redux";
-import Image from "next/image";
 import { Agency, Group } from "@prisma/client";
 import { useState } from "react";
 import Link from "next/link";
@@ -23,6 +22,9 @@ interface ClientSidebarProps {
 
 export const ClientSidebar = (props: ClientSidebarProps) => {
   const { navigationItems, agency, setSelectedNavItemLabel } = props;
+
+  const photos = useSelector((state: any) => state.photos);
+  const videos = useSelector((state: any) => state.videos);
 
   const [hoveredItems, setHoveredItems] = useState<{ [key: number]: boolean }>(
     {}
@@ -44,7 +46,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
           <div className="sticky top-0">
             <div className="h-16 flex items-center w-full">
               <Link className="h-8 w-8 mx-auto" href={navigationItems[0].href}>
-                <Image
+                <img
                   className="h-8 w-8 mx-auto object-contain"
                   src={agency.logoSrc as string}
                   alt={`${agency.name} logo}`}
@@ -119,7 +121,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                       <h5 className="text-[11px]">{item.label}</h5>
                       {item.isDisabled && (
                         <span className="z-50  group-hover:opacity-100 opacity-0 absolute top-0 inset-[5vw] duration-300 w-max h-full flex justify-center items-center">
-                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`Quiero acceder a ${item.label}`}</h5>
+                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`${photos.length === 0 || videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}`}`}</h5>
                         </span>
                       )}
                     </Link>

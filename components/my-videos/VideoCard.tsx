@@ -4,8 +4,7 @@ import HoverVideoPlayer from "react-hover-video-player";
 import { useSelector } from "react-redux";
 import { Agency, Group } from "@prisma/client";
 import VideoLightbox from "./VideoLightBox";
-import Image from "next/image";
-import useSignedUrl from "@/hooks/useSignedUrl";
+
 
 interface VideoCardProps {
   title: string;
@@ -23,7 +22,7 @@ export const VideoCard = (props: VideoCardProps) => {
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
 
   const thumbnailImage = thumbnailSrc ? (
-    <Image
+    <img
       src={thumbnailSrc}
       alt={`${title} thumbnail`}
       width={320}
@@ -85,7 +84,7 @@ export const VideoCard = (props: VideoCardProps) => {
 
         <div className="flex gap-1 -mt-4 flex-row">
           <a href="#">
-            <Image
+            <img
               src={selectedAgency?.logoSrc as string}
               alt="Agency Logo"
               width={40}

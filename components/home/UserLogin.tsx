@@ -12,10 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export const UserLogin = () => {
   const [codeInput, setCodeInput] = React.useState("");
@@ -44,8 +44,11 @@ export const UserLogin = () => {
       const response = await axios.post("/api/codes/verify", {
         code: codeInput,
       }).then((res) => res.data);
-      if (response.success) {
+      if (response.success === true) {
         router.push(`/client?code=${response.code.code}`);
+      } else if (response.error) {
+        console.log("Error", response.error);
+        toast.error(response.error);
       }
     } catch (error) {
       console.error("Error verifying code:", error);
@@ -60,18 +63,18 @@ export const UserLogin = () => {
           Administradores
         </button>
       </a>
-      <video
+      {/* <video
         src="/user-login/bg-video.mp4/"
         autoPlay
         loop
         muted
         className="scale-150 absolute z-[1] w-full max-h-[100vhj] object-cover "
-      />
+      /> */}
       <div className="z-10 bg-red-600/95 h-full w-screen absolute"></div>
       <div className="z-20 animate-in fade-in-0 transition-all duration-1000 delay-1000">
         <Card className="w-[450px] h-[450px] flex flex-col items-center justify-center shadow-2xl bg-medium-gray/90">
           <CardHeader className="flex flex-col justify-center items-center">
-            <Image
+            <img
               src="/sidebar/maxter-logo-dark.png"
               width={256}
               height={51}

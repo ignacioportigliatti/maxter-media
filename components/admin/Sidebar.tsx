@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import {
   TbDoorExit,
   TbFileUpload,
@@ -47,7 +45,7 @@ export const Sidebar = (props: SidebarProps) => {
       <div className="flex flex-col sticky h-screen top-0 left-0 w-64  bg-dark-gray themeTransition">
         <div className="flex items-center justify-center p-6 h-20 border-b border-red-600">
           <div>
-            <Image
+            <img
               src={logoSrc}
               width={128}
               height={26}

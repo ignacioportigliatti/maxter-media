@@ -1,7 +1,6 @@
 "use client";
 
 import { Agency, Group } from "@prisma/client";
-import Image from "next/image";
 import "photoswipe/dist/photoswipe.css";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -90,7 +89,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
             <p className="absolute bottom-0 text-xs !text-white left-0 px-2 py-1 group-hover:bg-black transition duration-500 bg-black/80">
               {"24/11"}
             </p>
-            <Image
+            <img
               src={folderWithPhotos.thumbnail} // Utilizar la miniatura como fuente de la imagen
               alt={`${folderWithPhotos.folder} Foto 0`}
               width={384}

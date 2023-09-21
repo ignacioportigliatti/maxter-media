@@ -74,3 +74,16 @@ model User {
 
   role UserRole @default(USER)
 }
+
+model ContactQuery {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  message        String
+  selectedAgency String
+  selectedGroup  String
+  currentCode    String
+  createdAt DateTime @default(now())
+}

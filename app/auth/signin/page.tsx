@@ -1,7 +1,6 @@
 'use client'
 
 import { signIn } from "next-auth/react";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { FormEventHandler, useState } from "react";
 
@@ -36,7 +35,7 @@ const LoginPage = (props: LoginPageProps) => {
     <div className="bg-red-600 w-full">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
 
-          <Image
+          <img
              width={256}
              height={51}
             className="mb-4"

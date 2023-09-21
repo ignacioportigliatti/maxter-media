@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error }, { status: 500 });
       }
     } else {
-      return NextResponse.json({ success: false }, { status: 200 });
+      return NextResponse.json({ error: 'No se ha encontrado el codigo en nuestra base de datos, checkea si lo escribiste bien y volve a intentar.' }, { status: 200 });
     }
   } catch (error) {
     return NextResponse.json({ error: error }, { status: 500 });

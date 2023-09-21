@@ -36,16 +36,17 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     key: "code",
     direction: "asc",
   });
-  const itemsPerPage = 9;
-  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const agencies = useSelector((state: any) => state.agencies);
   const [accordionState, setAccordionState] = useState<{
     [key: string]: boolean;
   }>({});
+  const [accordionPage, setAccordionPage] = useState<{
+    [key: string]: number;
+  }>({});
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+
 
   // Función para manejar la selección individual de códigos
   const handleSelectCode = (code: Codes) => {
@@ -219,7 +220,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     
       const link = document.createElement("a");
       link.href = URL.createObjectURL(await Pdf());
-      link.download = selectedGroup.name + ".zip";
+      link.download = `${selectedGroup.name} - Codigos para imprimir - ${formattedDate(new Date())}.pdf`;
       link.click();
  
   };
@@ -270,7 +271,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
               onChange={handleSelectAll}
             />
 
-            <span className="text-xs ml-2">Seleccionar todo</span>
+            <span className="text-xs ml-2 py-2">Seleccionar todo</span>
           </>
         </div>
         {selectedCodes.length > 0 && (
@@ -291,38 +292,48 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       </div>
       <div className="flex flex-col gap-2">
         {Object.keys(groupedCodesByType).map((type, index) => (
-          <div
-            key={type}
-            
-            className="border rounded pb-1 px-1"
-          >
-            <button className="text-xs w-full text-left cursor-pointer" onClick={() => {
-              setAccordionState((prevState) => ({
-                ...prevState,
-                [type]: !prevState[type],
-              }));
-            }}>
-              {type === "photo"
-                ? `Fotos (${groupedCodesByType[type].length} Codigos)`
-                : type === "video"
-                ? `Videos (${groupedCodesByType[type].length} Codigos)`
-                : `Full (${groupedCodesByType[type].length} Codigos)`}
-            </button>
-            {accordionState[type] && (
-              <div>
-                <div className="grid grid-cols-6 gap-2 bg-gray-500 text-xs mt-2 p-2 rounded-t-lg">
-                  <div className="col-span-1 text-center">Seleccionar</div>
-                  <div className="col-span-1 text-center">Código</div>
-                  <div className="col-span-1 text-center">Expiración</div>
-                  <div className="col-span-1 text-center">Opcional</div>
-                  <div className="col-span-1 text-center">Incluido</div>
-                  <div className="col-span-1 text-center">Acciones</div>
-                </div>
-                {groupedCodesByType[type]
-                  .slice(
-                    (currentPage - 1) * itemsPerPage,
-                    currentPage * itemsPerPage
-                  )
+  <div key={type} className="border rounded pb-1 px-1">
+    <button
+      className="text-xs w-full text-left cursor-pointer"
+      onClick={() => {
+        setAccordionState((prevState) => ({
+          ...prevState,
+          [type]: !prevState[type],
+        }));
+        setAccordionPage((prevState) => ({
+          ...prevState,
+          [type]: 1, // Establece la primera página al abrir
+        }));
+      }}
+    >
+      {/* Título del accordion */}
+      {type === "photo"
+        ? `Fotos (${groupedCodesByType[type].length} Codigos)`
+        : type === "video"
+        ? `Videos (${groupedCodesByType[type].length} Codigos)`
+        : `Full (${groupedCodesByType[type].length} Codigos)`}
+    </button>
+    {accordionState[type] && (
+      <div>
+        {/* Contenido del accordion */}
+        <div className="grid grid-cols-6 gap-2 bg-gray-500 text-xs mt-2 p-2 rounded-t-lg">
+          {/* Encabezados de tabla */}
+          <div onClick={() => 
+          setSelectedCodes((prevSelected) =>
+            prevSelected.length === groupedCodesByType[type].length ? [] : groupedCodesByType[type].map((code: Codes) => code.code)
+          )} className="col-span-1 text-center cursor-pointer">Seleccionar</div>
+         
+          <div className="col-span-1 text-center">Código</div>
+          <div className="col-span-1 text-center">Expiración</div>
+          <div className="col-span-1 text-center">Opcional</div>
+          <div className="col-span-1 text-center">Incluido</div>
+          <div className="col-span-1 text-center">Acciones</div>
+        </div>
+        {groupedCodesByType[type]
+          .slice(
+            (accordionPage[type] - 1) * itemsPerPage,
+            accordionPage[type] * itemsPerPage
+          )
                   .map((code: Codes, index: number) => (
                     <div
                       key={index}
@@ -387,18 +398,24 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                       </div>
                     </div>
                   ))}
+                  <div className="bg-gray-800">
+
+                  <Pagination
+          totalItems={groupedCodesByType[type].length}
+          itemsPerPage={itemsPerPage}
+          handlePageChange={(page: number) =>
+            setAccordionPage((prevState) => ({
+              ...prevState,
+              [type]: page,
+            }))
+          }
+          />
+          </div>
               </div>
             )}
           </div>
         ))}
       </div>
-      {groupCodes.length > itemsPerPage && (
-        <Pagination
-          totalItems={groupCodes.length}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={handlePageChange}
-        />
-      )}
     </div>
   );
 };

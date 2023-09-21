@@ -3,6 +3,8 @@ import { Document, Page, Text, View, StyleSheet, PDFViewer, Image } from '@react
 import { Codes } from '@prisma/client';
 import { formattedDate } from '@/utils/formattedDate';
 
+const cmToPt = (cm: number) => cm / 2.54 * 72;
+
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'row',
@@ -14,11 +16,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    width: 7 / 2.54 * 72,
-    height: 2 / 2.54 * 72,
-    marginBottom: 0.2 / 2.54 * 72,
-    marginRight: 0.3 / 2.54 * 72,
-    marginLeft: 0.3 / 2.54 * 72,
+    width: cmToPt(7),
+    height: cmToPt(2),
+    marginBottom: cmToPt(0.2),
+    marginHorizontal: cmToPt(0.3),
   },
   codeText: {
     fontSize: 10,
@@ -29,8 +30,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   qrCode: {
-    width: 1.5 / 2.54 * 72,
-    height: 1.5 / 2.54 * 72,
+    width: cmToPt(1.5),
+    height: cmToPt(1.5),
     marginLeft: 'auto',
     marginRight: 'auto',
   },
@@ -49,14 +50,14 @@ export const CodePrintTemplate = (props: CodePrintTemplateProps) => {
   
 
   const pagesArray = Array.from({ length: pages }, (_, pageIndex) => (
-    <Page key={pageIndex} size={{ width: 16 / 2.54 * 72, height: 12 / 2.54 * 72 }} style={styles.page}>
+    <Page key={pageIndex} size={{ width: cmToPt(16), height:cmToPt(12) }} style={styles.page}>
       {codes
         .slice(pageIndex * codesPerPage, (pageIndex + 1) * codesPerPage)
         .map((code, index) => (
           <View key={index} style={styles.codeContainer}>
             <View style={{flexDirection:'column'}}>
             <Text style={styles.codeText}>{code.code}</Text>
-            <Text style={styles.codeDescription}>{`Expiracion: ${formattedDate(code.expires)}`}</Text>
+            <Text style={styles.codeDescription}>{`Expiración: ${formattedDate(code.expires)}`}</Text>
             </View>
             <Image src={code.qrCode} />
           </View>

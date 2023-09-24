@@ -9,7 +9,9 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    margin: 0.6 / 2.54 * 72,
+    marginBottom: 0.6 / 2.54 * 72,
+    marginLeft: 0.6 / 2.54 * 72,
+    marginRight: 0.6 / 2.54 * 72,
   },
   codeContainer: {
     padding: 0.2 / 2.54 * 72,
@@ -18,7 +20,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: cmToPt(7),
     height: cmToPt(2),
-    marginBottom: cmToPt(0.2),
+    marginBottom: cmToPt(0.3),
     marginHorizontal: cmToPt(0.3),
   },
   codeText: {
@@ -50,7 +52,7 @@ export const CodePrintTemplate = (props: CodePrintTemplateProps) => {
   
 
   const pagesArray = Array.from({ length: pages }, (_, pageIndex) => (
-    <Page key={pageIndex} size={{ width: cmToPt(16), height:cmToPt(12) }} style={styles.page}>
+    <Page key={pageIndex} size={{ width: cmToPt(16.087), height:cmToPt(12.7) }} style={styles.page}>
       {codes
         .slice(pageIndex * codesPerPage, (pageIndex + 1) * codesPerPage)
         .map((code, index) => (

@@ -55,7 +55,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
       async getUploadParameters(file: UppyFile) {
         const response = await axios.post("/api/sign-url", {
           bucketName: "maxter-media",
-          fileName: `media/${file.meta.groupName}/photos/${file.name}`,
+          fileName: `media/fotos/${file.meta.groupName}/${file.name}`,
           isUpload: true,
           contentType: file.type,
         });
@@ -68,7 +68,7 @@ export const UploadProvider: React.FC<UploadProviderProps> = ({ children }) => {
       async getUploadParameters(file: UppyFile) {
         const response = await axios.post("/api/sign-url", {
           bucketName: "maxter-media",
-          fileName: `media/${file.meta.groupName}/videos/${file.name}`,
+          fileName: `media/videos/${file.meta.groupName}/${file.name}`,
           isUpload: true,
           contentType: file.type,
         });

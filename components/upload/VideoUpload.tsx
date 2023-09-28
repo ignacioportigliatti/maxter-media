@@ -54,7 +54,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   const checkFiles = async () => {
     try {
       const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-      const folderPath = `media/${selectedGroup.name}/videos`;
+      const folderPath = `media/videos/${selectedGroup.name}/`;
       const videos = await axios
         .post("/api/videos/", {
           bucketName,

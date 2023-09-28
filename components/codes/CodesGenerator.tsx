@@ -3,6 +3,7 @@ import axios from "axios";
 import React from "react";
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from "react-toastify";
+import { getGroupCodes } from "./utils/getGroupCodes";
 
 interface CodesGeneratorProps {
   selectedGroup: Group;
@@ -33,6 +34,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
         }).then((res) => res.data);
     if (response.success) {
       toast.success("Códigos generados exitosamente.");
+      await getGroupCodes(selectedGroup);
     }
   };
 
@@ -49,7 +51,7 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
             <label className="" htmlFor="">
               Tipo
             </label>
-            <select className="text-xs p-1" {...register('type', { required: true })} aria-invalid={errors.type ? "true" : "false"}>
+            <select className="text-xs p-1 dark:text-white text-black" {...register('type', { required: true })} aria-invalid={errors.type ? "true" : "false"}>
               <option value="full">Foto + Video</option>
               <option value="photo">Foto</option>
               <option value="video">Video</option>
@@ -57,14 +59,14 @@ const CodesGenerator = (props: CodesGeneratorProps) => {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="">Cantidad</label>
-            <input {...register('quantity', { required: true })} aria-invalid={errors.quantity ? "true" : "false"} className="input text-xs p-1" />
+            <input {...register('quantity', { required: true })} aria-invalid={errors.quantity ? "true" : "false"} className="input text-xs p-1 dark:text-white text-black" />
             {errors.quantity?.type === "required" && (
         <p className="text-xs !text-red-600" role="alert">Debes ingresar una cantidad.</p>
       )}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="">Dias de expiracion</label>
-            <input {...register('expirationDays', { required: true })} defaultValue={30} aria-invalid={errors.expirationDays ? "true" : "false"} className="input text-xs p-1" />
+            <input {...register('expirationDays', { required: true })} defaultValue={30} aria-invalid={errors.expirationDays ? "true" : "false"} className="input text-xs p-1 dark:text-white text-black" />
             {errors.expirationDays?.type === "required" && (
         <p className="text-xs !text-red-600" role="alert">Debes ingresar una cantidad de dias.</p>
       )}

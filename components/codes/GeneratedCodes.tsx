@@ -19,34 +19,28 @@ import { useSelector } from "react-redux";
 import { CodePdfTemplate } from "./CodePdfTemplate";
 import { CodePrintTemplate } from "./CodePrintTemplate";
 import { formattedDate } from "@/utils/formattedDate";
+import { getGroupCodes } from "./utils/getGroupCodes";
 
 type GeneratedCodesProps = {
   selectedGroup: Group;
+  selectedAgency: Agency;
+  groupCodes: Codes[];
 };
 
 const GeneratedCodes = (props: GeneratedCodesProps) => {
-  const { selectedGroup } = props;
+  const { selectedGroup, groupCodes, selectedAgency } = props;
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
-  const [selectedAgency, setSelectedAgency] = useState<Agency | undefined>();
-  const [groupCodes, setGroupCodes] = useState<Codes[]>([]);
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  }>({
-    key: "code",
-    direction: "asc",
-  });
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+
+
   const itemsPerPage = 5;
 
-  const agencies = useSelector((state: any) => state.agencies);
   const [accordionState, setAccordionState] = useState<{
     [key: string]: boolean;
   }>({});
   const [accordionPage, setAccordionPage] = useState<{
     [key: string]: number;
   }>({});
-
-
 
   // Función para manejar la selección individual de códigos
   const handleSelectCode = (code: Codes) => {
@@ -64,41 +58,6 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       }));
     }
   };
-
-  const getSelectedAgency = async (group: Group) => {
-    const selectedAgency = agencies.find(
-      (agency: any) => agency.id === group.agencyId
-    );
-    setSelectedAgency(selectedAgency);
-    return selectedAgency;
-  };
-
-  const getGroupCodes = async () => {
-    await getSelectedAgency(selectedGroup);
-    try {
-      const res = await axios
-        .post("/api/codes/get", {
-          groupId: selectedGroup.id,
-        })
-        .then((res) => res.data);
-
-      if (res.success) {
-        // Ordenar los códigos según la configuración actual
-        const sortedCodes = sortCodes(
-          res.codes,
-          sortConfig.key,
-          sortConfig.direction
-        );
-        setGroupCodes(sortedCodes);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    getGroupCodes();
-  }, [sortConfig]);
 
   const handleMultiPDF = () => {
     const codes = groupCodes.filter((code) =>
@@ -129,25 +88,6 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     });
   };
 
-  const sortCodes = (
-    codes: Codes[],
-    key: string,
-    direction: "asc" | "desc"
-  ) => {
-    return [...codes].sort((a: Record<string, any>, b: Record<string, any>) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  };
-
-  // Función para cambiar la configuración de ordenamiento cuando se hace clic en el encabezado de la columna
-  const handleSort = (key: string) => {
-    const direction =
-      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
-    setSortConfig({ key, direction });
-  };
-
   // Función para manejar la selección de todos los códigos
   const handleSelectAll = () => {
     const allCodes = groupCodes.map((code) => code.code);
@@ -173,7 +113,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
         })
         .then((res) => res.data);
       if (res.success) {
-        getGroupCodes();
+        getGroupCodes(selectedGroup);
       }
       return res;
     } catch (error) {
@@ -184,45 +124,34 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
   const handleCodePrint = async (code: Codes) => {
     const zip = new JSZip();
     // for each pdf you have to add the blob to the zip
-    
-      zip.file(
-        `${code.code}.pdf`,
-        pdf(
-          <CodePrintTemplate codes={[code]} />
-        ).toBlob()
-      );
-    
+
+    const pdfCode = await pdf(<CodePrintTemplate codes={[code]} />).toBlob();
 
     // once you finish adding all the pdf to the zip, return the zip file
-    return zip.generateAsync({ type: "blob" }).then((content) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = selectedGroup.name + ".zip";
-      link.click();
-    });
-  }
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(pdfCode);
+    link.download = selectedGroup.name + ".zip";
+    link.click();
+  };
 
   const handleMultiPrint = async () => {
     const codes = groupCodes.filter((code) =>
       selectedCodes.includes(code.code)
     );
 
-   
-       const Pdf = async () => {
-        return pdf(
-          <CodePrintTemplate codes={codes} />
-        ).toBlob()
-       }
-   
-
+    const Pdf = async () => {
+      return pdf(<CodePrintTemplate codes={codes} />).toBlob();
+    };
 
     // once you finish adding all the pdf to the zip, return the zip file
-    
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(await Pdf());
-      link.download = `${selectedGroup.name} - Codigos para imprimir - ${formattedDate(new Date())}.pdf`;
-      link.click();
- 
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(await Pdf());
+    link.download = `${
+      selectedGroup.name
+    } - Codigos para imprimir - ${formattedDate(new Date())}.pdf`;
+    link.click();
   };
 
   const deleteMultipleCodes = async () => {
@@ -239,7 +168,7 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
           .then((res) => res.data);
 
         if (res.success) {
-          getGroupCodes();
+          getGroupCodes(selectedGroup);
           setSelectedCodes([]);
         }
         return res;
@@ -280,7 +209,9 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
             <button onClick={handleMultiPDF} className="button !p-1 !text-xs">
               Exportar PDF
             </button>
-            <button onClick={handleMultiPrint} className="button !p-1 !text-xs">Imprimir</button>
+            <button onClick={handleMultiPrint} className="button !p-1 !text-xs">
+              Imprimir
+            </button>
             <button
               onClick={deleteMultipleCodes}
               className="button !p-1 !text-xs"
@@ -292,48 +223,57 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       </div>
       <div className="flex flex-col gap-2">
         {Object.keys(groupedCodesByType).map((type, index) => (
-  <div key={type} className="border rounded pb-1 px-1">
-    <button
-      className="text-xs w-full text-left cursor-pointer"
-      onClick={() => {
-        setAccordionState((prevState) => ({
-          ...prevState,
-          [type]: !prevState[type],
-        }));
-        setAccordionPage((prevState) => ({
-          ...prevState,
-          [type]: 1, // Establece la primera página al abrir
-        }));
-      }}
-    >
-      {/* Título del accordion */}
-      {type === "photo"
-        ? `Fotos (${groupedCodesByType[type].length} Codigos)`
-        : type === "video"
-        ? `Videos (${groupedCodesByType[type].length} Codigos)`
-        : `Full (${groupedCodesByType[type].length} Codigos)`}
-    </button>
-    {accordionState[type] && (
-      <div>
-        {/* Contenido del accordion */}
-        <div className="grid grid-cols-6 gap-2 bg-gray-500 text-xs mt-2 p-2 rounded-t-lg">
-          {/* Encabezados de tabla */}
-          <div onClick={() => 
-          setSelectedCodes((prevSelected) =>
-            prevSelected.length === groupedCodesByType[type].length ? [] : groupedCodesByType[type].map((code: Codes) => code.code)
-          )} className="col-span-1 text-center cursor-pointer">Seleccionar</div>
-         
-          <div className="col-span-1 text-center">Código</div>
-          <div className="col-span-1 text-center">Expiración</div>
-          <div className="col-span-1 text-center">Opcional</div>
-          <div className="col-span-1 text-center">Incluido</div>
-          <div className="col-span-1 text-center">Acciones</div>
-        </div>
-        {groupedCodesByType[type]
-          .slice(
-            (accordionPage[type] - 1) * itemsPerPage,
-            accordionPage[type] * itemsPerPage
-          )
+          <div key={type} className="border rounded pb-1 px-1">
+          <button
+            className="text-xs w-full text-left cursor-pointer"
+            onClick={() => {
+              setActiveAccordion((prevState) =>
+                prevState !== type ? type : null
+              );
+              setAccordionPage((prevState) => ({
+                ...prevState,
+                [type]: 1, // Establece la primera página al abrir
+              }));
+            }}
+          >
+            {/* Título del accordion */}
+            {type === "photo"
+              ? `Fotos (${groupedCodesByType[type].length} Codigos)`
+              : type === "video"
+              ? `Videos (${groupedCodesByType[type].length} Codigos)`
+              : `Full (${groupedCodesByType[type].length} Codigos)`}
+          </button>
+            {activeAccordion === type && (
+              <div>
+                {/* Contenido del accordion */}
+                <div className="grid grid-cols-6 gap-2 bg-gray-500 text-xs mt-2 p-2 rounded-t-lg">
+                  {/* Encabezados de tabla */}
+                  <div
+                    onClick={() =>
+                      setSelectedCodes((prevSelected) =>
+                        prevSelected.length === groupedCodesByType[type].length
+                          ? []
+                          : groupedCodesByType[type].map(
+                              (code: Codes) => code.code
+                            )
+                      )
+                    }
+                    className="col-span-1 text-center cursor-pointer"
+                  >
+                    Seleccionar
+                  </div>
+
+                  <div className="col-span-1 text-center">Código</div>
+                  <div className="col-span-1 text-center">Expiración</div>
+                  <div className="col-span-1 text-center">Opcional</div>
+                  <div className="col-span-1 text-center">Incluido</div>
+                  <div className="col-span-1 text-center">Acciones</div>
+                </div>
+                {groupedCodesByType[type]
+                  .slice(
+                    (accordionPage[type] - 1) * itemsPerPage,
+                    accordionPage[type] * itemsPerPage
+                  )
                   .map((code: Codes, index: number) => (
                     <div
                       key={index}
@@ -390,7 +330,10 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                           }
                         </PDFDownloadLink>
                         <button>
-                          <AiOutlinePrinter onClick={() => handleCodePrint(code)} className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                          <AiOutlinePrinter
+                            onClick={() => handleCodePrint(code)}
+                            className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500"
+                          />
                         </button>
                         <button onClick={() => handleDelete(code.id)}>
                           <AiOutlineDelete className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
@@ -398,19 +341,18 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                       </div>
                     </div>
                   ))}
-                  <div className="bg-gray-800">
-
+                <div className="bg-gray-800">
                   <Pagination
-          totalItems={groupedCodesByType[type].length}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={(page: number) =>
-            setAccordionPage((prevState) => ({
-              ...prevState,
-              [type]: page,
-            }))
-          }
-          />
-          </div>
+                    totalItems={groupedCodesByType[type].length}
+                    itemsPerPage={itemsPerPage}
+                    handlePageChange={(page: number) =>
+                      setAccordionPage((prevState) => ({
+                        ...prevState,
+                        [type]: page,
+                      }))
+                    }
+                  />
+                </div>
               </div>
             )}
           </div>

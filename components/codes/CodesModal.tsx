@@ -1,10 +1,12 @@
 "use client";
 
-import { Group } from "@prisma/client";
+import { Group, Agency } from "@prisma/client";
 import { TfiClose } from "react-icons/tfi";
 import GeneratedCodes from "./GeneratedCodes";
 import CodesGenerator from "./CodesGenerator";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getGroupCodes } from "./utils/getGroupCodes";
+import { useSelector } from "react-redux";
 
 type CodesModalProps = {
   selectedGroup: Group;
@@ -13,10 +15,28 @@ type CodesModalProps = {
 
 const CodesModal = (props: CodesModalProps) => {
   const { selectedGroup, handleToggleModal } = props;
-  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [codes, setCodes] = useState([]);
+  const [selectedAgency, setSelectedAgency] = useState<Agency>({
+    id: '',
+    name: '',
+    location: '',
+    phone: '',
+    email: '',
+    logoSrc: null,
+    primaryColor: null,
+    secondaryColor:null,
+    accentColor: null,
+  });
+  const agencies = useSelector((state: any) => state.agencies);
 
-  const handlePDFExport = () => {}
-  const handleSendToAgency = () => {}
+  const setData = async () => {
+    await getGroupCodes(selectedGroup).then((res) => setCodes(res));
+    setSelectedAgency(await agencies.filter((agency: Agency) => agency.id === selectedGroup.agencyId)[0]);
+  };
+
+  useEffect(() => {
+    setData();
+  }, [selectedGroup]);
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center py-4 sm:py-0 bg-black bg-opacity-90">
@@ -32,7 +52,7 @@ const CodesModal = (props: CodesModalProps) => {
         <div className="flex flex-col sm:flex-row w-full h-full">
           {/* Left Side */}
           <div className="w-full sm:w-3/4 p-4 sm:p-6 flex flex-col gap-4">
-            <GeneratedCodes selectedGroup={selectedGroup as Group} />
+            <GeneratedCodes selectedGroup={selectedGroup as Group} groupCodes={codes} selectedAgency={selectedAgency} />
           </div>
           {/* Right Side */}
           <div className="w-full sm:w-1/4 p-4 sm:p-6 bg-red-700">

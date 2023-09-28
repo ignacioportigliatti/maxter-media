@@ -4,6 +4,8 @@ import HoverVideoPlayer from "react-hover-video-player";
 import { useSelector } from "react-redux";
 import { Agency, Group } from "@prisma/client";
 import VideoLightbox from "./VideoLightBox";
+import { AiOutlineDownload } from "react-icons/ai";
+import { toast } from "react-toastify";
 
 
 interface VideoCardProps {
@@ -20,6 +22,30 @@ export const VideoCard = (props: VideoCardProps) => {
     props;
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const selectedAgency: Agency = useSelector((state: any) => state.agency);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleVideoDownload = async () => {
+    if (isDownloading) {
+      // Si ya se está descargando, no hacer nada
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      toast.info(`Descargando ${title}...`)
+      const downloadVideoUrl = videoSrc;
+
+      const link = document.createElement("a");
+      link.href = downloadVideoUrl;
+      link.download = title;
+
+      link.click();
+
+      setIsDownloading(false);
+    } catch (error) {
+      toast.error("Error al descargar el video:");
+    }
+  };
 
   const thumbnailImage = thumbnailSrc ? (
     <img
@@ -42,8 +68,13 @@ export const VideoCard = (props: VideoCardProps) => {
   return (
     <>
       <div className="flex flex-col gap-6 w-full px-4 md:p-0 opacity-70 hover:opacity-100 duration-500">
-        <div className="cursor-pointer" onClick={openLightbox}>
+        <div className="group relative cursor-pointer">
+          <button onClick={handleVideoDownload} className=" rounded-md absolute group-hover:opacity-100 transition peer-hover:opacity-100 duration-300 z-50 opacity-0 right-1 top-1 flex items-center justify-center gap-2 p-1" style={{
+            backgroundImage: `linear-gradient(180deg, ${selectedAgency.primaryColor}, ${selectedAgency.secondaryColor})`,
+            color: selectedAgency.accentColor as string,
+          }}><p style={{color: selectedAgency.accentColor as string}} className="text-xs">Descargar</p> <AiOutlineDownload /></button>
           <HoverVideoPlayer
+           onClick={openLightbox}
             videoSrc={videoSrc}
             playbackRangeStart={25}
             playbackRangeEnd={30}

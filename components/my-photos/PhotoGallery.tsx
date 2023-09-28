@@ -7,6 +7,8 @@ import JSZip from "jszip";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { Agency } from "@prisma/client";
+import { handleDownloadAlbum } from "./utils/handleDownloadAlbum";
+import { downloadFile } from "./utils/downloadFile";
 
 type PhotoGalleryProps = {
   handleGalleryClose: () => void;
@@ -124,94 +126,8 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
     }
   };
 
-  const handleDownloadAlbum = async () => {
-    toast.info(`Descargando ${selectedFolder}...`, {
-      autoClose: false,
-      closeButton: false,
-      toastId: "downloading-zip",
-    });
-
-    const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
-    const getAllPhotosToDownload = async () => {
-     
   
-      const photoPromises = folderWithPhotos.photos.map(async (photo) => {
-        try {
-          const signedPhoto = await axios.post("/api/sign-url/", {
-            bucketName: bucketName,
-            fileName: photo.Key,
-          });
-          return {
-            ...photo,
-            url: signedPhoto.data.url,
-          };
-        } catch (error) {
-          console.error("Error obtaining signed photo URL:", error);
-          return null;
-        }
-      });
-  
-      const newSignedPhotos = await Promise.all(photoPromises)
-  
-      return newSignedPhotos
-    }
 
-    const allPhotosToDownload = await getAllPhotosToDownload();
-
-    const zip = new JSZip();
-    const totalPhotosToDownload = allPhotosToDownload.length;
-    let downloadedPhotosCount = 0;
-
-    await Promise.all(
-      allPhotosToDownload.map(async (photo, index) => {
-        try {
-          const imgBlob = await fetch(photo.url).then((r) => r.blob());
-          const pathComponents = photo.Key.split("/");
-          const fileName = `${pathComponents[2]} - ${pathComponents[3]} - ${pathComponents[4]} - ${pathComponents[5]}`;
-          zip.file(fileName, imgBlob);
-          downloadedPhotosCount++;
-
-          const progress =
-            (downloadedPhotosCount / totalPhotosToDownload) * 100;
-         
-
-          toast.update("downloading-zip", {
-            render: `Comprimiendo ${selectedFolder} - ${downloadedPhotosCount}/${totalPhotosToDownload} Fotos (${progress.toFixed(
-              0
-            )}%)`,
-            autoClose: false,
-          });
-        } catch (error) {
-          console.error("Error al descargar la foto:", error);
-        }
-      })
-    );
-
-    try {
-      const content = await zip.generateAsync({ type: "blob" });
-      const link = URL.createObjectURL(content);
-      await downloadFile(link, `${selectedFolder}.zip`);
-      toast.success(`Descargado ${selectedFolder}`);
-      toast.dismiss("downloading-zip");
-    } catch (error) {
-      console.error("Error al descargar el álbum:", error);
-      toast.error(`Error al descargar ${selectedFolder}`);
-    }
-  };
-
-  const downloadFile = async (url: string, fileName: string) => {
-    try {
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-
-      // Simular un clic en el enlace
-      link.click();
-    } catch (error) {
-      toast.error(`Error descargando ${fileName}`);
-      console.error("Error al descargar el archivo:", error);
-    }
-  };
 
   const handleDownloadSelected = async () => {
     try {
@@ -302,7 +218,7 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
           </button>
 
           <button
-            onClick={handleDownloadAlbum}
+            onClick={() => handleDownloadAlbum(folderWithPhotos)}
             className="flex flex-row h-full justify-center items-center button !border-0 duration-500"
           >
             <p className="!text-white hidden md:block text-xs md:text-sm font-semibold ">

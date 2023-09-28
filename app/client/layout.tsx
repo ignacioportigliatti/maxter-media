@@ -35,7 +35,6 @@ export default function RootLayout({
   const [code, setCode] = useState({} as Codes);
   const [selectedGroup, setSelectedGroup] = useState({} as Group);
   const [agency, setAgency] = useState({} as Agency);
-  const [selectedNavItemLabel, setSelectedNavItemLabel] = useState("");
   const [isVideoDisabled, setIsVideoDisabled] = useState(true);
   const [isPhotoDisabled, setIsPhotoDisabled] = useState(true);
   const [isMediaLoading, setIsMediaLoading] = useState(true);
@@ -319,7 +318,7 @@ export default function RootLayout({
             <ClientSidebar
               navigationItems={navigationItems}
               agency={agency}
-              setSelectedNavItemLabel={setSelectedNavItemLabel}
+              
             />
           </div>
 
@@ -328,7 +327,8 @@ export default function RootLayout({
               <ClientHeader
                 agency={agency}
                 selectedGroup={selectedGroup}
-                selectedNavItemLabel={selectedNavItemLabel}
+                navigationItems={navigationItems}
+    
               />
             </div>
             <div className="min-h-[92vh] flex  pb-20 md:pb-0">
@@ -339,7 +339,6 @@ export default function RootLayout({
               <ClientMobileNavbar
                 navigationItems={navigationItems}
                 agency={agency}
-                setSelectedNavItemLabel={setSelectedNavItemLabel}
               />
             </div>
           </div>

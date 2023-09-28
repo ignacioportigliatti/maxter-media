@@ -49,7 +49,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const checkFiles = async () => {
     const photos = await axios.post("/api/photos/", {
       bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
-      folderPath: `media/${selectedGroup.name}/photos`,
+      folderPath: `media/fotos/${selectedGroup.name}/`,
     }).then((res) => res.data.photos);
     if (photos !== undefined && photos.length > 0) {
       setUploadedFiles(photos);

@@ -16,12 +16,12 @@ interface ClientSidebarProps {
     isDisabled: boolean;
     isMediaLoading?: boolean;
   }[];
-  setSelectedNavItemLabel?: React.Dispatch<React.SetStateAction<string>>;
+ 
   agency: Agency;
 }
 
 export const ClientSidebar = (props: ClientSidebarProps) => {
-  const { navigationItems, agency, setSelectedNavItemLabel } = props;
+  const { navigationItems, agency} = props;
 
   const photos = useSelector((state: any) => state.photos);
   const videos = useSelector((state: any) => state.videos);
@@ -112,11 +112,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                       className={`h-16 flex flex-col justify-center items-center w-full ${
                         item.isDisabled ? "cursor-help pointer-events-none" : "cursor-pointer"
                       }`}
-                      onClick={
-                        setSelectedNavItemLabel
-                          ? () => setSelectedNavItemLabel(item.label)
-                          : () => {}
-                      }
+                     
                     >
                       {item.icon}
                       <h5 className="text-[11px]">{item.label}</h5>

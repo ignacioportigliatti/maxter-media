@@ -85,5 +85,7 @@ model ContactQuery {
   selectedAgency String
   selectedGroup  String
   currentCode    String
+  replied        Boolean @default(false)
+  reply          String?
   createdAt DateTime @default(now())
 }

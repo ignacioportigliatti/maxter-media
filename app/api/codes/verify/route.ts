@@ -29,8 +29,28 @@ export async function POST(request: Request) {
         console.error(error);
         return NextResponse.json({ error: error }, { status: 500 });
       }
+    } else if (codeData && codeData.expires < now) {
+      const selectedGroup = await prisma.group.findFirst({
+        where: {
+          id: codeData.groupId as string,
+        },
+      });
+      return NextResponse.json(
+        {
+          error: `El codigo expiró el ${codeData.expires.toLocaleDateString()}`,
+          code: codeData,
+          selectedGroup: selectedGroup,
+        },
+        { status: 200 }
+      );
     } else {
-      return NextResponse.json({ error: 'No se ha encontrado el codigo en nuestra base de datos, checkea si lo escribiste bien y volve a intentar.' }, { status: 200 });
+      return NextResponse.json(
+        {
+          error:
+            "No se ha encontrado el codigo en nuestra base de datos, checkea si lo escribiste bien y volve a intentar.",
+        },
+        { status: 200 }
+      );
     }
   } catch (error) {
     return NextResponse.json({ error: error }, { status: 500 });

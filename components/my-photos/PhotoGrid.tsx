@@ -28,7 +28,7 @@ export interface Photo {
 export const PhotoGrid = (props: PhotoGridProps) => {
   const { selectedGroup } = props;
 
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<FolderWithPhotos | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
 
   const [signedPhotos, setSignedPhotos] = useState<any[]>([]);
@@ -42,7 +42,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
     setIsGalleryOpen(false);
   };
 
-  const handleFolderClick = async (folder: string) => {
+  const handleFolderClick = async (folder: FolderWithPhotos) => {
     setSelectedFolder(folder);
     setIsGalleryOpen(true);
   };
@@ -72,63 +72,66 @@ export const PhotoGrid = (props: PhotoGridProps) => {
     <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-2 animate-in fade-in-0 duration-500">
       {/* Mapeo de carpetas con fotos */}
       {foldersWithPhotos.map((folderWithPhotos) => (
+       folderWithPhotos.photos.length > 1 && (
         <div className="" key={folderWithPhotos.folder}>
-          {/* Mapeo de fotos de la carpeta solicitada */}
-          <div className="relative flex items-center justify-center cursor-pointer opacity-75 hover:opacity-100 transition duration-500 group">
-            <div className="absolute transition duration-500 top-0 right-0 opacity-0 group-hover:opacity-100 p-1 bg-black/80 text-gray-400 text-xs">
-              {
-                <span className="px-1" style={{
-                  backgroundImage: `linear-gradient(315deg, ${selectedAgency.primaryColor} 0%, ${selectedAgency.secondaryColor} 100%)`,
-                  color: selectedAgency.accentColor as string,
-                }}>
-                  {`${folderWithPhotos.photos.length}`}
-                  </span>
-              }{" "}
-              Fotos
-            </div>
-            <p className="absolute bottom-0 text-xs !text-white left-0 px-2 py-1 group-hover:bg-black transition duration-500 bg-black/80">
-              {"24/11"}
-            </p>
+        {/* Mapeo de fotos de la carpeta solicitada */}
+        <div className="relative flex items-center justify-center cursor-pointer opacity-75 hover:opacity-100 transition duration-500 group">
+          <div className="absolute transition duration-500 top-0 right-0 opacity-0 group-hover:opacity-100 p-1 bg-black/80 text-gray-400 text-xs">
+            {
+              <span className="px-1" style={{
+                backgroundImage: `linear-gradient(315deg, ${selectedAgency.primaryColor} 0%, ${selectedAgency.secondaryColor} 100%)`,
+                color: selectedAgency.accentColor as string,
+              }}>
+                {`${folderWithPhotos.photos.length}`}
+                </span>
+            }{" "}
+            Fotos
+          </div>
+          <p className="absolute bottom-0 text-xs !text-white left-0 px-2 py-1 group-hover:bg-black transition duration-500 bg-black/80">
+            {"24/11"}
+          </p>
+          <img
+            src={folderWithPhotos.thumbnail} // Utilizar la miniatura como fuente de la imagen
+            alt={`${folderWithPhotos.folder} Foto 0`}
+            width={384}
+            height={180}
+            onClick={() => handleFolderClick(folderWithPhotos)}
+            className="aspect-video object-cover"
+          />
+        </div>
+        <div className="flex flex-row mt-3 gap-2">
+          <a href="#">
             <img
-              src={folderWithPhotos.thumbnail} // Utilizar la miniatura como fuente de la imagen
-              alt={`${folderWithPhotos.folder} Foto 0`}
-              width={384}
-              height={180}
-              onClick={() => handleFolderClick(folderWithPhotos.folder)}
-              className="aspect-video object-cover"
+              src={selectedAgency?.logoSrc as string}
+              className="rounded-full max-h-10 max-w-10"
             />
-          </div>
-          <div className="flex flex-row mt-3 gap-2">
-            <a href="#">
-              <img
-                src={selectedAgency?.logoSrc as string}
-                className="rounded-full max-h-10 max-w-10"
-              />
+          </a>
+
+          <div className="flex flex-col">
+            <a href="#" onClick={() => handleFolderClick(folderWithPhotos)}>
+              <p className="text-gray-100 text-sm font-semibold hover:text-red-600">
+                {folderWithPhotos.folder}
+              </p>
             </a>
-
-            <div className="flex flex-col">
-              <a href="#" onClick={() => handleFolderClick(folderWithPhotos.folder)}>
-                <p className="text-gray-100 text-sm font-semibold hover:text-red-600">
-                  {folderWithPhotos.folder}
-                </p>
-              </a>
-              <p className="text-gray-400 text-xs">
-                {selectedGroup.agencyName}
-              </p>
-              <p className="text-gray-400 text-xs">
-                {formatUploadedAt(folderWithPhotos.photos[0].LastModified)}
-              </p>
-            </div>
+            <p className="text-gray-400 text-xs">
+              {selectedGroup.agencyName}
+            </p>
+            <p className="text-gray-400 text-xs">
+              {formatUploadedAt(folderWithPhotos.photos[0].LastModified)}
+            </p>
           </div>
+        </div>
 
-          {isGalleryOpen && selectedFolder === folderWithPhotos.folder ? (
+  
+      </div>
+       )
+      ))}
+            {isGalleryOpen && selectedFolder && (
             <PhotoGallery
               handleGalleryClose={handleGalleryClose}
-              folderWithPhotos={folderWithPhotos}
+              folderWithPhotos={selectedFolder}
             />
-          ) : null}
-        </div>
-      ))}
+          ) }
     </div>
   );
 };

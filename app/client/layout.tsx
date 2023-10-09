@@ -96,7 +96,7 @@ export default function RootLayout({
       setIsLoading(false);
 
       const getVideos = async () => {
-        const folderPath = `media/videos/${group.name}`;
+        const folderPath = `media/${group.agencyName}/videos/${group.name}`;
 
         const videos = await axios
           .post("/api/videos/", {
@@ -162,7 +162,7 @@ export default function RootLayout({
         const photos = await axios
           .post("/api/photos/", {
             bucketName: bucketName,
-            folderPath: `media/fotos/${group.name}`,
+            folderPath: `media/${group.agencyName}/fotos/${group.name}`,
           })
           .then((res) => res.data.photos);
         const foldersMap = new Map<string, any[]>();
@@ -229,6 +229,11 @@ export default function RootLayout({
         } else {
           setIsPhotoDisabled(false);
         }
+        if (signedVideos.length === 0) {
+          setIsVideoDisabled(true);
+        } else {
+          setIsVideoDisabled(false);
+        }
         setIsMediaLoading(false);
        toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
       } else if (code.type === "photo") {
@@ -269,7 +274,12 @@ export default function RootLayout({
           setGroup(response.selectedGroup, response.code);
           dispatch(setReduxCode(response.code))
           
-        } else {
+        } else if (response.error) {
+          if (response.code) {
+            setCode(response.code);
+            setGroup(response.selectedGroup, response.code);
+            dispatch(setReduxCode(response.code))
+          }
           setIsVerified(false);
           setIsLoading(false);
         }
@@ -344,9 +354,9 @@ export default function RootLayout({
           </div>
         </div>
       ) : (
-        <div className="flex w-screen h-screen justify-center items-center">
+        <div className="flex flex-col gap-2 text-center w-screen h-screen justify-center items-center">
           <h1>El código no es válido o la fecha de expiracion no es valida</h1>
-          {code && <h2>{code.expires.toString()}</h2>}
+          {code && <h2>Fecha de expiracion: {formattedDate(code.expires)}</h2>}
         </div>
       )}
     </div>

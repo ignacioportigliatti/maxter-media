@@ -38,7 +38,7 @@ export const VideoGrid = (props: VideoGridProps) => {
           videos.map((video: any, index: number) => (
             <VideoCard
               key={video.video.Key}
-              title={video.video.Key.split("/")[3].split(".")[0]}
+              title={video.video.Name}
               agencyName={selectedGroup.agencyName as string}
               uploadedAt={formatUploadedAt(video.video.LastModified)}
               videoSrc={video.video.url}

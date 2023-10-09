@@ -35,15 +35,20 @@ type GeneratedCodesProps = {
 type ExpirationInput = {
   expirationDate: Date;
   codeId: string;
-}
-
-
+};
 
 const GeneratedCodes = (props: GeneratedCodesProps) => {
   const { selectedGroup, groupCodes, selectedAgency } = props;
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
   const [editExpiration, setEditExpiration] = useState<boolean>(false);
+  const [editingCode, setEditingCode] = useState<string | null>(null);
+  const [newExpirationDate, setNewExpirationDate] = useState<Date | null>(null);
+
+  const handleEditExpirationButton = (codeId: string) => {
+    setEditingCode(codeId);
+    setEditExpiration(true);
+  };
 
   const {
     register,
@@ -52,19 +57,25 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
   } = useForm<ExpirationInput>();
 
   const onSubmit: SubmitHandler<ExpirationInput> = async (data) => {
-    try {
-      const response = await axios.post('/api/codes/edit/', data).then((res) => res.data)
-      if (response.success) {
-        console.log("response", response);
-        toast.success(`Fecha editada con exito`);
-      } else if (response.error) {
-        toast.error("Error al editar la fecha.");
+    if (editingCode) {
+      try {
+        const response = await axios.post("/api/codes/edit/", {
+          expirationDate: newExpirationDate,
+          codeId: editingCode,
+        }).then((res) => res.data);
+        console.log("response", response); // Accede a la propiedad 'data' de la respuesta
+  
+        if (response.success) {
+          toast.success(`Fecha editada con éxito`);
+        } else if (response.error) {
+          toast.error("Error al editar la fecha.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al realizar la solicitud");
       }
-    } catch (error) {
-      console.error(error);
     }
   };
-
 
   const itemsPerPage = 5;
 
@@ -152,10 +163,6 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const handleEditExpirationButton = () => {
-    setEditExpiration((prevState) => !prevState);
   };
 
   const handleCodePrint = async (code: Codes) => {
@@ -261,25 +268,25 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
       <div className="flex flex-col gap-2">
         {Object.keys(groupedCodesByType).map((type, index) => (
           <div key={type} className="border rounded pb-1 px-1">
-          <button
-            className="text-xs w-full text-left cursor-pointer"
-            onClick={() => {
-              setActiveAccordion((prevState) =>
-                prevState !== type ? type : null
-              );
-              setAccordionPage((prevState) => ({
-                ...prevState,
-                [type]: 1, // Establece la primera página al abrir
-              }));
-            }}
-          >
-            {/* Título del accordion */}
-            {type === "photo"
-              ? `Fotos (${groupedCodesByType[type].length} Codigos)`
-              : type === "video"
-              ? `Videos (${groupedCodesByType[type].length} Codigos)`
-              : `Full (${groupedCodesByType[type].length} Codigos)`}
-          </button>
+            <button
+              className="text-xs w-full text-left cursor-pointer"
+              onClick={() => {
+                setActiveAccordion((prevState) =>
+                  prevState !== type ? type : null
+                );
+                setAccordionPage((prevState) => ({
+                  ...prevState,
+                  [type]: 1, // Establece la primera página al abrir
+                }));
+              }}
+            >
+              {/* Título del accordion */}
+              {type === "photo"
+                ? `Fotos (${groupedCodesByType[type].length} Codigos)`
+                : type === "video"
+                ? `Videos (${groupedCodesByType[type].length} Codigos)`
+                : `Full (${groupedCodesByType[type].length} Codigos)`}
+            </button>
             {activeAccordion === type && (
               <div>
                 {/* Contenido del accordion */}
@@ -333,29 +340,46 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
                         className="flex gap-1 text-xs items-center justify-center text-center"
                         id="rowType"
                       >
-                        {editExpiration ? (
-                          <form onSubmit={handleSubmit(onSubmit)} className="flex gap-1" action="">
+                        {editExpiration && editingCode === code.id ? (
+                          <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="flex gap-1"
+                            action=""
+                          >
                             <input
-                            type="date"
-                            className="input text-xs p-1 bg-medium-gray text-white"
-                            {...register ('expirationDate', { required: true })}
-                          />
-                            <input type="hidden" value={code.id}
-                            {...register ('codeId', { required: true })}  
+                              type="date"
+                              className="input text-xs p-1 bg-medium-gray text-white"
+                              {...register("expirationDate", {
+                                required: true,
+                              })}
+                              onChange={(e) =>
+                                setNewExpirationDate(new Date(e.target.value))
+                              }
                             />
-                          {errors.expirationDate?.type === "required" && (
-                            <AiOutlineAlert className="text-red-500" />
-                          )}
-                          
-                          <button type="submit"><AiOutlineCheck /></button>
+                            <input
+                              type="hidden"
+                              value={code.id}
+                              {...register("codeId", { required: true })}
+                            />
+                            {errors.expirationDate?.type === "required" && (
+                              <AiOutlineAlert className="text-red-500" />
+                            )}
+                            <button type="submit">
+                              <AiOutlineCheck />
+                            </button>
                           </form>
                         ) : (
                           <>
-                          <p>{formattedDate(code.expires)}</p>
-                        <button onClick={handleEditExpirationButton}><AiOutlineEdit className=" opacity-50 hover:opacity-100 cursor-pointer transition duration-500" /></button>
+                            <p>{formattedDate(code.expires)}</p>
+                            <button
+                              onClick={() =>
+                                handleEditExpirationButton(code.id)
+                              }
+                            >
+                              <AiOutlineEdit className="opacity-50 hover:opacity-100 cursor-pointer transition duration-500" />
+                            </button>
                           </>
-                        )                         
-                          }
+                        )}
                       </div>
                       <div
                         className="flex text-xs items-center justify-center text-center"

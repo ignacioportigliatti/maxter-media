@@ -220,7 +220,8 @@ export const GroupsTable = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700 bg-[#292929]">
-              {sortedGroups
+              {sortedGroups.length > 0 ? (
+                sortedGroups
                 .slice(
                   (currentPage - 1) * itemsPerPage,
                   currentPage * itemsPerPage
@@ -278,7 +279,17 @@ export const GroupsTable = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+              ) : (
+                <tr>
+                  <td
+                    className="px-4 py-4 text-sm font-medium text-white whitespace-nowrap"
+                    colSpan={7}
+                  >
+                    No hay grupos
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -7,18 +7,20 @@ interface BodyProps {
 }
 
 export async function POST(request: Request) {
-    const body = await request.json();
+    const body: BodyProps = await request.json();
+    const { codeId, expirationDate } = body;
     try {
-        await prisma.codes.update({
+        const updatedCode = await prisma.codes.update({
             where: {
-                id: body.codeId
+                id: codeId
             },
             data: {
-                expires: body.expirationDate
+                expires: expirationDate
             }
         })
-        NextResponse.json({ success: true })
+        NextResponse.json({ success: true, code: updatedCode })
     } catch (error) {
+        console.error(error)
         NextResponse.json({ success: false, error: error })
     }
 }

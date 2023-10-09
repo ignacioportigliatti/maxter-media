@@ -46,13 +46,15 @@ async function listVideos(bucketName: string, folderPath: string, needThumbs: bo
 
   const videoThumbnailPairs = filteredVideos.map((video: any) => {
     const videoPath = video.Key;
-    const videoName = videoPath?.split("/").pop();
+    const segments = videoPath.split('/');
+    const fileNameWithExtension = segments[segments.length - 1];
+    const fileName = fileNameWithExtension.split('.')[0];
     const matchingThumb = thumbContents?.find((thumb: any) =>
-      thumb.Key === `media/videos/${groupName}/thumbs/${videoName?.replace('.mp4', '.jpg')}`
+      thumb.Key === `${folderPath}/thumbs/${fileName}.jpg`
     );
 
     return {
-      video: video,
+      video: {...video, Name: fileName},
       thumbnail: matchingThumb,
     };
   });

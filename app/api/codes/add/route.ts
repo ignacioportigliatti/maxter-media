@@ -12,7 +12,6 @@ interface RequestBody {
 export async function POST(request: Request) {
   const body: RequestBody = await request.json();
   const appDomain = request.headers.get("host");
-  console.log(appDomain);
   const { formData, groupId } = body;
   try {
     const selectedGroup = await prisma.group.findUnique({

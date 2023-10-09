@@ -49,7 +49,8 @@ export async function POST(req: Request) {
     if (photos[0].Size === 0) {
       return NextResponse.json({ success: true, photos: [] });
     } else {
-      return NextResponse.json({ success: true, photos: photos });
+      const photosWithoutRootFolder = photos.slice(1);
+      return NextResponse.json({ success: true, photos: photosWithoutRootFolder });
     }
   } catch (error) {
     return NextResponse.json({ success: false, error: error });

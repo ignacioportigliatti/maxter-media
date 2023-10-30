@@ -11,7 +11,6 @@ import {
 import { AiOutlineGroup, AiOutlineUser } from "react-icons/ai";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 
 interface SidebarProps {
   navigationItems: {
@@ -23,16 +22,9 @@ interface SidebarProps {
 
 export const Sidebar = (props: SidebarProps) => {
   const { navigationItems } = props;
-  const { theme, setTheme } = useTheme();
   
-  const handleThemeChange = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
-  const logoSrc =
-  theme === 'light'
-      ? "/sidebar/maxter-logo.png"
-      : "/sidebar/maxter-logo-dark.png";
+  const logoSrc = "/sidebar/maxter-logo-dark.png";
 
   const pathName = usePathname();
 
@@ -68,17 +60,6 @@ export const Sidebar = (props: SidebarProps) => {
                 </Link>
               </li>
             ))}
-            <li>
-              <a
-                onClick={handleThemeChange}
-                className="sideBarButton cursor-pointer"
-              >
-                <span className="sideBarIcon">
-                  <TbMoonStars className="sideBarIconSize" />
-                </span>
-                <span className="sideBarIconText">Oscuro/Claro</span>
-              </a>
-            </li>
             <li>
               <Link href="/api/auth/signout" className="sideBarButton">
                 <span className="sideBarIcon">

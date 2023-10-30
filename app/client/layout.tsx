@@ -324,7 +324,7 @@ export default function RootLayout({
               backgroundImage: `linear-gradient(215deg, ${agency.primaryColor}, ${agency.secondaryColor})`,
             }}
           />
-          <div className="hidden min-h-full w-[10vh] md:flex">
+          <div className="hidden min-h-full w-[10vh] md:flex z-50">
             <ClientSidebar
               navigationItems={navigationItems}
               agency={agency}

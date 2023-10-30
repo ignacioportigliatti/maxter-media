@@ -1,7 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
+import { usePathname, useRouter } from "next/navigation";
 import { TbDoorExit } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { Agency, Group } from "@prisma/client";
@@ -16,12 +15,12 @@ interface ClientSidebarProps {
     isDisabled: boolean;
     isMediaLoading?: boolean;
   }[];
- 
+
   agency: Agency;
 }
 
 export const ClientSidebar = (props: ClientSidebarProps) => {
-  const { navigationItems, agency} = props;
+  const { navigationItems, agency } = props;
 
   const photos = useSelector((state: any) => state.photos);
   const videos = useSelector((state: any) => state.videos);
@@ -32,6 +31,7 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
   );
 
   const pathName = usePathname();
+  const router = useRouter();
 
   if (pathName === "/auth/signin" || pathName === "/auth/signup") {
     return <></>;
@@ -67,8 +67,8 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     ? agency.secondaryColor ?? ""
                     : "transparent",
                   transition: "background-color 0.3s ease",
-                  opacity: item.isDisabled ? 0.5 : 1,
                 };
+                
 
                 return item.isMediaLoading ? (
                   <li
@@ -82,7 +82,6 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     >
                       <div className="w-5 h-5 animate-pulse duration-1000 bg-gray-300 rounded-lg mb-1"></div>
                       <div className="w-14 h-3 animate-pulse bg-gray-300 duration-1000 rounded-lg"></div>
-                      
                     </div>
                   </li>
                 ) : (
@@ -104,23 +103,48 @@ export const ClientSidebar = (props: ClientSidebarProps) => {
                     }
                   >
                     <Link
-                      href={item.isDisabled ? "#" : item.href}
+                      href={
+                        code.type !== "full" && item.isDisabled
+                          ? `/client/contact?code=${code.code}`
+                          : item.isDisabled ? '#' : item.href
+                      }
                       style={{
                         color: agency.accentColor as string,
-                        textDecoration: "none", // Opcional: quitar el subrayado del enlace
+                        textDecoration: "none",
                       }}
                       className={`h-16 flex flex-col justify-center items-center w-full ${
-                        item.isDisabled ? "cursor-help pointer-events-none" : "cursor-pointer"
+                        item.isDisabled
+                          ? "cursor-help "
+                          : "cursor-pointer"
                       }`}
-                     
                     >
-                      {item.icon}
-                      <h5 className="text-[11px]">{item.label}</h5>
+                      <div
+                        className={`flex items-center flex-col justify-center ${
+                          item.isDisabled ? "opacity-50" : ""
+                        }`}
+                      >
+                        {item.icon}
+                        <h5 className="text-[11px]">{item.label}</h5>
+                      </div>
                       {item.isDisabled && (
-                        <span className="z-50  group-hover:opacity-100 opacity-0 absolute top-0 inset-[6vw] duration-300 w-max h-full flex justify-center items-center">
-                          <h5 className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">{`
-                          ${code.type === "full" ? photos.length === 0 || videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}` : code.type === "photo" ? photos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}` : videos.length === 0 ? `No se encuentran ${item.label.split(" ")[1]}` : `Quiero Acceder a ${item.label}`}
-                          `}</h5>
+                        <span className="z-50 group-hover:opacity-100 opacity-0 absolute top-0 inset-[6vw] duration-300 w-max h-full flex justify-center items-center">
+                          <p className="relative text-[11px] z-50 bg-black p-3 rounded-lg text-white">
+                            {`
+                             ${
+                              code.type === "full"
+                                ? photos.length === 0 || videos.length === 0
+                                  ? `No se encuentran ${item.label.split(" ")[1]}`
+                                  : `Quiero Acceder a ${item.label}`
+                                : code.type === "photo"
+                                ? photos.length === 0
+                                  ? `No se encuentran ${item.label.split(" ")[1]}`
+                                  : `Quiero Acceder a ${item.label}`
+                                : videos.length === 0
+                                ? `No se encuentran ${item.label.split(" ")[1]}`
+                                : `Quiero Acceder a ${item.label}`
+                            }
+                            `}
+                          </p>
                         </span>
                       )}
                     </Link>

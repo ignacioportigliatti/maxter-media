@@ -109,7 +109,7 @@ export default function RootLayout({
             <div className="hidden lg:flex">
               <Sidebar navigationItems={navigationItems} />
             </div>
-            <div className="lg:h-full flex mx-auto w-full">{children}</div>
+            <div className="lg:h-full min-h-screen flex mx-auto w-full">{children}</div>
           </div>
         </Providers>
       </body>

@@ -43,7 +43,7 @@ export const GroupsTable = () => {
     column: string | null;
     ascending: boolean;
   }>({
-    column: null,
+    column: 'name',
     ascending: true,
   });
 

@@ -232,9 +232,6 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
         <Gallery
           id={selectedFolder}
           options={{
-            arrowKeys: false,
-            arrowNext: false,
-            arrowPrev: false,
             preload: [1, 3],
             bgOpacity: 0.9,
             bgClickAction: "close",
@@ -284,24 +281,18 @@ const PhotoGallery = (props: PhotoGalleryProps) => {
                 </div>
                 <Item
                   original={photo.url}
-                  thumbnail={`${photo.url}`}
+                  thumbnail={photo.url}
                   id={photo.Key}
                   alt={`${selectedFolder} Foto ${index}`}
                 >
                   {({ ref, open }) => (
                     <img
-                      loading="lazy"
                       alt={`${selectedFolder} Foto ${index}`}
                       ref={ref as any}
                       onClick={open}
-                      width={384}
-                      height={180}
                       src={photo.url}
                       className="aspect-[3/2] w-full shadow-md h-full object-cover object-center fade-in-0 duration-1000 rounded-md"
-                      onLoad={(e) => {
-                        e.currentTarget.className +=
-                          " fade-in-0 duration-1000 animate";
-                      }}
+
                     />
                   )}
                 </Item>

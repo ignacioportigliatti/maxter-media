@@ -242,7 +242,8 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                       error={formErrors.name}
                     />
                   ) : (
-                    <Input
+                    <MasterInput
+                      defaultValue={formData.name}
                       id="name"
                       label="Grupo/Master"
                       type="text"

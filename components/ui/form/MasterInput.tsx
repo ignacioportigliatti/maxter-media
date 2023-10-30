@@ -10,6 +10,7 @@ interface MasterInputProps {
   value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
+  defaultValue?: string;
 }
 
 export const MasterInput = (props: MasterInputProps) => {
@@ -37,8 +38,11 @@ export const MasterInput = (props: MasterInputProps) => {
   };
 
   useEffect(() => {
+    console.log("inputValue", inputValue);
     if (inputValue === "") {
       setInputValue("M0000");
+    } else {
+      setInputValue(value || "M0000");
     }
   }, [inputValue]);
 
@@ -48,6 +52,7 @@ export const MasterInput = (props: MasterInputProps) => {
       <label className="text-light-gray">{label}</label>
       <div className="relative">
         <input
+          defaultValue={props.defaultValue ? props.defaultValue : ""}
           id={id}
           type={type}
           required={required}

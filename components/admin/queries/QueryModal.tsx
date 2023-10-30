@@ -22,18 +22,27 @@ const QueryModal = (props: QueryModalProps) => {
 
   const onSubmit: SubmitHandler<any> = async (data) => {
     try {
-      const finalResponse = `Querido/a ${query.firstName} ${query.lastName},\n\n${data.response}\n\nSaludos,\n\nMaxter Producciones`;
-      const emailResponse = await axios.post("/api/emails/send/", {
-        from: "Maxter Producciones <info@maxterproducciones.com.ar>",
-        to: query.email,
-        subject: `Respuesta a tu consulta/reclamo sobre el material de tu viaje - ${query.selectedAgency} - ${query.selectedGroup}`,
-        response: finalResponse,
-        query: query,
-      });
-      console.log("email", emailResponse);
-      if (emailResponse.data.success === true) {
-        toast.success(`Respuesta enviada con éxito a ${query.email}`);
-      }
+      console.log("data", data);
+      // const emailResponse = await axios.post("/api/emails/send/", {
+      //   from: "Maxter Producciones <info@maxterproducciones.com.ar>",
+      //   to: query.email,
+      //   subject: `Respuesta a tu consulta/reclamo sobre el material de tu viaje - ${query.selectedAgency} - ${query.selectedGroup}`,
+      //   response: {
+      //     response: data.response,
+      //     firstName: query.firstName,
+      //     lastName: query.lastName,
+      //     email: query.email,
+      //     phone: query.phone,
+      //     selectedGroup: query.selectedGroup,
+      //     selectedAgency: query.selectedAgency,
+      //     message: query.message,
+      //   },
+      //   query: query,
+      // });
+      // console.log("email", emailResponse);
+      // if (emailResponse.data.success === true) {
+      //   toast.success(`Respuesta enviada con éxito a ${query.email}`);
+      // }
     } catch (error) {
       console.log(error);
       toast.error(

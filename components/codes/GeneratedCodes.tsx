@@ -59,10 +59,16 @@ const GeneratedCodes = (props: GeneratedCodesProps) => {
   const onSubmit: SubmitHandler<ExpirationInput> = async (data) => {
     if (editingCode) {
       try {
-        const response = await axios.post("/api/codes/edit/", {
-          expirationDate: newExpirationDate,
-          codeId: editingCode,
-        }).then((res) => res.data);
+        const response = await fetch("/api/codes/edit/", {
+          body: JSON.stringify({
+              expirationDate: newExpirationDate,
+            codeId: editingCode,
+            }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        }).then(async (res) => await res.json());
         console.log("response", response); // Accede a la propiedad 'data' de la respuesta
   
         if (response.success) {

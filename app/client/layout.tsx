@@ -22,8 +22,6 @@ interface FolderWithPhotos {
   thumbnail: string;
 }
 
-
-
 export default function RootLayout({
   children,
 }: {
@@ -96,68 +94,88 @@ export default function RootLayout({
       setIsLoading(false);
 
       const getVideos = async () => {
-        const folderPath = `media/${group.agencyName}/videos/${group.name}`;
+        try {
+          const folderPath = `media/${group.agencyName}/videos/${group.name}`;
 
-        const videos = await axios
-          .post("/api/videos/", {
-            bucketName,
-            folderPath,
-            needThumbs: true,
-            groupName: group.name,
-          }, {
-            timeout: 20000 // 20 segundos
-          })
-          .then((res) => {
-            if (res.data.success) {
-              return res.data.videos;
-            }
-          });
+          const videos = await axios
+            .post(
+              "/api/videos/",
+              {
+                bucketName,
+                folderPath,
+                needThumbs: true,
+                groupName: group.name,
+              },
+              {
+                timeout: 20000, // 20 segundos
+              }
+            )
+            .then((res) => {
+              if (res.data.success) {
+                return res.data.videos;
+              }
+            });
 
-        const getSignedVideoUrl = async (
-          bucketName: string,
-          fileName: string
-        ) => {
-          const signedVideo = await axios
-            .post("/api/sign-url/", {
-              bucketName,
-              fileName,
-            })
-            .then((res) => res.data.url);
+          const getSignedVideoUrl = async (
+            bucketName: string,
+            fileName: string
+          ) => {
+            const signedVideo = await axios
+              .post("/api/sign-url/", {
+                bucketName,
+                fileName,
+              })
+              .then((res) => res.data.url);
 
-          // Cache the signed URL with expiration time
+            // Cache the signed URL with expiration time
 
-          return signedVideo;
-        };
-
-        const signedVideos = await Promise.all(
-          videos.map(async (video: any) => {
-            const signedVideoUrl = await getSignedVideoUrl(
-              bucketName as string,
-              video.video.Key
-            );
-
-            const cachedThumbUrl = localStorage.getItem(
-              `video_${video.thumbnail.Key}`
-            );
-
-            let signedThumbUrl;
-            if (cachedThumbUrl) {
-              signedThumbUrl = cachedThumbUrl;
-            } else {
-              signedThumbUrl = await getSignedVideoUrl(
+            return signedVideo;
+          };
+          console.log("videos", videos)
+          const signedVideos = await Promise.all(
+            videos.map(async (video: any) => {
+              const signedVideoUrl = await getSignedVideoUrl(
                 bucketName as string,
-                video.thumbnail.Key
+                video.video.Key
               );
-            }
 
-            return {
-              video: { ...video.video, url: signedVideoUrl },
-              thumbnail: { ...video.thumbnail, url: signedThumbUrl },
-            };
-          })
-        );
+              if (video.thumbnail === undefined) {
+                const response = await axios.post(
+                  "/api/videos/generate-thumbs",
+                  {
+                    bucketName,
+                    videoMeta: video.video,
+                    signedVideoUrl,
+                  }
+                );
 
-        return signedVideos;
+                const signedThumbUrl = await getSignedVideoUrl(
+                  bucketName as string,
+                  response.data.uploadedFile.Key
+                );
+
+                return {
+                  video: { ...video.video, url: signedVideoUrl },
+                  thumbnail: { ...video.thumbnail, url: signedThumbUrl },
+                };
+              } else {
+                const signedThumbUrl = await getSignedVideoUrl(
+                  bucketName as string,
+                  video.thumbnail.Key
+                );
+
+                return {
+                  video: { ...video.video, url: signedVideoUrl },
+                  thumbnail: { ...video.thumbnail, url: signedThumbUrl },
+                };
+              }
+            })
+          );
+
+          return signedVideos;
+        } catch (error) {
+          console.error("Error al obtener los videos", error);
+        }
       };
 
       const getPhotos = async () => {
@@ -220,7 +238,10 @@ export default function RootLayout({
       };
 
       if (code.type === "full") {
-        await toast.info(`Cargando fotos y videos...`, {toastId: "loading", autoClose: false})
+        await toast.info(`Cargando fotos y videos...`, {
+          toastId: "loading",
+          autoClose: false,
+        });
         const signedPhotos = await getPhotos();
         const signedVideos = await getVideos();
         selectGroup.updateVideos(signedVideos);
@@ -231,31 +252,49 @@ export default function RootLayout({
         } else {
           setIsPhotoDisabled(false);
         }
-        if (signedVideos.length === 0) {
+        if (signedVideos?.length === 0) {
           setIsVideoDisabled(true);
         } else {
           setIsVideoDisabled(false);
         }
         setIsMediaLoading(false);
-       toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
+        toast.update("loading", {
+          render: "Carga completa",
+          type: "success",
+          autoClose: 2000,
+        });
       } else if (code.type === "photo") {
-        toast.info(`Cargando fotos...`, {toastId: "loading", autoClose: false})
+        toast.info(`Cargando fotos...`, {
+          toastId: "loading",
+          autoClose: false,
+        });
         const signedPhotos = await getPhotos();
         selectGroup.updatePhotos(signedPhotos);
         selectGroup.updateVideos([]);
         setIsVideoDisabled(true);
         setIsPhotoDisabled(false);
         setIsMediaLoading(false);
-        toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
+        toast.update("loading", {
+          render: "Carga completa",
+          type: "success",
+          autoClose: 2000,
+        });
       } else if (code.type === "video") {
-        toast.info(`Cargando videos...`, {toastId: "loading", autoClose: false})
+        toast.info(`Cargando videos...`, {
+          toastId: "loading",
+          autoClose: false,
+        });
         const signedVideos = await getVideos();
         selectGroup.updatePhotos([]);
         selectGroup.updateVideos(signedVideos);
         setIsVideoDisabled(false);
         setIsPhotoDisabled(true);
         setIsMediaLoading(false);
-        toast.update("loading", {render: "Carga completa", type: "success", autoClose: 2000})
+        toast.update("loading", {
+          render: "Carga completa",
+          type: "success",
+          autoClose: 2000,
+        });
       }
     } catch (error) {
       console.error("Error al setear el grupo", error);
@@ -274,13 +313,12 @@ export default function RootLayout({
           setIsVerified(true);
           setCode(response.code);
           setGroup(response.selectedGroup, response.code);
-          dispatch(setReduxCode(response.code))
-          
+          dispatch(setReduxCode(response.code));
         } else if (response.error) {
           if (response.code) {
             setCode(response.code);
             setGroup(response.selectedGroup, response.code);
-            dispatch(setReduxCode(response.code))
+            dispatch(setReduxCode(response.code));
           }
           setIsVerified(false);
           setIsLoading(false);
@@ -327,11 +365,7 @@ export default function RootLayout({
             }}
           />
           <div className="hidden min-h-full w-[10vh] md:flex z-50">
-            <ClientSidebar
-              navigationItems={navigationItems}
-              agency={agency}
-              
-            />
+            <ClientSidebar navigationItems={navigationItems} agency={agency} />
           </div>
 
           <div className="flex flex-col w-full min-h-screen h-full">
@@ -340,12 +374,9 @@ export default function RootLayout({
                 agency={agency}
                 selectedGroup={selectedGroup}
                 navigationItems={navigationItems}
-    
               />
             </div>
-            <div className="min-h-[92vh] flex  pb-20 md:pb-0">
-              {children}
-            </div>
+            <div className="min-h-[92vh] flex  pb-20 md:pb-0">{children}</div>
 
             <div className="flex md:hidden">
               <ClientMobileNavbar

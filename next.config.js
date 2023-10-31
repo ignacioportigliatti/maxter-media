@@ -18,7 +18,7 @@ const nextConfig = {
   },
   crossOrigin: 'anonymous',
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'bcrypt', 'node-cache', 'fluent-ffmpeg'],
+    serverComponentsExternalPackages: ['@prisma/client', 'bcrypt', 'node-cache', 'fluent-ffmpeg', 'fs', 'path'],
   },
   images: {
     domains: ['localhost', 'storage.googleapis.com', 'www.googleapis.com', 'via.placeholder.com', "maxter-media.s3.us-central-1.wasabisys.com"],

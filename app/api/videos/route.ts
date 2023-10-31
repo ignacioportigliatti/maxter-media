@@ -2,6 +2,7 @@ import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 import { NextResponse } from "next/server";
 import ffmpeg from "fluent-ffmpeg";
 import { uploadToWasabi } from "../upload/route";
+import { createWriteStream } from "fs";
 
 interface VideoRequestBody {
   bucketName: string;
@@ -58,66 +59,15 @@ async function listVideos(
 
   const { Contents: thumbContents } = await listObjectsV2(thumbParams);
 
-  const generateVideoThumbnail = async (video: any) => {
-    try {
-      const filePath = video.Key;
-      const fileName = filePath.split("/").pop()?.split(".")[0];
-
-      const signedUrl = await wasabiClient.getSignedUrl("getObject", {
-        Bucket: bucketName,
-        Key: filePath,
-        Expires: 60 * 60,
-        ResponseContentDisposition: `attachment; filename="${fileName}"`,
-      });
-
-      const ffmpegThumbnail = ffmpeg(signedUrl)
-        .seekInput(25)
-        .outputOptions("-frames:v 1")
-        .outputOptions("-q:v 2")
-        .outputOptions("-vf scale=320:-1")
-        .outputOptions("-f image2")
-        .outputOptions("-c:v mjpeg")
-        .outputOptions("-an")
-        .outputOptions("-loglevel error")
-        .outputOptions("-hide_banner")
-
-        .on("error", (err) => {
-          console.log(err);
-        })
-        .pipe();
-
-      if (!ffmpegThumbnail) {
-        throw new Error("Failed to generate thumbnail");
-      } else if (ffmpegThumbnail) {
-        const uploadedFile = await uploadToWasabi({
-          Bucket: bucketName,
-          Key: `${folderPath}/thumbs/${fileName}.jpg`,
-          Body: ffmpegThumbnail,
-        });
-
-        return uploadedFile;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  if (thumbContents.length !== filteredVideos.length) {
-    const generatedThumbnails = await Promise.all(
-      filteredVideos.map((video: any) => generateVideoThumbnail(video))
-    )
-
-    await thumbContents.push(...generatedThumbnails);
-  }
-
+  
   const videoThumbnailPairs = filteredVideos.map((video: any) => {
     const videoPath = video.Key;
     const segments = videoPath.split("/");
     const fileNameWithExtension = segments[segments.length - 1];
     const fileName = fileNameWithExtension.split(".")[0];
-    const matchingThumb = thumbContents?.find(
+    const matchingThumb = thumbContents.length === filteredVideos.length ? thumbContents.find(
       (thumb: any) => thumb.Key === `${folderPath}/thumbs/${fileName}.jpg`
-    );
+    ) : undefined;
 
     return {
       video: { ...video, Name: fileName },

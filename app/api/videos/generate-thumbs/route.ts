@@ -12,16 +12,13 @@ export async function POST(request: Request) {
     const filePath = videoMeta.Key.split("/").slice(0, -1).join("/");
 
     const ffmpegThumbnail = ffmpeg(signedVideoUrl)
-      .seekInput(25)
+      .seekInput(1)
       .noAudio()
       .outputOptions("-frames:v 1")
       .outputOptions("-q:v 2")
       .outputOptions("-vf scale=320:-1")
       .outputOptions("-f image2")
       .outputOptions("-c:v mjpeg")
-      .outputOptions("-an")
-      .outputOptions("-loglevel error")
-      .outputOptions("-hide_banner")
 
       .on("error", (err) => {
         console.log(err);

@@ -148,6 +148,7 @@ export default function RootLayout({
                     signedVideoUrl,
                   }
                 );
+                
 
                 const signedThumbUrl = await getSignedVideoUrl(
                   bucketName as string,

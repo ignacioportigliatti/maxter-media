@@ -131,7 +131,7 @@ export default function RootLayout({
 
             return signedVideo;
           };
-          console.log("videos", videos)
+   
           const signedVideos = await Promise.all(
             videos.map(async (video: any) => {
               const signedVideoUrl = await getSignedVideoUrl(
@@ -148,7 +148,6 @@ export default function RootLayout({
                     signedVideoUrl,
                   }
                 );
-                
 
                 const signedThumbUrl = await getSignedVideoUrl(
                   bucketName as string,

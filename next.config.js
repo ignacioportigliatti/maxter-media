@@ -8,6 +8,14 @@ const nextConfig = {
         // matching all API routes
         source: "/api/:path*",
         headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+        },
+        {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+        },
           { key: "Access-Control-Allow-Credentials", value: "true" },
           { key: "Access-Control-Allow-Origin", value: "*" },
           { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },

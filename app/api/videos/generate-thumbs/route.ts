@@ -12,8 +12,7 @@ export async function POST(request: Request) {
     const filePath = videoMeta.Key.split("/").slice(0, -1).join("/");
 
     const ffmpegThumbnail = ffmpeg(signedVideoUrl)
-      .seekInput(1)
-      .noAudio()
+      .inputOptions("-ss 00:00:01")
       .outputOptions("-frames:v 1")
       .outputOptions("-q:v 2")
       .outputOptions("-vf scale=320:-1")

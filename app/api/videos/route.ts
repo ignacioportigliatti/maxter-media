@@ -1,10 +1,7 @@
 import { wasabiClient } from "@/utils/wasabi/wasabiClient";
 import { NextResponse } from "next/server";
 import ffmpeg from "fluent-ffmpeg";
-import fs from "fs/promises";
-import axios from "axios";
 import { uploadToWasabi } from "../upload/route";
-import { ManagedUpload } from "aws-sdk/clients/s3";
 
 interface VideoRequestBody {
   bucketName: string;
@@ -73,54 +70,43 @@ async function listVideos(
         ResponseContentDisposition: `attachment; filename="${fileName}"`,
       });
 
-      const ffmpegThumbnail = await new Promise((resolve, reject) => {
-        ffmpeg(signedUrl).screenshot({
-          timestamps: [25],
-          filename: `${fileName}.jpg`,
-          folder: `${process.cwd()}/public/tmp/thumbs/${groupName}/`,
-          size: "320x180",
-        }).on("end", () => {
-          resolve(true);
-        }).on("error", (error) => {
-          reject(error);
-        });
-      }
-      );
+      const ffmpegThumbnail = ffmpeg(signedUrl)
+        .seekInput(25)
+        .outputOptions("-frames:v 1")
+        .outputOptions("-q:v 2")
+        .outputOptions("-vf scale=320:-1")
+        .outputOptions("-f image2")
+        .outputOptions("-c:v mjpeg")
+        .outputOptions("-an")
+        .outputOptions("-loglevel error")
+        .outputOptions("-hide_banner")
+
+        .on("error", (err) => {
+          console.log(err);
+        })
+        .pipe();
 
       if (!ffmpegThumbnail) {
         throw new Error("Failed to generate thumbnail");
-      } else if (ffmpegThumbnail === true) {
-        const file = await fs.readFile(
-          `${process.cwd()}/public/tmp/thumbs/${groupName}/${fileName}.jpg`
-        );
+      } else if (ffmpegThumbnail) {
         const uploadedFile = await uploadToWasabi({
           Bucket: bucketName,
           Key: `${folderPath}/thumbs/${fileName}.jpg`,
-          Body: file,
+          Body: ffmpegThumbnail,
         });
-        
 
         return uploadedFile;
       }
-
-      
     } catch (error) {
       console.log(error);
     }
   };
 
   if (thumbContents.length !== filteredVideos.length) {
-    await fs.mkdir(
-      `${process.cwd()}/public/tmp/thumbs/${groupName}`,
-      { recursive: true }
-    );
     const generatedThumbnails = await Promise.all(
       filteredVideos.map((video: any) => generateVideoThumbnail(video))
-    ).finally(async () => {
-      await fs.rm(`${process.cwd()}/public/tmp/thumbs/${groupName}`, {
-        recursive: true,
-      });
-    });
+    )
+
     await thumbContents.push(...generatedThumbnails);
   }
 

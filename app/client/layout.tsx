@@ -104,6 +104,8 @@ export default function RootLayout({
             folderPath,
             needThumbs: true,
             groupName: group.name,
+          }, {
+            timeout: 20000 // 20 segundos
           })
           .then((res) => {
             if (res.data.success) {

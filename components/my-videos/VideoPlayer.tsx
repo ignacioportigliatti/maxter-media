@@ -1,4 +1,7 @@
 import React, { useRef, useEffect } from "react";
+import videojs from 'video.js';
+import VideoJS from "./VideoJS";
+import 'video.js/dist/video-js.css';
 
 interface VideoPlayerProps {
   videoSrc: string;
@@ -7,45 +10,47 @@ interface VideoPlayerProps {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = (props: VideoPlayerProps) => {
   const { videoSrc, onVideoEnded } = props;
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = React.useRef(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const initPlayer = async () => {
-        try {
-          const shaka = require('shaka-player/dist/shaka-player.ui.js');
-          await shaka.polyfill.installAll();
-          const videoElement = videoRef.current;
-          const player = new shaka.Player(videoElement);
+  const overrideNative = false;
 
-          // Habilitar el AdaptationRateBased ABR
-          const abrConfig = {
-            enabled: true,
-          };
-          player.configure({abr: abrConfig});
+  const videoJsOptions = {
+    autoplay: true,
+    controls: true,
+    responsive: true,
+    fluid: true,
+    html5: {
+      hls: {
+        overrideNative: overrideNative
+      },
+      nativeVideoTracks: !overrideNative,
+      nativeAudioTracks: !overrideNative,
+      nativeTextTracks: !overrideNative
+    },
+    sources: [{
+      src: videoSrc,
+      type: 'video/mp4'
+    }]
+  }
+  
 
-          // Definir las representaciones de diferentes calidades
-          const manifestUri = videoSrc;
-          await player.load(manifestUri);
+  const handlePlayerReady = (player: typeof videojs.players) => {
+    playerRef.current = player;
 
-          videoElement?.addEventListener("ended", onVideoEnded);
-        } catch (error) {
-          console.error("Error loading DASH video:", error);
-        }
-      };
+    // You can handle player events here, for example:
+    player.on('waiting', () => {
+      videojs.log('player is waiting');
+    });
 
-      initPlayer();
-    }
-  }, [videoSrc]);
+    player.on('dispose', () => {
+      videojs.log('player will dispose');
+    });
+  };
 
   return (
-    <video
-      ref={videoRef}
-      autoPlay
-      className={`w-full h-full`}
-      controls
-      onEnded={() => onVideoEnded()}
-    />
+    <div className="h-screen">
+       <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
+    </div>
   );
 };
 

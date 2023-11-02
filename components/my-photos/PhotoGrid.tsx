@@ -69,7 +69,7 @@ export const PhotoGrid = (props: PhotoGridProps) => {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-2 animate-in fade-in-0 duration-500">
+    <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-2 animate-in fade-in-0 duration-500">
       {/* Mapeo de carpetas con fotos */}
       {foldersWithPhotos.map((folderWithPhotos) => (
        folderWithPhotos.photos.length > 1 && (

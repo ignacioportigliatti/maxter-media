@@ -378,7 +378,7 @@ export default function RootLayout({
             </div>
             <div className="min-h-[92vh] flex  pb-20 md:pb-0">{children}</div>
 
-            <div className="flex md:hidden">
+            <div className="flex md:hidden  z-50">
               <ClientMobileNavbar
                 navigationItems={navigationItems}
                 agency={agency}

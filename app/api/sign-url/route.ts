@@ -6,7 +6,7 @@ interface RequestBody {
   bucketName: string;
   fileName: string;
   isUpload: boolean;
-  contentType: string;
+  contentType?: string;
 }
 
 export async function POST(request: Request) {
@@ -18,16 +18,19 @@ export async function POST(request: Request) {
     const params = {
       Bucket: bucketName,
       Key: fileName,
-      ContentType: contentType,
       Expires: 60 * 60,
     };
-    
+
     let url;
 
     if (isUpload === true) {
       url = await wasabiClient.getSignedUrl("putObject", params);
     } else {
-      url = await wasabiClient.getSignedUrl("getObject", {...params, ResponseContentDisposition: `attachment; filename="${fileName}"`});
+      url = await wasabiClient.getSignedUrl("getObject", {
+        ...params,
+        ResponseContentDisposition: `attachment; filename="${fileName}"`,
+        ResponseContentType: contentType !== undefined ? contentType : "",
+      });
     }
 
     return NextResponse.json({

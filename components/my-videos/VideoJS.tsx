@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import '@videojs/themes/dist/sea/index.css';
 
 type VideoJSProps = {
   options: any;
@@ -26,9 +27,10 @@ const VideoJS: React.FC<VideoJSProps> = (props) => {
       });
     } else {
       const player = playerRef.current;
-
-      player.autoplay(props.options.autoplay);
-      player.src(props.options.sources);
+      player.vhs.options_.externHls.GOAL_BUFFER_LENGTH = 60;
+      player.vhs.options_.externHls.MAX_GOAL_BUFFER_LENGTH = 80;
+      player.play(props.options.autoplay);
+      
     }
 
     return () => {
@@ -42,8 +44,8 @@ const VideoJS: React.FC<VideoJSProps> = (props) => {
   }, [props.options, videoRef]);
 
   return (
-    <div data-vjs-player className='max-h-screen mx-auto translate-y-1/2'>
-      <div ref={videoRef}  />
+    <div data-vjs-player className={'vjs-theme-sea'}>
+      <div ref={videoRef} />
     </div>
   );
 }

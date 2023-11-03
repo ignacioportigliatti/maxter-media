@@ -60,7 +60,7 @@ const DownloadModal = (props: DownloadModalProps) => {
             <>
             {videos.map((video: any, index: number) => (
                 <div key={index} className="flex flex-col w-full justify-center items-center gap-1">
-                  <h2 className="text-xs md:text-end text-center">{video.video.Name}</h2>
+                  <h2 className="text-xs md:text-end text-center capitalize">{video.video.Name}</h2>
                   <button
                     className="text-xs w-full py-1 opacity-75 hover:opacity-100 text-white rounded-md  transition duration-300"
                     onClick={() => handleDownloadVideo(video)}

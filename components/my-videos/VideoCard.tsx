@@ -127,7 +127,7 @@ export const VideoCard = (props: VideoCardProps) => {
           <div className="flex flex-col">
             <a href="#">
               <p
-                className="text-gray-100 text-sm font-semibold hover:text-red-600 cursor-pointer"
+                className="text-gray-100 capitalize text-sm font-semibold hover:text-red-600 cursor-pointer"
                 onClick={openLightbox}
               >
                 {title}

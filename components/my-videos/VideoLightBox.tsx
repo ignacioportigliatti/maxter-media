@@ -27,7 +27,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
     const newIndex = Math.max(currentVideoIndex - 1, 0);
     setCurrentVideoIndex(newIndex);
     setCurrentTitle(
-      reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]
+      reduxVideos[newIndex].video.Key.split("/")[4].split(".")[0]
     );
   };
 
@@ -35,7 +35,7 @@ const VideoLightbox = (props: VideoLightboxProps) => {
     const newIndex = Math.min(currentVideoIndex + 1, reduxVideos.length - 1);
     setCurrentVideoIndex(newIndex);
     setCurrentTitle(
-      reduxVideos[newIndex].video.Key.split("/")[3].split(".")[0]
+      reduxVideos[newIndex].video.Key.split("/")[4].split(".")[0]
     );
   };
 
@@ -63,13 +63,13 @@ const VideoLightbox = (props: VideoLightboxProps) => {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-black z-50">
+    <div className="fixed inset-0 flex  flex-col bg-black z-50">
       <div className="fixed w-full z-50 flex justify-between items-center py-4 px-16 bg-opacity-80 ">
         <div className="flex items-center space-x-4">
           <div className="w-8">
             <img
               src={agencyLogoSrc as string}
-              alt="Maxter Logo"
+              alt={`${agency.name} Logo`}
               height={40}
               width={40}
             />
@@ -95,21 +95,21 @@ const VideoLightbox = (props: VideoLightboxProps) => {
           </button>
         </div>
       </div>
-      <div className="flex justify-between items-center flex-1">
-        <div className="z-0 flex-1 w-full h-full max-h-screen justify-center items-center mx-auto overflow-hidden">
+      <div className="flex relative justify-center items-center w-full flex-1">
+        <div className="z-0 flex-1  max-w-[1440px] w-full justify-center items-center mx-auto">
           {currentVideoSrc && (
             <VideoPlayer videoSrc={currentVideoSrc} onVideoEnded={nextVideo} />
           )}
         </div>
         {/* Previous Video Button */}
-        <button className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70">
+        <button className="absolute left-0 flex items-center justify-center w-12 bg-opacity-0 transition duration-500 hover:opacity-70">
           <ArrowLeftFromLine
             onClick={previousVideo}
             className={`hover:animate-pulse active:animate-ping`}
           />
         </button>
         {/* Next Video Button */}
-        <button className="absolute top-1/2 right-0  -translate-y-1/2 flex items-center justify-center w-12 h-full bg-opacity-0 transition duration-500 hover:opacity-70">
+        <button className="absolute  right-0 flex items-center justify-center w-12 bg-opacity-0 transition duration-500 hover:opacity-70">
           <ArrowRightFromLine
             onClick={nextVideo}
             className={`hover:animate-pulse active:animate-ping`}

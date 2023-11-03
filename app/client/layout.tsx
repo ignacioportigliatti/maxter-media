@@ -118,12 +118,14 @@ export default function RootLayout({
 
           const getSignedVideoUrl = async (
             bucketName: string,
-            fileName: string
+            fileName: string,
+            contentType?: string
           ) => {
             const signedVideo = await axios
               .post("/api/sign-url/", {
                 bucketName,
                 fileName,
+                contentType: contentType || "video/mp4",
               })
               .then((res) => res.data.url);
 
@@ -151,7 +153,8 @@ export default function RootLayout({
 
                 const signedThumbUrl = await getSignedVideoUrl(
                   bucketName as string,
-                  response.data.uploadedFile.Key
+                  response.data.uploadedFile.Key,
+                  'image/jpeg'
                 );
 
                 return {
